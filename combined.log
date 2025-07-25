@@ -1,0 +1,811 @@
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-08 17:04:36"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-08 17:07:14"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-08 17:10:50"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-08 17:17:33"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-10 19:42:13"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-10 20:06:19"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-10 20:16:33"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-10 20:41:39"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-10 21:59:16"}
+{"level":"error","message":"ReferenceError: logger is not defined\n    at exports.obtenerPerfilEquipo (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\controllers\\equipos.controller.js:154:9)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at verificarToken (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\middleware.js\\auth.middleware.js:16:9)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at Route.dispatch (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:117:3)\n    at handle (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\index.js:435:11)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\index.js:295:15","timestamp":"2025-06-10 22:12:13"}
+{"level":"error","message":"ReferenceError: logger is not defined\n    at exports.obtenerPerfilEquipo (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\controllers\\equipos.controller.js:154:9)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at verificarToken (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\middleware.js\\auth.middleware.js:16:9)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at Route.dispatch (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:117:3)\n    at handle (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\index.js:435:11)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\index.js:295:15","timestamp":"2025-06-10 22:12:13"}
+{"level":"error","message":"ReferenceError: logger is not defined\n    at exports.obtenerPerfilEquipo (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\controllers\\equipos.controller.js:154:9)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at verificarToken (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\middleware.js\\auth.middleware.js:16:9)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at Route.dispatch (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:117:3)\n    at handle (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\index.js:435:11)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\index.js:295:15","timestamp":"2025-06-10 22:12:37"}
+{"level":"error","message":"ReferenceError: logger is not defined\n    at exports.obtenerPerfilEquipo (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\controllers\\equipos.controller.js:154:9)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at verificarToken (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\middleware.js\\auth.middleware.js:16:9)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at Route.dispatch (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:117:3)\n    at handle (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\index.js:435:11)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\index.js:295:15","timestamp":"2025-06-10 22:12:37"}
+{"error":{"code":"ER_BAD_FIELD_ERROR","errno":1054,"message":"Unknown column 'jornada' in 'field list'","sql":"INSERT INTO partidos (equipo_local_id, equipo_visitante_id, jornada, fecha, liga_id, estado) VALUES (1, 5, 1, '2025-09-03', '1', 'pendiente')","sqlMessage":"Unknown column 'jornada' in 'field list'","sqlState":"42S22"},"level":"error","message":"Error al generar fixture: Unknown column 'jornada' in 'field list'","timestamp":"2025-06-10 22:17:42"}
+{"error":{"code":"ER_BAD_FIELD_ERROR","errno":1054,"message":"Unknown column 'jornada' in 'field list'","sql":"INSERT INTO partidos (equipo_local_id, equipo_visitante_id, jornada, fecha, liga_id, estado) VALUES (1, 5, 1, '2025-09-03', '1', 'pendiente')","sqlMessage":"Unknown column 'jornada' in 'field list'","sqlState":"42S22"},"level":"error","message":"Error al generar fixture: Unknown column 'jornada' in 'field list'","timestamp":"2025-06-10 22:17:57"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-10 22:21:52"}
+{"error":{"code":"ER_BAD_FIELD_ERROR","errno":1054,"message":"Unknown column 'jornada' in 'field list'","sql":"INSERT INTO partidos (equipo_local_id, equipo_visitante_id, jornada, fecha, liga_id, estado) VALUES (1, 5, 1, '2025-09-03', '1', 'pendiente')","sqlMessage":"Unknown column 'jornada' in 'field list'","sqlState":"42S22"},"level":"error","message":"Error al generar fixture: Unknown column 'jornada' in 'field list'","timestamp":"2025-06-10 22:21:56"}
+{"level":"info","message":"Admin (ID: 5) generó el fixture para la liga (ID: 1).","timestamp":"2025-06-10 22:23:34"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-11 07:00:32"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-11 07:08:38"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-11 07:53:10"}
+{"level":"info","message":"Admin (ID: 5) programó el mercado de pases desde 2025-06-11T07:53 hasta 2025-06-12T07:54.","timestamp":"2025-06-11 07:54:07"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-11 08:06:33"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-11 08:11:10"}
+{"level":"error","message":"SyntaxError: Expected ',' or '}' after property value in JSON at position 37 (line 3 column 5)\n    at JSON.parse (<anonymous>)\n    at parse (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\body-parser\\lib\\types\\json.js:77:19)\n    at C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\body-parser\\lib\\read.js:123:18\n    at AsyncResource.runInAsyncScope (node:async_hooks:211:14)\n    at invokeCallback (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\raw-body\\index.js:238:16)\n    at done (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\raw-body\\index.js:227:7)\n    at IncomingMessage.onEnd (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\raw-body\\index.js:287:7)\n    at IncomingMessage.emit (node:events:524:28)\n    at endReadableNT (node:internal/streams/readable:1698:12)\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)","timestamp":"2025-06-11 08:12:35"}
+{"level":"info","message":"Admin (ID: 5) marcó el reporte (ID: 1) como atendido.","timestamp":"2025-06-11 08:14:01"}
+{"level":"error","message":"ReferenceError: logger is not defined\n    at exports.obtenerPerfilEquipo (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\controllers\\equipos.controller.js:154:9)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at verificarToken (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\middleware.js\\auth.middleware.js:16:9)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at Route.dispatch (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:117:3)\n    at handle (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\index.js:435:11)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\index.js:295:15","timestamp":"2025-06-11 08:42:01"}
+{"level":"error","message":"ReferenceError: logger is not defined\n    at exports.obtenerPerfilEquipo (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\controllers\\equipos.controller.js:154:9)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at verificarToken (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\middleware.js\\auth.middleware.js:16:9)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at Route.dispatch (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:117:3)\n    at handle (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\index.js:435:11)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\index.js:295:15","timestamp":"2025-06-11 08:42:01"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-11 08:59:06"}
+{"level":"error","message":"ReferenceError: logger is not defined\n    at exports.obtenerPerfilEquipo (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\controllers\\equipos.controller.js:154:9)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at verificarToken (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\middleware.js\\auth.middleware.js:16:9)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at Route.dispatch (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:117:3)\n    at handle (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\index.js:435:11)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\index.js:295:15","timestamp":"2025-06-11 09:02:19"}
+{"level":"error","message":"ReferenceError: logger is not defined\n    at exports.obtenerPerfilEquipo (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\controllers\\equipos.controller.js:154:9)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at verificarToken (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\middleware.js\\auth.middleware.js:16:9)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at Route.dispatch (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:117:3)\n    at handle (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\index.js:435:11)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\index.js:295:15","timestamp":"2025-06-11 09:02:19"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-11 09:15:47"}
+{"level":"error","message":"ReferenceError: logger is not defined\n    at exports.actualizarRolUsuario (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\controllers\\usuarios.controller.js:160:9)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)","timestamp":"2025-06-11 09:18:58"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-11 09:25:26"}
+{"level":"info","message":"Admin (ID: 5) cambió el equipo del usuario (ID: 8) al equipo (ID: 1).","timestamp":"2025-06-11 09:25:39"}
+{"level":"info","message":"Admin (ID: 5) cambió el equipo del usuario (ID: 7) al equipo (ID: 5).","timestamp":"2025-06-11 09:26:04"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-11 09:42:57"}
+{"level":"info","message":"Admin (ID: 5) cambió el rol del usuario (ID: 7) a 'jugador'.","timestamp":"2025-06-11 09:46:13"}
+{"level":"info","message":"Admin (ID: 5) cambió el rol del usuario (ID: 7) a 'dt'.","timestamp":"2025-06-11 09:46:18"}
+{"level":"info","message":"Admin (ID: 5) cambió el rol del usuario (ID: 7) a 'jugador'.","timestamp":"2025-06-11 10:10:59"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-11 10:32:22"}
+{"level":"info","message":"Admin (ID: 5) aprobó la solicitud 3 y cambió el rol del usuario (ID: <span class=\"math-inline\">{solicitud.usuario_id}) a '</span>{solicitud.rol_solicitado}'.","timestamp":"2025-06-11 10:32:57"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-11 10:45:35"}
+{"level":"info","message":"Admin (ID: 5) cambió el rol del usuario (ID: 7) a 'jugador'.","timestamp":"2025-06-11 10:45:47"}
+{"level":"info","message":"Admin (ID: 5) cambió el rol del usuario (ID: 7) a 'dt'.","timestamp":"2025-06-11 10:45:58"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-11 10:50:04"}
+{"level":"info","message":"Admin (ID: 5) cambió el rol del usuario (ID: 7) a 'jugador'.","timestamp":"2025-06-11 10:53:56"}
+{"level":"info","message":"Admin (ID: 5) aprobó la solicitud 4. Usuario (ID: 7) es ahora DT.","timestamp":"2025-06-11 10:54:27"}
+{"level":"error","message":"ReferenceError: logger is not defined\n    at exports.obtenerPerfilEquipo (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\controllers\\equipos.controller.js:154:9)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at verificarToken (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\middleware.js\\auth.middleware.js:16:9)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at Route.dispatch (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:117:3)\n    at handle (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\index.js:435:11)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\index.js:295:15","timestamp":"2025-06-11 11:06:14"}
+{"level":"error","message":"ReferenceError: logger is not defined\n    at exports.obtenerPerfilEquipo (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\controllers\\equipos.controller.js:154:9)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at verificarToken (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\middleware.js\\auth.middleware.js:16:9)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at Route.dispatch (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:117:3)\n    at handle (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\index.js:435:11)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\index.js:295:15","timestamp":"2025-06-11 11:06:14"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-11 11:06:32"}
+{"level":"info","message":"Admin (ID: 5) cambió el equipo del usuario (ID: 7) al equipo (ID: null).","timestamp":"2025-06-11 11:54:52"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-11 12:03:49"}
+{"error":{"code":"ER_DUP_ENTRY","errno":1062,"message":"Duplicate entry '7' for key 'dt_id'","sql":"UPDATE equipos SET dt_id = '7' WHERE id = 1","sqlMessage":"Duplicate entry '7' for key 'dt_id'","sqlState":"23000"},"level":"error","message":"Error en actualizarEquipoUsuario: Duplicate entry '7' for key 'dt_id'","timestamp":"2025-06-11 12:04:10"}
+{"error":{"code":"ER_DUP_ENTRY","errno":1062,"message":"Duplicate entry '7' for key 'dt_id'","sql":"UPDATE equipos SET dt_id = '7' WHERE id = 1","sqlMessage":"Duplicate entry '7' for key 'dt_id'","sqlState":"23000"},"level":"error","message":"Error en actualizarEquipoUsuario: Duplicate entry '7' for key 'dt_id'","timestamp":"2025-06-11 12:04:20"}
+{"level":"info","message":"Admin (ID: 5) cambió el equipo del usuario (ID: 7) al equipo (ID: 5).","timestamp":"2025-06-11 12:06:50"}
+{"level":"info","message":"Admin (ID: 5) cambió el equipo del usuario (ID: 7) al equipo (ID: null).","timestamp":"2025-06-11 12:07:02"}
+{"level":"info","message":"Admin (ID: 5) cambió el equipo del usuario (ID: 7) al equipo (ID: 5).","timestamp":"2025-06-11 12:42:07"}
+{"level":"error","message":"ReferenceError: logger is not defined\n    at exports.obtenerPerfilEquipo (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\controllers\\equipos.controller.js:154:9)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at verificarToken (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\middleware.js\\auth.middleware.js:16:9)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at Route.dispatch (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:117:3)\n    at handle (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\index.js:435:11)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\index.js:295:15","timestamp":"2025-06-11 12:42:19"}
+{"level":"error","message":"ReferenceError: logger is not defined\n    at exports.obtenerPerfilEquipo (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\controllers\\equipos.controller.js:154:9)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at verificarToken (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\middleware.js\\auth.middleware.js:16:9)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at Route.dispatch (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:117:3)\n    at handle (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\index.js:435:11)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\index.js:295:15","timestamp":"2025-06-11 12:42:19"}
+{"level":"error","message":"ReferenceError: logger is not defined\n    at exports.obtenerPerfilEquipo (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\controllers\\equipos.controller.js:154:9)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at verificarToken (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\middleware.js\\auth.middleware.js:16:9)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at Route.dispatch (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:117:3)\n    at handle (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\index.js:435:11)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\index.js:295:15","timestamp":"2025-06-11 12:42:26"}
+{"level":"error","message":"ReferenceError: logger is not defined\n    at exports.obtenerPerfilEquipo (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\controllers\\equipos.controller.js:154:9)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at verificarToken (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\middleware.js\\auth.middleware.js:16:9)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at Route.dispatch (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:117:3)\n    at handle (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\index.js:435:11)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\index.js:295:15","timestamp":"2025-06-11 12:42:26"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-11 12:42:40"}
+{"level":"error","message":"ReferenceError: logger is not defined\n    at exports.obtenerPerfilEquipo (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\controllers\\equipos.controller.js:154:9)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at verificarToken (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\middleware.js\\auth.middleware.js:16:9)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at Route.dispatch (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:117:3)\n    at handle (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\index.js:435:11)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\index.js:295:15","timestamp":"2025-06-11 12:42:43"}
+{"level":"error","message":"ReferenceError: logger is not defined\n    at exports.obtenerPerfilEquipo (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\controllers\\equipos.controller.js:154:9)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at verificarToken (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\middleware.js\\auth.middleware.js:16:9)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at Route.dispatch (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:117:3)\n    at handle (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\index.js:435:11)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\index.js:295:15","timestamp":"2025-06-11 12:42:43"}
+{"level":"error","message":"ReferenceError: logger is not defined\n    at exports.obtenerPerfilEquipo (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\controllers\\equipos.controller.js:154:9)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at verificarToken (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\middleware.js\\auth.middleware.js:16:9)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at Route.dispatch (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:117:3)\n    at handle (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\index.js:435:11)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\index.js:295:15","timestamp":"2025-06-11 12:42:44"}
+{"level":"error","message":"ReferenceError: logger is not defined\n    at exports.obtenerPerfilEquipo (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\controllers\\equipos.controller.js:154:9)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at verificarToken (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\middleware.js\\auth.middleware.js:16:9)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at Route.dispatch (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:117:3)\n    at handle (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\index.js:435:11)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\index.js:295:15","timestamp":"2025-06-11 12:42:44"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-11 12:53:07"}
+{"error":{},"level":"error","message":"Error en obtenerPerfilEquipo: object is not iterable (cannot read property Symbol(Symbol.iterator))","timestamp":"2025-06-11 12:53:11"}
+{"error":{},"level":"error","message":"Error en obtenerPerfilEquipo: object is not iterable (cannot read property Symbol(Symbol.iterator))","timestamp":"2025-06-11 12:53:11"}
+{"error":{},"level":"error","message":"Error en obtenerPerfilEquipo: object is not iterable (cannot read property Symbol(Symbol.iterator))","timestamp":"2025-06-11 12:53:12"}
+{"error":{},"level":"error","message":"Error en obtenerPerfilEquipo: object is not iterable (cannot read property Symbol(Symbol.iterator))","timestamp":"2025-06-11 12:53:12"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-11 12:59:55"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-11 13:06:47"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-11 14:09:42"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-11 14:29:53"}
+{"level":"error","message":"ReferenceError: logger is not defined\n    at exports.obtenerPartidoPorId (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\controllers\\partidos.controller.js:257:9)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)","timestamp":"2025-06-11 14:31:00"}
+{"level":"error","message":"ReferenceError: logger is not defined\n    at exports.obtenerPartidoPorId (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\controllers\\partidos.controller.js:257:9)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)","timestamp":"2025-06-11 14:31:00"}
+{"level":"error","message":"ReferenceError: logger is not defined\n    at exports.obtenerPartidoPorId (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\controllers\\partidos.controller.js:257:9)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)","timestamp":"2025-06-11 14:40:58"}
+{"level":"error","message":"ReferenceError: logger is not defined\n    at exports.obtenerPartidoPorId (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\controllers\\partidos.controller.js:257:9)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)","timestamp":"2025-06-11 14:40:58"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-11 14:41:14"}
+{"level":"error","message":"ReferenceError: logger is not defined\n    at exports.obtenerPartidoPorId (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\controllers\\partidos.controller.js:257:9)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)","timestamp":"2025-06-11 14:41:18"}
+{"level":"error","message":"ReferenceError: logger is not defined\n    at exports.obtenerPartidoPorId (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\controllers\\partidos.controller.js:257:9)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)","timestamp":"2025-06-11 14:41:18"}
+{"level":"error","message":"ReferenceError: logger is not defined\n    at exports.obtenerPartidoPorId (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\controllers\\partidos.controller.js:257:9)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)","timestamp":"2025-06-11 15:01:38"}
+{"level":"error","message":"ReferenceError: logger is not defined\n    at exports.obtenerPartidoPorId (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\controllers\\partidos.controller.js:257:9)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)","timestamp":"2025-06-11 15:01:38"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-11 15:28:19"}
+{"error":{"code":"ER_BAD_FIELD_ERROR","errno":1054,"message":"Unknown column 'el.nombre' in 'field list'","sql":"\n            SELECT \n                p.id, p.fecha, p.estado,\n                el.nombre as nombre_local,\n                ev.nombre as nombre_visitante\n            FROM partidos p\n            JOIN equipos AS equipo_local ON p.equipo_local_id = equipo_local.id\n            JOIN equipos AS equipo_visitante ON p.equipo_visitante_id = ev.id\n            WHERE p.id = '2'\n        ","sqlMessage":"Unknown column 'el.nombre' in 'field list'","sqlState":"42S22"},"level":"error","message":"Error en obtenerPartidoPorId: Unknown column 'el.nombre' in 'field list'","timestamp":"2025-06-11 15:28:24"}
+{"error":{"code":"ER_BAD_FIELD_ERROR","errno":1054,"message":"Unknown column 'el.nombre' in 'field list'","sql":"\n            SELECT \n                p.id, p.fecha, p.estado,\n                el.nombre as nombre_local,\n                ev.nombre as nombre_visitante\n            FROM partidos p\n            JOIN equipos AS equipo_local ON p.equipo_local_id = equipo_local.id\n            JOIN equipos AS equipo_visitante ON p.equipo_visitante_id = ev.id\n            WHERE p.id = '2'\n        ","sqlMessage":"Unknown column 'el.nombre' in 'field list'","sqlState":"42S22"},"level":"error","message":"Error en obtenerPartidoPorId: Unknown column 'el.nombre' in 'field list'","timestamp":"2025-06-11 15:28:24"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-11 15:36:32"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-11 16:04:29"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-11 16:11:50"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-11 17:25:47"}
+{"level":"error","message":"TypeError: Cannot destructure property 'goles_local' of 'req.body' as it is undefined.\n    at exports.reportarResultado (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\controllers\\partidos.controller.js:145:13)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\middleware.js\\verifyRole.js:15:9\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at verificarToken (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\middleware.js\\auth.middleware.js:16:9)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at Route.dispatch (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:117:3)","timestamp":"2025-06-11 17:26:03"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-11 17:41:27"}
+{"level":"error","message":"TypeError: Cannot destructure property 'goles_local' of 'req.body' as it is undefined.\n    at exports.reportarResultado (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\controllers\\partidos.controller.js:145:13)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\middleware.js\\verifyRole.js:15:9\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at verificarToken (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\middleware.js\\auth.middleware.js:16:9)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at Route.dispatch (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:117:3)","timestamp":"2025-06-11 17:42:03"}
+{"level":"error","message":"TypeError: Cannot destructure property 'goles_local' of 'req.body' as it is undefined.\n    at exports.reportarResultado (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\controllers\\partidos.controller.js:145:13)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\middleware.js\\verifyRole.js:15:9\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at verificarToken (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\middleware.js\\auth.middleware.js:16:9)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at Route.dispatch (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:117:3)","timestamp":"2025-06-11 17:42:22"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-11 17:55:10"}
+{"level":"error","message":"TypeError: Cannot destructure property 'goles_local' of 'req.body' as it is undefined.\n    at exports.reportarResultado (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\controllers\\partidos.controller.js:142:13)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\middleware.js\\verifyRole.js:15:9\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at verificarToken (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\middleware.js\\auth.middleware.js:16:9)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at Route.dispatch (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:117:3)","timestamp":"2025-06-11 17:55:31"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-11 18:05:26"}
+{"level":"error","message":"TypeError: Cannot destructure property 'goles_local' of 'req.body' as it is undefined.\n    at exports.reportarResultado (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\controllers\\partidos.controller.js:79:13)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\middleware.js\\verifyRole.js:15:9\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at verificarToken (C:\\Users\\54113\\Desktop\\LDL\\Backend\\src\\middleware.js\\auth.middleware.js:16:9)\n    at Layer.handleRequest (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:157:13)\n    at Route.dispatch (C:\\Users\\54113\\Desktop\\LDL\\Backend\\node_modules\\router\\lib\\route.js:117:3)","timestamp":"2025-06-11 18:05:52"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-11 18:27:44"}
+{"level":"info","message":"Admin (ID: 5) cambió el equipo del usuario (ID: 8) al equipo (ID: 1).","timestamp":"2025-06-11 18:28:56"}
+{"level":"info","message":"Admin (ID: 5) cambió el rol del usuario (ID: 8) a 'dt'.","timestamp":"2025-06-11 18:29:01"}
+{"level":"info","message":"Imagen C:\\Users\\54113\\Desktop\\LDL\\Backend\\public\\uploads\\imagen_resultado-1749677373769-183727652.jpg borrada con éxito.","timestamp":"2025-06-11 18:30:22"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-11 19:00:11"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-12 09:12:50"}
+{"level":"info","message":"Admin (ID: 5) cambió el equipo del usuario (ID: 8) al equipo (ID: null).","timestamp":"2025-06-12 09:13:59"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-12 09:36:07"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-12 09:53:11"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-13 00:57:03"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-13 16:44:49"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-13 16:45:04"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-13 16:59:31"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-13 17:24:07"}
+{"level":"info","message":"Admin (ID: 5) ha 'aprobado' la solicitud para el equipo ID 5.","timestamp":"2025-06-13 17:24:56"}
+{"level":"info","message":"Admin (ID: 5) ha 'rechazado' la solicitud para el equipo ID 1.","timestamp":"2025-06-13 17:25:00"}
+{"level":"info","message":"Admin (ID: 5) ha 'aprobado' la solicitud para el equipo ID 8.","timestamp":"2025-06-13 17:26:29"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-13 17:30:28"}
+{"level":"info","message":"Admin (ID: 5) cambió el equipo del usuario (ID: 7) al equipo (ID: null).","timestamp":"2025-06-13 17:32:04"}
+{"level":"info","message":"Admin (ID: 5) ha 'aprobado' la solicitud para el equipo ID 9.","timestamp":"2025-06-13 17:32:59"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-13 17:37:20"}
+{"level":"info","message":"Admin (ID: 5) cambió el equipo del usuario (ID: 7) al equipo (ID: null).","timestamp":"2025-06-13 17:38:37"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-13 17:51:21"}
+{"level":"info","message":"Admin (ID: 5) creó el equipo 'aaaa' (ID: 10)","timestamp":"2025-06-13 17:52:04"}
+{"level":"info","message":"Admin (ID: 5) ha 'aprobado' la solicitud para el equipo ID 11.","timestamp":"2025-06-13 18:08:41"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-13 18:26:54"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-13 18:31:44"}
+{"level":"info","message":"Admin (ID: 5) ha 'aprobado' la solicitud para el equipo ID 12.","timestamp":"2025-06-13 18:33:12"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-13 19:05:54"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-13 19:27:24"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-17 21:18:58"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-17 22:02:43"}
+{"level":"info","message":"Admin (ID: 5) creó el equipo '1' (ID: 13)","timestamp":"2025-06-17 22:05:16"}
+{"level":"info","message":"Admin (ID: 5) creó el equipo '2' (ID: 14)","timestamp":"2025-06-17 22:05:25"}
+{"level":"info","message":"Admin (ID: 5) creó el equipo '3' (ID: 15)","timestamp":"2025-06-17 22:05:42"}
+{"level":"info","message":"Admin (ID: 5) creó el equipo '4' (ID: 16)","timestamp":"2025-06-17 22:05:46"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-18 12:52:02"}
+{"level":"info","message":"Admin (ID: 5) generó el fixture para la liga (ID: 4).","timestamp":"2025-06-18 12:52:42"}
+{"level":"info","message":"Admin (ID: 5) cambió el rol del usuario (ID: 10) a 'dt'.","timestamp":"2025-06-18 13:09:55"}
+{"level":"info","message":"Admin (ID: 5) cambió el equipo del usuario (ID: 10) al equipo (ID: 13).","timestamp":"2025-06-18 13:10:02"}
+{"level":"info","message":"Admin (ID: 5) cambió el rol del usuario (ID: 11) a 'dt'.","timestamp":"2025-06-18 13:10:14"}
+{"level":"info","message":"Admin (ID: 5) cambió el equipo del usuario (ID: 11) al equipo (ID: 14).","timestamp":"2025-06-18 13:10:19"}
+{"level":"info","message":"Admin (ID: 5) cambió el rol del usuario (ID: 12) a 'dt'.","timestamp":"2025-06-18 13:10:43"}
+{"level":"info","message":"Admin (ID: 5) cambió el equipo del usuario (ID: 12) al equipo (ID: 15).","timestamp":"2025-06-18 13:10:48"}
+{"level":"info","message":"Admin (ID: 5) cambió el rol del usuario (ID: 13) a 'dt'.","timestamp":"2025-06-18 13:10:57"}
+{"level":"info","message":"Admin (ID: 5) cambió el equipo del usuario (ID: 13) al equipo (ID: 16).","timestamp":"2025-06-18 13:11:02"}
+{"error":{"code":"ER_NO_SUCH_TABLE","errno":1146,"message":"Table 'ldl_db.tabla_posiciones' doesn't exist","sql":"\n    INSERT INTO tabla_posiciones (liga_id, equipo_id, jugados, ganados, empatados, perdidos, goles_favor, goles_contra, diferencia_goles, puntos)\n    VALUES (4, 16, 1, 0, 1, 0, 0, 0, 0, 1)\n    ON DUPLICATE KEY UPDATE\n      jugados = jugados + 1,\n      ganados = ganados + VALUES(ganados),\n      empatados = empatados + VALUES(empatados),\n      perdidos = perdidos + VALUES(perdidos),\n      goles_favor = goles_favor + VALUES(goles_favor),\n      goles_contra = goles_contra + VALUES(goles_contra),\n      diferencia_goles = diferencia_goles + VALUES(diferencia_goles),\n      puntos = puntos + VALUES(puntos)\n  ","sqlMessage":"Table 'ldl_db.tabla_posiciones' doesn't exist","sqlState":"42S02"},"level":"error","message":"Table 'ldl_db.tabla_posiciones' doesn't exist","timestamp":"2025-06-18 15:10:41"}
+{"error":{"code":"ER_NO_SUCH_TABLE","errno":1146,"message":"Table 'ldl_db.tabla_posiciones' doesn't exist","sql":"\n    INSERT INTO tabla_posiciones (liga_id, equipo_id, jugados, ganados, empatados, perdidos, goles_favor, goles_contra, diferencia_goles, puntos)\n    VALUES (4, 15, 1, 0, 1, 0, 0, 0, 0, 1)\n    ON DUPLICATE KEY UPDATE\n      jugados = jugados + 1,\n      ganados = ganados + VALUES(ganados),\n      empatados = empatados + VALUES(empatados),\n      perdidos = perdidos + VALUES(perdidos),\n      goles_favor = goles_favor + VALUES(goles_favor),\n      goles_contra = goles_contra + VALUES(goles_contra),\n      diferencia_goles = diferencia_goles + VALUES(diferencia_goles),\n      puntos = puntos + VALUES(puntos)\n  ","sqlMessage":"Table 'ldl_db.tabla_posiciones' doesn't exist","sqlState":"42S02"},"level":"error","message":"Table 'ldl_db.tabla_posiciones' doesn't exist","timestamp":"2025-06-18 15:10:44"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-18 15:35:08"}
+{"level":"info","message":"Admin (ID: 5) cambió el rol del usuario (ID: 10) a 'jugador'.","timestamp":"2025-06-18 15:48:55"}
+{"level":"info","message":"Admin (ID: 5) cambió el rol del usuario (ID: 11) a 'jugador'.","timestamp":"2025-06-18 15:49:02"}
+{"level":"info","message":"Admin (ID: 5) cambió el rol del usuario (ID: 12) a 'jugador'.","timestamp":"2025-06-18 15:49:07"}
+{"level":"info","message":"Admin (ID: 5) cambió el rol del usuario (ID: 13) a 'jugador'.","timestamp":"2025-06-18 15:49:18"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-18 16:42:44"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-18 16:47:39"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-18 16:51:20"}
+{"level":"info","message":"Nuevo usuario registrado: santi@gmail.com","timestamp":"2025-06-18 21:57:02"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-28 16:37:31"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-28 17:04:07"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-28 19:55:08"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-28 19:58:38"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-06-28 20:46:12"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-05 22:12:34"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-05 22:19:43"}
+{"error":{"errno":1932,"message":"Table 'ldl_db.ligas' doesn't exist in engine","sql":"SELECT id, nombre, temporada FROM ligas WHERE estado_temporada = 'activa' ORDER BY fecha_creacion DESC","sqlMessage":"Table 'ldl_db.ligas' doesn't exist in engine","sqlState":"42S02"},"level":"error","message":"Error en obtenerLigasPublico: Table 'ldl_db.ligas' doesn't exist in engine","timestamp":"2025-07-05 22:20:01"}
+{"error":{"errno":1932,"message":"Table 'ldl_db.ligas' doesn't exist in engine","sql":"SELECT id, nombre, temporada FROM ligas WHERE estado_temporada = 'activa' ORDER BY fecha_creacion DESC","sqlMessage":"Table 'ldl_db.ligas' doesn't exist in engine","sqlState":"42S02"},"level":"error","message":"Error en obtenerLigasPublico: Table 'ldl_db.ligas' doesn't exist in engine","timestamp":"2025-07-05 22:20:01"}
+{"error":{"errno":1932,"message":"Table 'ldl_db.ligas' doesn't exist in engine","sql":"SELECT id, nombre, temporada FROM ligas WHERE estado_temporada = 'activa' ORDER BY fecha_creacion DESC","sqlMessage":"Table 'ldl_db.ligas' doesn't exist in engine","sqlState":"42S02"},"level":"error","message":"Error en obtenerLigasPublico: Table 'ldl_db.ligas' doesn't exist in engine","timestamp":"2025-07-05 22:20:06"}
+{"error":{"errno":1932,"message":"Table 'ldl_db.ligas' doesn't exist in engine","sql":"SELECT id, nombre, temporada FROM ligas WHERE estado_temporada = 'activa' ORDER BY fecha_creacion DESC","sqlMessage":"Table 'ldl_db.ligas' doesn't exist in engine","sqlState":"42S02"},"level":"error","message":"Error en obtenerLigasPublico: Table 'ldl_db.ligas' doesn't exist in engine","timestamp":"2025-07-05 22:20:06"}
+{"error":{"errno":1932,"message":"Table 'ldl_db.ligas' doesn't exist in engine","sql":"SELECT id, nombre, temporada FROM ligas WHERE estado_temporada = 'activa' ORDER BY fecha_creacion DESC","sqlMessage":"Table 'ldl_db.ligas' doesn't exist in engine","sqlState":"42S02"},"level":"error","message":"Error en obtenerLigasPublico: Table 'ldl_db.ligas' doesn't exist in engine","timestamp":"2025-07-05 22:20:13"}
+{"error":{"errno":1932,"message":"Table 'ldl_db.ligas' doesn't exist in engine","sql":"SELECT id, nombre, temporada FROM ligas WHERE estado_temporada = 'activa' ORDER BY fecha_creacion DESC","sqlMessage":"Table 'ldl_db.ligas' doesn't exist in engine","sqlState":"42S02"},"level":"error","message":"Error en obtenerLigasPublico: Table 'ldl_db.ligas' doesn't exist in engine","timestamp":"2025-07-05 22:20:13"}
+{"error":{"errno":1932,"message":"Table 'ldl_db.ligas' doesn't exist in engine","sql":"SELECT id, nombre, temporada FROM ligas WHERE estado_temporada = 'activa' ORDER BY fecha_creacion DESC","sqlMessage":"Table 'ldl_db.ligas' doesn't exist in engine","sqlState":"42S02"},"level":"error","message":"Error en obtenerLigasPublico: Table 'ldl_db.ligas' doesn't exist in engine","timestamp":"2025-07-06 03:18:34"}
+{"error":{"errno":1932,"message":"Table 'ldl_db.ligas' doesn't exist in engine","sql":"SELECT id, nombre, temporada FROM ligas WHERE estado_temporada = 'activa' ORDER BY fecha_creacion DESC","sqlMessage":"Table 'ldl_db.ligas' doesn't exist in engine","sqlState":"42S02"},"level":"error","message":"Error en obtenerLigasPublico: Table 'ldl_db.ligas' doesn't exist in engine","timestamp":"2025-07-06 03:18:34"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-06 04:27:12"}
+{"error":{"code":"ER_BAD_FIELD_ERROR","errno":1054,"message":"Unknown column 't.nombre' in 'field list'","sql":"\n            SELECT \n                t.nombre AS equipo_nombre,\n                t.partidos_jugados,\n                t.puntos,\n                t.partidos_ganados,\n                t.partidos_empatados,\n                t.partidos_perdidos,\n                t.goles_a_favor,\n                t.goles_en_contra,\n                t.diferencia_goles\n            FROM tabla_posiciones t \n            WHERE t.liga_id = '1' \n            ORDER BY t.puntos DESC, t.diferencia_goles DESC\n        ","sqlMessage":"Unknown column 't.nombre' in 'field list'","sqlState":"42S22"},"level":"error","message":"Error en obtenerDetallesPublicosLiga: Unknown column 't.nombre' in 'field list'","timestamp":"2025-07-06 04:31:14"}
+{"error":{"code":"ER_BAD_FIELD_ERROR","errno":1054,"message":"Unknown column 't.nombre' in 'field list'","sql":"\n            SELECT \n                t.nombre AS equipo_nombre,\n                t.partidos_jugados,\n                t.puntos,\n                t.partidos_ganados,\n                t.partidos_empatados,\n                t.partidos_perdidos,\n                t.goles_a_favor,\n                t.goles_en_contra,\n                t.diferencia_goles\n            FROM tabla_posiciones t \n            WHERE t.liga_id = '1' \n            ORDER BY t.puntos DESC, t.diferencia_goles DESC\n        ","sqlMessage":"Unknown column 't.nombre' in 'field list'","sqlState":"42S22"},"level":"error","message":"Error en obtenerDetallesPublicosLiga: Unknown column 't.nombre' in 'field list'","timestamp":"2025-07-06 04:31:14"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-06 04:54:48"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-07 18:44:58"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-07 19:47:51"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-07 19:56:04"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-07 19:56:27"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-07 19:58:39"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-07 20:04:01"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-08 16:08:33"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-08 16:32:53"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-08 16:33:14"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-08 17:38:01"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-08 17:39:50"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-08 17:46:33"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-08 18:28:35"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-08 18:29:00"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-08 18:39:53"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-08 19:06:17"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-08 19:21:09"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-09 09:49:14"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-09 10:10:24"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-09 15:18:33"}
+{"level":"info","message":"Nuevo usuario registrado: vilasantiago16@gmail.com","timestamp":"2025-07-09 15:31:12"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-09 16:27:34"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-09 17:33:39"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-09 17:41:04"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-09 17:47:06"}
+{"level":"info","message":"Admin (ID: 10) cambió el equipo del usuario (ID: 10) al equipo (ID: 1).","timestamp":"2025-07-09 19:50:08"}
+{"level":"info","message":"Admin (ID: 10) cambió el rol del usuario (ID: 5) a 'jugador'.","timestamp":"2025-07-09 19:50:20"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-09 20:05:07"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-10 03:30:35"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-10 03:44:50"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-10 03:48:05"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-10 03:53:42"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-10 04:38:03"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-10 04:47:34"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-10 04:50:06"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-10 04:53:57"}
+{"level":"info","message":"El usuario (ID: 10) cambió su contraseña.","timestamp":"2025-07-10 04:54:17"}
+{"level":"info","message":"El usuario (ID: 10) cambió su contraseña.","timestamp":"2025-07-10 05:16:45"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-10 15:00:55"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-10 15:20:37"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-10 15:32:08"}
+{"level":"info","message":"Link de reseteo de contraseña para vilasantiago16@gmail.com: http://localhost:5173/reset-password/263e90f375265895788de3297616d2d7bacb1962","timestamp":"2025-07-10 15:36:31"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-10 16:10:06"}
+{"error":{},"level":"error","message":"transporter.sendMail is not a function","timestamp":"2025-07-10 16:10:11"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-10 16:16:15"}
+{"error":{"code":"EAUTH","command":"AUTH PLAIN","response":"535-5.7.8 Username and Password not accepted. For more information, go to\n535 5.7.8  https://support.google.com/mail/?p=BadCredentials d9443c01a7336-23de4347c5bsm27875445ad.198 - gsmtp","responseCode":535},"level":"error","message":"Invalid login: 535-5.7.8 Username and Password not accepted. For more information, go to\n535 5.7.8  https://support.google.com/mail/?p=BadCredentials d9443c01a7336-23de4347c5bsm27875445ad.198 - gsmtp","timestamp":"2025-07-10 16:16:21"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-10 16:17:34"}
+{"level":"info","message":"Email de reseteo de contraseña enviado a vilasantiago16@gmail.com","timestamp":"2025-07-10 16:17:41"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-10 16:21:15"}
+{"level":"info","message":"Email de reseteo de contraseña enviado a vilasantiago16@gmail.com","timestamp":"2025-07-10 16:21:20"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-10 16:24:39"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-10 16:39:23"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-10 17:36:36"}
+{"level":"info","message":"Email de reseteo de contraseña enviado a vilasantiago16@gmail.com","timestamp":"2025-07-10 17:38:12"}
+{"level":"info","message":"El usuario (ID: 10) reseteó su contraseña.","timestamp":"2025-07-10 17:38:50"}
+{"level":"info","message":"Email de reseteo de contraseña enviado a vilasantiago16@gmail.com","timestamp":"2025-07-10 17:39:42"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-10 17:45:11"}
+{"level":"info","message":"Email de reseteo de contraseña enviado a vilasantiago16@gmail.com","timestamp":"2025-07-10 17:45:24"}
+{"level":"info","message":"Intento de reseteo de contraseña con token: e57827bbd37123ba3f974fac22059acb51e628ff","timestamp":"2025-07-10 17:46:09"}
+{"level":"info","message":"Usuario encontrado para el reseteo: ID 10","timestamp":"2025-07-10 17:46:09"}
+{"level":"info","message":"Nuevo hash generado para el usuario ID 10","timestamp":"2025-07-10 17:46:09"}
+{"affectedRows":1,"changedRows":1,"fieldCount":0,"info":"Rows matched: 1  Changed: 1  Warnings: 0","insertId":0,"level":"info","message":"Resultado del UPDATE en la base de datos:","serverStatus":2,"timestamp":"2025-07-10 17:46:09","warningStatus":0}
+{"level":"info","message":"Email de reseteo de contraseña enviado a vilasantiago16@gmail.com","timestamp":"2025-07-10 17:52:25"}
+{"level":"info","message":"Intento de reseteo de contraseña con token: e50563a0e89ce7d36ea045130bce1d2dee1d1a89","timestamp":"2025-07-10 17:52:40"}
+{"level":"info","message":"Usuario encontrado para el reseteo: ID 10","timestamp":"2025-07-10 17:52:41"}
+{"level":"info","message":"Nuevo hash generado para el usuario ID 10","timestamp":"2025-07-10 17:52:41"}
+{"affectedRows":1,"changedRows":1,"fieldCount":0,"info":"Rows matched: 1  Changed: 1  Warnings: 0","insertId":0,"level":"info","message":"Resultado del UPDATE en la base de datos:","serverStatus":2,"timestamp":"2025-07-10 17:52:41","warningStatus":0}
+{"level":"info","message":"Nuevo usuario registrado: vilasantiago47@gmail.com","timestamp":"2025-07-11 00:58:13"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-11 01:09:53"}
+{"level":"info","message":"Nuevo usuario registrado: vilasanti@gmail.com","timestamp":"2025-07-11 01:10:39"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-11 01:13:48"}
+{"level":"info","message":"REGISTRO: Recibido email: santi@gmail.com","timestamp":"2025-07-11 01:14:14"}
+{"level":"info","message":"REGISTRO: Recibida password: 12345678","timestamp":"2025-07-11 01:14:14"}
+{"level":"info","message":"REGISTRO: Hash generado: $2b$10$LeRvQJmeiVg4Zmm.Rp7baeJ9a2hE7gfwFczFjL2884nVc3DedXmKG","timestamp":"2025-07-11 01:14:15"}
+{"level":"info","message":"REGISTRO: Usuario santi@gmail.com guardado en la BD con éxito.","timestamp":"2025-07-11 01:14:15"}
+{"level":"info","message":"LOGIN: Intento de login para email: santi@gmail.com","timestamp":"2025-07-11 01:14:34"}
+{"level":"info","message":"LOGIN: Password recibida: 12345678","timestamp":"2025-07-11 01:14:34"}
+{"level":"info","message":"LOGIN: Hash recuperado de la BD: $2b$10$LeRvQJmeiVg4Zmm.Rp7baeJ9a2hE7gfwFczFjL2884nVc3DedXmKG","timestamp":"2025-07-11 01:14:34"}
+{"level":"info","message":"LOGIN: El resultado de la comparación fue: true","timestamp":"2025-07-11 01:14:34"}
+{"level":"info","message":"LOGIN: Login exitoso para santi@gmail.com","timestamp":"2025-07-11 01:14:34"}
+{"level":"info","message":"LOGIN: Intento de login para email: santi@gmail.com","timestamp":"2025-07-11 01:14:36"}
+{"level":"info","message":"LOGIN: Password recibida: 12345678","timestamp":"2025-07-11 01:14:36"}
+{"level":"info","message":"LOGIN: Hash recuperado de la BD: $2b$10$LeRvQJmeiVg4Zmm.Rp7baeJ9a2hE7gfwFczFjL2884nVc3DedXmKG","timestamp":"2025-07-11 01:14:36"}
+{"level":"info","message":"LOGIN: El resultado de la comparación fue: true","timestamp":"2025-07-11 01:14:36"}
+{"level":"info","message":"LOGIN: Login exitoso para santi@gmail.com","timestamp":"2025-07-11 01:14:36"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-11 01:16:34"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-11 01:17:25"}
+{"level":"info","message":"LOGIN: Intento de login para email: santi@gmail.com","timestamp":"2025-07-11 01:17:32"}
+{"level":"info","message":"LOGIN: Password recibida: 12345678","timestamp":"2025-07-11 01:17:32"}
+{"level":"info","message":"LOGIN: Hash recuperado de la BD: $2b$10$LeRvQJmeiVg4Zmm.Rp7baeJ9a2hE7gfwFczFjL2884nVc3DedXmKG","timestamp":"2025-07-11 01:17:32"}
+{"level":"info","message":"LOGIN: El resultado de la comparación fue: true","timestamp":"2025-07-11 01:17:32"}
+{"level":"info","message":"LOGIN: Login exitoso para santi@gmail.com","timestamp":"2025-07-11 01:17:32"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-11 01:33:02"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-11 01:43:09"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-11 02:00:53"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-11 02:02:44"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-11 02:22:41"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-11 02:28:09"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-11 02:38:00"}
+{"level":"info","message":"Usuario conectado: D4y_KbntWx321gxRAAAB","timestamp":"2025-07-11 02:42:17"}
+{"level":"info","message":"LOGIN: Intento de login para email: vilasantiago16@gmail.com","timestamp":"2025-07-11 02:42:22"}
+{"level":"info","message":"LOGIN: Password recibida: santi123","timestamp":"2025-07-11 02:42:22"}
+{"level":"info","message":"LOGIN: Hash recuperado de la BD: $2b$10$4wVsVXg1q/NYDBnrzc0jf.01IuIACVY5LaemG6n.Po0ca.USrYp4a","timestamp":"2025-07-11 02:42:22"}
+{"level":"info","message":"LOGIN: El resultado de la comparación fue: false","timestamp":"2025-07-11 02:42:22"}
+{"level":"warn","message":"LOGIN: La comparación de contraseñas falló para el email: vilasantiago16@gmail.com","timestamp":"2025-07-11 02:42:22"}
+{"level":"info","message":"LOGIN: Intento de login para email: vilasantiago16@gmail.com","timestamp":"2025-07-11 02:42:25"}
+{"level":"info","message":"LOGIN: Password recibida: santi123","timestamp":"2025-07-11 02:42:25"}
+{"level":"info","message":"LOGIN: Hash recuperado de la BD: $2b$10$4wVsVXg1q/NYDBnrzc0jf.01IuIACVY5LaemG6n.Po0ca.USrYp4a","timestamp":"2025-07-11 02:42:25"}
+{"level":"info","message":"LOGIN: El resultado de la comparación fue: false","timestamp":"2025-07-11 02:42:25"}
+{"level":"warn","message":"LOGIN: La comparación de contraseñas falló para el email: vilasantiago16@gmail.com","timestamp":"2025-07-11 02:42:25"}
+{"level":"info","message":"LOGIN: Intento de login para email: vilasantiago47@gmail.com","timestamp":"2025-07-11 02:42:29"}
+{"level":"info","message":"LOGIN: Password recibida: santi123","timestamp":"2025-07-11 02:42:29"}
+{"level":"info","message":"LOGIN: Hash recuperado de la BD: $2b$10$Z2qocsMTcrkyfF.1aZUz7.Z5ysXSVBAiFrfISHXG4Q3SlRuK/ukT6","timestamp":"2025-07-11 02:42:29"}
+{"level":"info","message":"LOGIN: El resultado de la comparación fue: true","timestamp":"2025-07-11 02:42:30"}
+{"level":"info","message":"LOGIN: Login exitoso para vilasantiago47@gmail.com","timestamp":"2025-07-11 02:42:30"}
+{"level":"info","message":"Usuario ID 11 registrado con socket ID D4y_KbntWx321gxRAAAB","timestamp":"2025-07-11 02:42:30"}
+{"level":"info","message":"Usuario desconectado: D4y_KbntWx321gxRAAAB","timestamp":"2025-07-11 02:42:36"}
+{"level":"info","message":"LOGIN: Intento de login para email: santi@gmail.com","timestamp":"2025-07-11 02:43:18"}
+{"level":"info","message":"LOGIN: Password recibida: 12345678","timestamp":"2025-07-11 02:43:18"}
+{"level":"info","message":"LOGIN: Hash recuperado de la BD: $2b$10$LeRvQJmeiVg4Zmm.Rp7baeJ9a2hE7gfwFczFjL2884nVc3DedXmKG","timestamp":"2025-07-11 02:43:18"}
+{"level":"info","message":"LOGIN: El resultado de la comparación fue: true","timestamp":"2025-07-11 02:43:18"}
+{"level":"info","message":"LOGIN: Login exitoso para santi@gmail.com","timestamp":"2025-07-11 02:43:18"}
+{"level":"info","message":"Usuario conectado: E_Sze1PoOeVKBwtCAAAD","timestamp":"2025-07-11 02:43:18"}
+{"level":"info","message":"Usuario ID 13 registrado con socket ID E_Sze1PoOeVKBwtCAAAD","timestamp":"2025-07-11 02:43:18"}
+{"level":"info","message":"Usuario desconectado: E_Sze1PoOeVKBwtCAAAD","timestamp":"2025-07-11 02:44:34"}
+{"level":"info","message":"Usuario conectado: Lf9aamtw1Zhtc8FiAAAF","timestamp":"2025-07-11 02:44:34"}
+{"level":"info","message":"Usuario ID 13 registrado con socket ID Lf9aamtw1Zhtc8FiAAAF","timestamp":"2025-07-11 02:44:35"}
+{"level":"info","message":"Usuario ID 13 registrado con socket ID Lf9aamtw1Zhtc8FiAAAF","timestamp":"2025-07-11 02:44:35"}
+{"level":"info","message":"LOGIN: Intento de login para email: santi@gmail.com","timestamp":"2025-07-11 02:44:36"}
+{"level":"info","message":"LOGIN: Password recibida: 12345678","timestamp":"2025-07-11 02:44:36"}
+{"level":"info","message":"LOGIN: Hash recuperado de la BD: $2b$10$LeRvQJmeiVg4Zmm.Rp7baeJ9a2hE7gfwFczFjL2884nVc3DedXmKG","timestamp":"2025-07-11 02:44:36"}
+{"level":"info","message":"LOGIN: El resultado de la comparación fue: true","timestamp":"2025-07-11 02:44:36"}
+{"level":"info","message":"LOGIN: Login exitoso para santi@gmail.com","timestamp":"2025-07-11 02:44:36"}
+{"level":"info","message":"Usuario ID 13 registrado con socket ID Lf9aamtw1Zhtc8FiAAAF","timestamp":"2025-07-11 02:44:36"}
+{"level":"info","message":"Usuario desconectado: Lf9aamtw1Zhtc8FiAAAF","timestamp":"2025-07-11 02:46:07"}
+{"level":"info","message":"Usuario conectado: KEF-NqI0VZx4BdyKAAAH","timestamp":"2025-07-11 02:46:08"}
+{"level":"info","message":"Usuario ID 13 registrado con socket ID KEF-NqI0VZx4BdyKAAAH","timestamp":"2025-07-11 02:46:08"}
+{"level":"info","message":"Usuario ID 13 registrado con socket ID KEF-NqI0VZx4BdyKAAAH","timestamp":"2025-07-11 02:46:08"}
+{"level":"info","message":"LOGIN: Intento de login para email: santi@gmail.com","timestamp":"2025-07-11 02:46:09"}
+{"level":"info","message":"LOGIN: Password recibida: 12345678","timestamp":"2025-07-11 02:46:09"}
+{"level":"info","message":"LOGIN: Hash recuperado de la BD: $2b$10$LeRvQJmeiVg4Zmm.Rp7baeJ9a2hE7gfwFczFjL2884nVc3DedXmKG","timestamp":"2025-07-11 02:46:09"}
+{"level":"info","message":"LOGIN: El resultado de la comparación fue: true","timestamp":"2025-07-11 02:46:09"}
+{"level":"info","message":"LOGIN: Login exitoso para santi@gmail.com","timestamp":"2025-07-11 02:46:09"}
+{"level":"info","message":"Usuario ID 13 registrado con socket ID KEF-NqI0VZx4BdyKAAAH","timestamp":"2025-07-11 02:46:09"}
+{"level":"info","message":"Usuario conectado: HW78fG720UYWD4S3AAAJ","timestamp":"2025-07-11 02:46:36"}
+{"level":"info","message":"Usuario ID 13 registrado con socket ID HW78fG720UYWD4S3AAAJ","timestamp":"2025-07-11 02:46:36"}
+{"level":"info","message":"Usuario ID 13 registrado con socket ID HW78fG720UYWD4S3AAAJ","timestamp":"2025-07-11 02:46:36"}
+{"level":"info","message":"LOGIN: Intento de login para email: vilasantiago47@gmail.com","timestamp":"2025-07-11 02:46:52"}
+{"level":"info","message":"LOGIN: Password recibida: santi123","timestamp":"2025-07-11 02:46:52"}
+{"level":"info","message":"LOGIN: Hash recuperado de la BD: $2b$10$Z2qocsMTcrkyfF.1aZUz7.Z5ysXSVBAiFrfISHXG4Q3SlRuK/ukT6","timestamp":"2025-07-11 02:46:52"}
+{"level":"info","message":"LOGIN: El resultado de la comparación fue: true","timestamp":"2025-07-11 02:46:52"}
+{"level":"info","message":"LOGIN: Login exitoso para vilasantiago47@gmail.com","timestamp":"2025-07-11 02:46:52"}
+{"level":"info","message":"Usuario ID 11 registrado con socket ID HW78fG720UYWD4S3AAAJ","timestamp":"2025-07-11 02:46:52"}
+{"error":{"code":"ER_BAD_FIELD_ERROR","errno":1054,"message":"Unknown column 'link_url' in 'field list'","sql":"INSERT INTO notificaciones (usuario_id, contenido, tipo, link_url) VALUES (11, 'Has recibido una oferta del equipo santis', 'oferta', '/jugador/mis-ofertas')","sqlMessage":"Unknown column 'link_url' in 'field list'","sqlState":"42S22"},"level":"error","message":"Unknown column 'link_url' in 'field list'","timestamp":"2025-07-11 02:47:01"}
+{"error":{"code":"ER_BAD_FIELD_ERROR","errno":1054,"message":"Unknown column 'link_url' in 'field list'","sql":"INSERT INTO notificaciones (usuario_id, contenido, tipo, link_url) VALUES (10, 'Has recibido una oferta del equipo santis', 'oferta', '/jugador/mis-ofertas')","sqlMessage":"Unknown column 'link_url' in 'field list'","sqlState":"42S22"},"level":"error","message":"Unknown column 'link_url' in 'field list'","timestamp":"2025-07-11 02:47:05"}
+{"error":{"code":"ER_BAD_FIELD_ERROR","errno":1054,"message":"Unknown column 'link_url' in 'field list'","sql":"INSERT INTO notificaciones (usuario_id, contenido, tipo, link_url) VALUES (9, 'Has recibido una oferta del equipo santis', 'oferta', '/jugador/mis-ofertas')","sqlMessage":"Unknown column 'link_url' in 'field list'","sqlState":"42S22"},"level":"error","message":"Unknown column 'link_url' in 'field list'","timestamp":"2025-07-11 02:47:23"}
+{"level":"info","message":"Usuario desconectado: HW78fG720UYWD4S3AAAJ","timestamp":"2025-07-11 02:52:35"}
+{"level":"info","message":"Usuario desconectado: KEF-NqI0VZx4BdyKAAAH","timestamp":"2025-07-11 02:52:35"}
+{"level":"info","message":"Usuario conectado: K1cJyBy2vW_elioEAAAL","timestamp":"2025-07-11 03:09:37"}
+{"level":"info","message":"Usuario ID 11 registrado con socket ID K1cJyBy2vW_elioEAAAL","timestamp":"2025-07-11 03:09:41"}
+{"level":"info","message":"Usuario ID 11 registrado con socket ID K1cJyBy2vW_elioEAAAL","timestamp":"2025-07-11 03:09:41"}
+{"level":"info","message":"Usuario conectado: OTHJ0kcJgEbyDUJxAAAN","timestamp":"2025-07-11 03:09:42"}
+{"level":"info","message":"Usuario ID 11 registrado con socket ID OTHJ0kcJgEbyDUJxAAAN","timestamp":"2025-07-11 03:09:43"}
+{"level":"info","message":"Usuario ID 11 registrado con socket ID OTHJ0kcJgEbyDUJxAAAN","timestamp":"2025-07-11 03:09:43"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-11 03:12:34"}
+{"level":"info","message":"Usuario conectado: l-8kYw6TRlP1OjIVAAAC","timestamp":"2025-07-11 03:12:35"}
+{"level":"info","message":"Usuario conectado: 0oh2283E_cgbbPUxAAAD","timestamp":"2025-07-11 03:12:35"}
+{"level":"info","message":"LOGIN: Intento de login para email: vilasantiago47@gmail.com","timestamp":"2025-07-11 03:13:22"}
+{"level":"info","message":"LOGIN: Password recibida: santi123","timestamp":"2025-07-11 03:13:22"}
+{"level":"info","message":"LOGIN: Hash recuperado de la BD: $2b$10$Z2qocsMTcrkyfF.1aZUz7.Z5ysXSVBAiFrfISHXG4Q3SlRuK/ukT6","timestamp":"2025-07-11 03:13:22"}
+{"level":"info","message":"LOGIN: El resultado de la comparación fue: true","timestamp":"2025-07-11 03:13:22"}
+{"level":"info","message":"LOGIN: Login exitoso para vilasantiago47@gmail.com","timestamp":"2025-07-11 03:13:22"}
+{"level":"info","message":"Usuario ID 11 registrado con socket ID 0oh2283E_cgbbPUxAAAD","timestamp":"2025-07-11 03:13:22"}
+{"level":"info","message":"LOGIN: Intento de login para email: santi@gmail.com","timestamp":"2025-07-11 03:13:28"}
+{"level":"info","message":"LOGIN: Password recibida: 12345678","timestamp":"2025-07-11 03:13:28"}
+{"level":"info","message":"LOGIN: Hash recuperado de la BD: $2b$10$LeRvQJmeiVg4Zmm.Rp7baeJ9a2hE7gfwFczFjL2884nVc3DedXmKG","timestamp":"2025-07-11 03:13:28"}
+{"level":"info","message":"LOGIN: El resultado de la comparación fue: true","timestamp":"2025-07-11 03:13:28"}
+{"level":"info","message":"LOGIN: Login exitoso para santi@gmail.com","timestamp":"2025-07-11 03:13:28"}
+{"level":"info","message":"Usuario ID 13 registrado con socket ID l-8kYw6TRlP1OjIVAAAC","timestamp":"2025-07-11 03:13:28"}
+{"error":{"code":"ER_BAD_FIELD_ERROR","errno":1054,"message":"Unknown column 'link_url' in 'field list'","sql":"INSERT INTO notificaciones (usuario_id, contenido, tipo, link_url) VALUES (10, 'El jugador santi ha aceptada tu oferta.', 'respuesta', '/dt/mercado')","sqlMessage":"Unknown column 'link_url' in 'field list'","sqlState":"42S22"},"level":"error","message":"Unknown column 'link_url' in 'field list'","timestamp":"2025-07-11 03:13:48"}
+{"error":{"code":"ER_BAD_FIELD_ERROR","errno":1054,"message":"Unknown column 'link_url' in 'field list'","sql":"INSERT INTO notificaciones (usuario_id, contenido, tipo, link_url) VALUES (10, 'El jugador santi ha aceptada tu oferta.', 'respuesta', '/dt/mercado')","sqlMessage":"Unknown column 'link_url' in 'field list'","sqlState":"42S22"},"level":"error","message":"Unknown column 'link_url' in 'field list'","timestamp":"2025-07-11 03:13:54"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-11 03:26:31"}
+{"level":"info","message":"Usuario conectado: SyReBo7yHjljc_smAAAC","timestamp":"2025-07-11 03:26:31"}
+{"level":"info","message":"Usuario conectado: 5Cfku-P25B--Vn2uAAAD","timestamp":"2025-07-11 03:26:31"}
+{"level":"info","message":"Usuario desconectado: SyReBo7yHjljc_smAAAC","timestamp":"2025-07-11 03:27:47"}
+{"level":"info","message":"Usuario conectado: A5KhLeSTkowiAY53AAAF","timestamp":"2025-07-11 03:27:48"}
+{"level":"info","message":"Usuario ID 13 registrado con socket ID A5KhLeSTkowiAY53AAAF","timestamp":"2025-07-11 03:27:48"}
+{"level":"info","message":"Usuario ID 13 registrado con socket ID A5KhLeSTkowiAY53AAAF","timestamp":"2025-07-11 03:27:48"}
+{"level":"info","message":"LOGIN: Intento de login para email: santi@gmail.com","timestamp":"2025-07-11 03:27:49"}
+{"level":"info","message":"LOGIN: Password recibida: 12345678","timestamp":"2025-07-11 03:27:49"}
+{"level":"info","message":"LOGIN: Hash recuperado de la BD: $2b$10$LeRvQJmeiVg4Zmm.Rp7baeJ9a2hE7gfwFczFjL2884nVc3DedXmKG","timestamp":"2025-07-11 03:27:49"}
+{"level":"info","message":"LOGIN: El resultado de la comparación fue: true","timestamp":"2025-07-11 03:27:49"}
+{"level":"info","message":"LOGIN: Login exitoso para santi@gmail.com","timestamp":"2025-07-11 03:27:49"}
+{"level":"info","message":"Usuario ID 13 registrado con socket ID A5KhLeSTkowiAY53AAAF","timestamp":"2025-07-11 03:27:49"}
+{"level":"info","message":"El DT (ID: 13) liberó al jugador (ID: 11) de su equipo (ID: 7).","timestamp":"2025-07-11 03:28:00"}
+{"level":"info","message":"Usuario desconectado: 5Cfku-P25B--Vn2uAAAD","timestamp":"2025-07-11 03:28:07"}
+{"level":"info","message":"Usuario conectado: mq3KNHiVI4dz64muAAAH","timestamp":"2025-07-11 03:28:07"}
+{"level":"info","message":"Usuario ID 13 registrado con socket ID mq3KNHiVI4dz64muAAAH","timestamp":"2025-07-11 03:28:07"}
+{"level":"info","message":"Usuario ID 13 registrado con socket ID mq3KNHiVI4dz64muAAAH","timestamp":"2025-07-11 03:28:07"}
+{"level":"info","message":"LOGIN: Intento de login para email: santi@gmail.com","timestamp":"2025-07-11 03:28:10"}
+{"level":"info","message":"LOGIN: Password recibida: 12345678","timestamp":"2025-07-11 03:28:10"}
+{"level":"info","message":"LOGIN: Hash recuperado de la BD: $2b$10$LeRvQJmeiVg4Zmm.Rp7baeJ9a2hE7gfwFczFjL2884nVc3DedXmKG","timestamp":"2025-07-11 03:28:10"}
+{"level":"info","message":"LOGIN: El resultado de la comparación fue: true","timestamp":"2025-07-11 03:28:10"}
+{"level":"info","message":"LOGIN: Login exitoso para santi@gmail.com","timestamp":"2025-07-11 03:28:10"}
+{"level":"info","message":"Usuario ID 13 registrado con socket ID mq3KNHiVI4dz64muAAAH","timestamp":"2025-07-11 03:28:10"}
+{"level":"info","message":"Usuario desconectado: mq3KNHiVI4dz64muAAAH","timestamp":"2025-07-11 03:28:18"}
+{"level":"info","message":"LOGIN: Intento de login para email: vilasantiago47@gmail.com","timestamp":"2025-07-11 03:28:22"}
+{"level":"info","message":"LOGIN: Password recibida: santi123","timestamp":"2025-07-11 03:28:22"}
+{"level":"info","message":"LOGIN: Hash recuperado de la BD: $2b$10$Z2qocsMTcrkyfF.1aZUz7.Z5ysXSVBAiFrfISHXG4Q3SlRuK/ukT6","timestamp":"2025-07-11 03:28:22"}
+{"level":"info","message":"LOGIN: El resultado de la comparación fue: true","timestamp":"2025-07-11 03:28:22"}
+{"level":"info","message":"LOGIN: Login exitoso para vilasantiago47@gmail.com","timestamp":"2025-07-11 03:28:22"}
+{"level":"info","message":"Usuario conectado: lYsI1j5Qy3wd-N0yAAAJ","timestamp":"2025-07-11 03:28:22"}
+{"level":"info","message":"Usuario ID 11 registrado con socket ID lYsI1j5Qy3wd-N0yAAAJ","timestamp":"2025-07-11 03:28:22"}
+{"level":"info","message":"Usuario desconectado: A5KhLeSTkowiAY53AAAF","timestamp":"2025-07-11 03:33:40"}
+{"level":"info","message":"Usuario desconectado: lYsI1j5Qy3wd-N0yAAAJ","timestamp":"2025-07-11 03:33:40"}
+{"level":"info","message":"Usuario conectado: afNxWFs6xtczlYWyAAAM","timestamp":"2025-07-11 03:34:31"}
+{"level":"info","message":"Usuario conectado: y5Ad0ILGvxwJbzY0AAAN","timestamp":"2025-07-11 03:34:31"}
+{"level":"info","message":"Usuario desconectado: afNxWFs6xtczlYWyAAAM","timestamp":"2025-07-11 03:37:40"}
+{"level":"info","message":"Usuario desconectado: y5Ad0ILGvxwJbzY0AAAN","timestamp":"2025-07-11 04:04:06"}
+{"level":"info","message":"Usuario conectado: OtHFrN-Kc4Vo9aSXAAAP","timestamp":"2025-07-11 04:04:12"}
+{"level":"info","message":"Usuario conectado: ltecwL5XcF0SLIScAAAR","timestamp":"2025-07-11 04:04:17"}
+{"level":"info","message":"Usuario desconectado: OtHFrN-Kc4Vo9aSXAAAP","timestamp":"2025-07-11 04:47:38"}
+{"level":"info","message":"Usuario desconectado: ltecwL5XcF0SLIScAAAR","timestamp":"2025-07-11 04:47:38"}
+{"level":"info","message":"Usuario conectado: BNkcRDUyrQv40CxAAAAT","timestamp":"2025-07-11 04:47:41"}
+{"level":"info","message":"Usuario conectado: zy1VzU7KJ5tmDLAuAAAV","timestamp":"2025-07-11 04:47:41"}
+{"level":"info","message":"Usuario desconectado: zy1VzU7KJ5tmDLAuAAAV","timestamp":"2025-07-11 04:47:43"}
+{"level":"info","message":"Usuario desconectado: BNkcRDUyrQv40CxAAAAT","timestamp":"2025-07-11 06:47:01"}
+{"level":"info","message":"Usuario conectado: J8QG1hBd5GHsnuP-AAAY","timestamp":"2025-07-11 06:47:05"}
+{"level":"info","message":"Usuario conectado: rNP9VSMYgRjsaqeAAAAZ","timestamp":"2025-07-11 06:47:05"}
+{"level":"info","message":"Usuario desconectado: rNP9VSMYgRjsaqeAAAAZ","timestamp":"2025-07-11 06:47:06"}
+{"level":"info","message":"Usuario desconectado: J8QG1hBd5GHsnuP-AAAY","timestamp":"2025-07-11 06:47:06"}
+{"level":"info","message":"Usuario conectado: SUWU1KQh7nBia1u-AAAb","timestamp":"2025-07-11 15:01:41"}
+{"level":"info","message":"Usuario conectado: _GPfvz5N_EoGif_rAAAd","timestamp":"2025-07-11 15:01:44"}
+{"level":"info","message":"Usuario desconectado: _GPfvz5N_EoGif_rAAAd","timestamp":"2025-07-11 15:13:46"}
+{"level":"info","message":"Usuario desconectado: SUWU1KQh7nBia1u-AAAb","timestamp":"2025-07-11 15:13:47"}
+{"level":"info","message":"Usuario conectado: bgib4rf3L8JEtLJ5AAAf","timestamp":"2025-07-11 15:13:56"}
+{"level":"info","message":"Usuario conectado: -Z-H_1yBCMrTb8M8AAAh","timestamp":"2025-07-11 15:13:59"}
+{"level":"info","message":"Usuario desconectado: -Z-H_1yBCMrTb8M8AAAh","timestamp":"2025-07-11 15:17:17"}
+{"level":"info","message":"Usuario desconectado: bgib4rf3L8JEtLJ5AAAf","timestamp":"2025-07-11 15:17:17"}
+{"level":"info","message":"Usuario conectado: Ia8XkkMtD1T9jSDdAAAk","timestamp":"2025-07-11 15:21:32"}
+{"level":"info","message":"Usuario conectado: L5JjshgF6hnqHyfRAAAl","timestamp":"2025-07-11 15:21:32"}
+{"level":"info","message":"Usuario desconectado: L5JjshgF6hnqHyfRAAAl","timestamp":"2025-07-11 15:24:42"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-11 16:42:56"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-11 17:27:05"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-16 05:08:22"}
+{"level":"info","message":"Usuario conectado: Dpk-7QonfJcDt4HvAAAB","timestamp":"2025-07-16 05:08:55"}
+{"level":"info","message":"Usuario desconectado: Dpk-7QonfJcDt4HvAAAB","timestamp":"2025-07-16 05:13:12"}
+{"level":"info","message":"Usuario conectado: UBjbhM_erChHR915AAAD","timestamp":"2025-07-16 05:13:13"}
+{"level":"info","message":"Usuario desconectado: UBjbhM_erChHR915AAAD","timestamp":"2025-07-16 05:16:30"}
+{"level":"info","message":"Usuario conectado: DaQhNcen467CybVDAAAF","timestamp":"2025-07-16 05:16:30"}
+{"level":"info","message":"Usuario desconectado: DaQhNcen467CybVDAAAF","timestamp":"2025-07-16 05:18:00"}
+{"level":"info","message":"Usuario conectado: loW-NOhCgGdWqMxOAAAH","timestamp":"2025-07-16 05:18:01"}
+{"level":"info","message":"Usuario desconectado: loW-NOhCgGdWqMxOAAAH","timestamp":"2025-07-16 05:18:51"}
+{"level":"info","message":"Usuario conectado: GzyudSPffeX1CROVAAAJ","timestamp":"2025-07-16 05:18:52"}
+{"level":"info","message":"Usuario desconectado: GzyudSPffeX1CROVAAAJ","timestamp":"2025-07-16 05:19:24"}
+{"level":"info","message":"Usuario conectado: 4kkVpiwikbgOZiDwAAAL","timestamp":"2025-07-16 05:19:25"}
+{"level":"info","message":"LOGIN: Intento de login para email: vilasantiago47@gmail.com","timestamp":"2025-07-16 05:24:48"}
+{"level":"info","message":"LOGIN: Password recibida: santi123","timestamp":"2025-07-16 05:24:48"}
+{"level":"warn","message":"LOGIN: Email no encontrado: vilasantiago47@gmail.com","timestamp":"2025-07-16 05:24:48"}
+{"level":"info","message":"LOGIN: Intento de login para email: santi@gmail.com","timestamp":"2025-07-16 05:24:52"}
+{"level":"info","message":"LOGIN: Password recibida: 12345678","timestamp":"2025-07-16 05:24:52"}
+{"level":"warn","message":"LOGIN: Email no encontrado: santi@gmail.com","timestamp":"2025-07-16 05:24:52"}
+{"level":"info","message":"LOGIN: Intento de login para email: vilasantiago16@gmail.com","timestamp":"2025-07-16 05:24:58"}
+{"level":"info","message":"LOGIN: Password recibida: santi123","timestamp":"2025-07-16 05:24:58"}
+{"level":"warn","message":"LOGIN: Email no encontrado: vilasantiago16@gmail.com","timestamp":"2025-07-16 05:24:58"}
+{"level":"info","message":"LOGIN: Intento de login para email: vilasantiago16@gmail.com","timestamp":"2025-07-16 05:25:03"}
+{"level":"info","message":"LOGIN: Password recibida: santi1234","timestamp":"2025-07-16 05:25:03"}
+{"level":"warn","message":"LOGIN: Email no encontrado: vilasantiago16@gmail.com","timestamp":"2025-07-16 05:25:03"}
+{"level":"info","message":"REGISTRO: Recibido email: ala@gmail.com","timestamp":"2025-07-16 05:25:35"}
+{"level":"info","message":"REGISTRO: Recibida password: santi1234","timestamp":"2025-07-16 05:25:35"}
+{"level":"info","message":"REGISTRO: Hash generado: $2b$10$.WVJraeJ0nmeCTZS7aMmu.jdRUzHRyG5quuAUf.z5aeV9ClUaoLKy","timestamp":"2025-07-16 05:25:35"}
+{"level":"info","message":"REGISTRO: Usuario ala@gmail.com guardado en la BD con éxito.","timestamp":"2025-07-16 05:25:36"}
+{"level":"info","message":"LOGIN: Intento de login para email: ala@gmail.com","timestamp":"2025-07-16 05:25:41"}
+{"level":"info","message":"LOGIN: Password recibida: santi1234","timestamp":"2025-07-16 05:25:41"}
+{"level":"info","message":"LOGIN: Hash recuperado de la BD: $2b$10$.WVJraeJ0nmeCTZS7aMmu.jdRUzHRyG5quuAUf.z5aeV9ClUaoLKy","timestamp":"2025-07-16 05:25:41"}
+{"level":"info","message":"LOGIN: El resultado de la comparación fue: true","timestamp":"2025-07-16 05:25:41"}
+{"level":"info","message":"LOGIN: Login exitoso para ala@gmail.com","timestamp":"2025-07-16 05:25:41"}
+{"level":"info","message":"Usuario ID 14 registrado con socket ID 4kkVpiwikbgOZiDwAAAL","timestamp":"2025-07-16 05:25:42"}
+{"level":"info","message":"Usuario desconectado: 4kkVpiwikbgOZiDwAAAL","timestamp":"2025-07-16 05:27:00"}
+{"level":"info","message":"Usuario conectado: kjOlVPM9ZDVrnoYTAAAN","timestamp":"2025-07-16 05:27:01"}
+{"level":"info","message":"Usuario ID 14 registrado con socket ID kjOlVPM9ZDVrnoYTAAAN","timestamp":"2025-07-16 05:27:01"}
+{"level":"info","message":"Usuario ID 14 registrado con socket ID kjOlVPM9ZDVrnoYTAAAN","timestamp":"2025-07-16 05:27:01"}
+{"level":"info","message":"LOGIN: Intento de login para email: ala@gmail.com","timestamp":"2025-07-16 05:27:02"}
+{"level":"info","message":"LOGIN: Password recibida: santi1234","timestamp":"2025-07-16 05:27:02"}
+{"level":"info","message":"LOGIN: Hash recuperado de la BD: $2b$10$.WVJraeJ0nmeCTZS7aMmu.jdRUzHRyG5quuAUf.z5aeV9ClUaoLKy","timestamp":"2025-07-16 05:27:02"}
+{"level":"info","message":"LOGIN: El resultado de la comparación fue: true","timestamp":"2025-07-16 05:27:02"}
+{"level":"info","message":"LOGIN: Login exitoso para ala@gmail.com","timestamp":"2025-07-16 05:27:02"}
+{"level":"info","message":"Usuario ID 14 registrado con socket ID kjOlVPM9ZDVrnoYTAAAN","timestamp":"2025-07-16 05:27:02"}
+{"level":"info","message":"Usuario desconectado: kjOlVPM9ZDVrnoYTAAAN","timestamp":"2025-07-16 05:31:29"}
+{"level":"info","message":"Usuario conectado: VJgD2C3bAagZh2gZAAAP","timestamp":"2025-07-16 05:31:29"}
+{"level":"info","message":"Usuario ID 14 registrado con socket ID VJgD2C3bAagZh2gZAAAP","timestamp":"2025-07-16 05:31:29"}
+{"level":"info","message":"Usuario ID 14 registrado con socket ID VJgD2C3bAagZh2gZAAAP","timestamp":"2025-07-16 05:31:30"}
+{"level":"info","message":"LOGIN: Intento de login para email: ala@gmail.com","timestamp":"2025-07-16 05:31:32"}
+{"level":"info","message":"LOGIN: Password recibida: santi1234","timestamp":"2025-07-16 05:31:32"}
+{"level":"info","message":"LOGIN: Hash recuperado de la BD: $2b$10$.WVJraeJ0nmeCTZS7aMmu.jdRUzHRyG5quuAUf.z5aeV9ClUaoLKy","timestamp":"2025-07-16 05:31:32"}
+{"level":"info","message":"LOGIN: El resultado de la comparación fue: true","timestamp":"2025-07-16 05:31:32"}
+{"level":"info","message":"LOGIN: Login exitoso para ala@gmail.com","timestamp":"2025-07-16 05:31:32"}
+{"level":"info","message":"Usuario ID 14 registrado con socket ID VJgD2C3bAagZh2gZAAAP","timestamp":"2025-07-16 05:31:32"}
+{"level":"info","message":"Usuario desconectado: VJgD2C3bAagZh2gZAAAP","timestamp":"2025-07-16 05:31:41"}
+{"level":"info","message":"Usuario conectado: hipsqpLENCkehQtrAAAR","timestamp":"2025-07-16 05:31:42"}
+{"level":"info","message":"Usuario ID 14 registrado con socket ID hipsqpLENCkehQtrAAAR","timestamp":"2025-07-16 05:31:42"}
+{"level":"info","message":"Usuario ID 14 registrado con socket ID hipsqpLENCkehQtrAAAR","timestamp":"2025-07-16 05:31:42"}
+{"level":"info","message":"LOGIN: Intento de login para email: ala@gmail.com","timestamp":"2025-07-16 05:31:44"}
+{"level":"info","message":"LOGIN: Password recibida: santi1234","timestamp":"2025-07-16 05:31:44"}
+{"level":"info","message":"LOGIN: Hash recuperado de la BD: $2b$10$.WVJraeJ0nmeCTZS7aMmu.jdRUzHRyG5quuAUf.z5aeV9ClUaoLKy","timestamp":"2025-07-16 05:31:44"}
+{"level":"info","message":"LOGIN: El resultado de la comparación fue: true","timestamp":"2025-07-16 05:31:44"}
+{"level":"info","message":"LOGIN: Login exitoso para ala@gmail.com","timestamp":"2025-07-16 05:31:44"}
+{"level":"info","message":"Usuario ID 14 registrado con socket ID hipsqpLENCkehQtrAAAR","timestamp":"2025-07-16 05:31:44"}
+{"level":"info","message":"Usuario desconectado: hipsqpLENCkehQtrAAAR","timestamp":"2025-07-16 05:34:37"}
+{"level":"info","message":"Usuario conectado: rUl4RzxQk6kV1XbmAAAT","timestamp":"2025-07-16 05:34:38"}
+{"level":"info","message":"Usuario ID 14 registrado con socket ID rUl4RzxQk6kV1XbmAAAT","timestamp":"2025-07-16 05:34:38"}
+{"level":"info","message":"Usuario ID 14 registrado con socket ID rUl4RzxQk6kV1XbmAAAT","timestamp":"2025-07-16 05:34:38"}
+{"level":"info","message":"LOGIN: Intento de login para email: ala@gmail.com","timestamp":"2025-07-16 05:34:48"}
+{"level":"info","message":"LOGIN: Password recibida: santi1234","timestamp":"2025-07-16 05:34:48"}
+{"level":"info","message":"LOGIN: Hash recuperado de la BD: $2b$10$.WVJraeJ0nmeCTZS7aMmu.jdRUzHRyG5quuAUf.z5aeV9ClUaoLKy","timestamp":"2025-07-16 05:34:48"}
+{"level":"info","message":"LOGIN: El resultado de la comparación fue: true","timestamp":"2025-07-16 05:34:48"}
+{"level":"info","message":"LOGIN: Login exitoso para ala@gmail.com","timestamp":"2025-07-16 05:34:48"}
+{"level":"info","message":"Usuario ID 14 registrado con socket ID rUl4RzxQk6kV1XbmAAAT","timestamp":"2025-07-16 05:34:48"}
+{"level":"info","message":"Usuario desconectado: rUl4RzxQk6kV1XbmAAAT","timestamp":"2025-07-16 05:41:29"}
+{"level":"info","message":"Usuario conectado: ff6tclNevqMNn-EbAAAV","timestamp":"2025-07-16 05:41:30"}
+{"level":"info","message":"Usuario ID 14 registrado con socket ID ff6tclNevqMNn-EbAAAV","timestamp":"2025-07-16 05:41:30"}
+{"level":"info","message":"Usuario ID 14 registrado con socket ID ff6tclNevqMNn-EbAAAV","timestamp":"2025-07-16 05:41:30"}
+{"level":"info","message":"Usuario desconectado: ff6tclNevqMNn-EbAAAV","timestamp":"2025-07-16 05:41:32"}
+{"level":"info","message":"LOGIN: Intento de login para email: ala@gmail.com","timestamp":"2025-07-16 05:41:35"}
+{"level":"info","message":"LOGIN: Password recibida: santi1234","timestamp":"2025-07-16 05:41:35"}
+{"level":"info","message":"LOGIN: Hash recuperado de la BD: $2b$10$.WVJraeJ0nmeCTZS7aMmu.jdRUzHRyG5quuAUf.z5aeV9ClUaoLKy","timestamp":"2025-07-16 05:41:35"}
+{"level":"info","message":"LOGIN: El resultado de la comparación fue: true","timestamp":"2025-07-16 05:41:35"}
+{"level":"info","message":"LOGIN: Login exitoso para ala@gmail.com","timestamp":"2025-07-16 05:41:35"}
+{"level":"info","message":"Usuario conectado: WrCKCPhfiqbFhfFOAAAX","timestamp":"2025-07-16 05:41:35"}
+{"level":"info","message":"Usuario ID 14 registrado con socket ID WrCKCPhfiqbFhfFOAAAX","timestamp":"2025-07-16 05:41:35"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-16 05:58:19"}
+{"level":"info","message":"Usuario conectado: OjpYH0qdRaA6-BDTAAAB","timestamp":"2025-07-16 05:58:19"}
+{"level":"info","message":"Usuario desconectado: OjpYH0qdRaA6-BDTAAAB","timestamp":"2025-07-16 05:59:28"}
+{"level":"info","message":"LOGIN: Intento de login para email: ala@gmail.com","timestamp":"2025-07-16 05:59:30"}
+{"level":"info","message":"LOGIN: Password recibida: santi1234","timestamp":"2025-07-16 05:59:30"}
+{"level":"info","message":"LOGIN: Hash recuperado de la BD: $2b$10$.WVJraeJ0nmeCTZS7aMmu.jdRUzHRyG5quuAUf.z5aeV9ClUaoLKy","timestamp":"2025-07-16 05:59:30"}
+{"level":"info","message":"LOGIN: El resultado de la comparación fue: true","timestamp":"2025-07-16 05:59:30"}
+{"level":"info","message":"LOGIN: Login exitoso para ala@gmail.com","timestamp":"2025-07-16 05:59:30"}
+{"level":"info","message":"Usuario conectado: Vk-lw8yQMFE-enAXAAAD","timestamp":"2025-07-16 05:59:30"}
+{"level":"info","message":"Usuario ID 14 registrado con socket ID Vk-lw8yQMFE-enAXAAAD","timestamp":"2025-07-16 05:59:30"}
+{"level":"info","message":"Usuario desconectado: Vk-lw8yQMFE-enAXAAAD","timestamp":"2025-07-16 06:03:55"}
+{"level":"info","message":"Usuario conectado: lN_RxOK8vZc3AFU8AAAF","timestamp":"2025-07-16 06:03:56"}
+{"level":"info","message":"Usuario ID 14 registrado con socket ID lN_RxOK8vZc3AFU8AAAF","timestamp":"2025-07-16 06:03:57"}
+{"level":"info","message":"Usuario ID 14 registrado con socket ID lN_RxOK8vZc3AFU8AAAF","timestamp":"2025-07-16 06:03:57"}
+{"level":"info","message":"LOGIN: Intento de login para email: ala@gmail.com","timestamp":"2025-07-16 06:03:58"}
+{"level":"info","message":"LOGIN: Password recibida: santi1234","timestamp":"2025-07-16 06:03:58"}
+{"level":"info","message":"LOGIN: Hash recuperado de la BD: $2b$10$.WVJraeJ0nmeCTZS7aMmu.jdRUzHRyG5quuAUf.z5aeV9ClUaoLKy","timestamp":"2025-07-16 06:03:58"}
+{"level":"info","message":"LOGIN: El resultado de la comparación fue: true","timestamp":"2025-07-16 06:03:58"}
+{"level":"info","message":"LOGIN: Login exitoso para ala@gmail.com","timestamp":"2025-07-16 06:03:58"}
+{"level":"info","message":"Usuario ID 14 registrado con socket ID lN_RxOK8vZc3AFU8AAAF","timestamp":"2025-07-16 06:03:59"}
+{"level":"info","message":"Usuario desconectado: lN_RxOK8vZc3AFU8AAAF","timestamp":"2025-07-16 06:06:49"}
+{"level":"info","message":"Usuario conectado: 2c8i0bYiHYJc7x0QAAAH","timestamp":"2025-07-16 06:07:09"}
+{"level":"info","message":"Usuario desconectado: 2c8i0bYiHYJc7x0QAAAH","timestamp":"2025-07-16 06:09:45"}
+{"level":"info","message":"Usuario conectado: P6DDGyGXcQjvFmBpAAAJ","timestamp":"2025-07-16 06:09:46"}
+{"level":"info","message":"LOGIN: Intento de login para email: ala@gmail.com","timestamp":"2025-07-16 06:14:15"}
+{"level":"info","message":"LOGIN: Password recibida: santi1234","timestamp":"2025-07-16 06:14:15"}
+{"level":"info","message":"LOGIN: Hash recuperado de la BD: $2b$10$.WVJraeJ0nmeCTZS7aMmu.jdRUzHRyG5quuAUf.z5aeV9ClUaoLKy","timestamp":"2025-07-16 06:14:15"}
+{"level":"info","message":"LOGIN: El resultado de la comparación fue: true","timestamp":"2025-07-16 06:14:15"}
+{"level":"info","message":"LOGIN: Login exitoso para ala@gmail.com","timestamp":"2025-07-16 06:14:15"}
+{"level":"info","message":"Usuario ID 14 registrado con socket ID P6DDGyGXcQjvFmBpAAAJ","timestamp":"2025-07-16 06:14:15"}
+{"level":"info","message":"Usuario desconectado: P6DDGyGXcQjvFmBpAAAJ","timestamp":"2025-07-16 06:19:39"}
+{"level":"info","message":"Usuario conectado: Vj-LW9-LqB6hGw_uAAAL","timestamp":"2025-07-16 06:19:46"}
+{"level":"info","message":"Usuario desconectado: Vj-LW9-LqB6hGw_uAAAL","timestamp":"2025-07-16 06:19:46"}
+{"level":"info","message":"Usuario conectado: w7Lxjxktxg-rRMJJAAAN","timestamp":"2025-07-16 06:19:48"}
+{"level":"info","message":"Usuario ID 14 registrado con socket ID w7Lxjxktxg-rRMJJAAAN","timestamp":"2025-07-16 06:19:48"}
+{"level":"info","message":"Usuario ID 14 registrado con socket ID w7Lxjxktxg-rRMJJAAAN","timestamp":"2025-07-16 06:19:49"}
+{"level":"info","message":"Usuario desconectado: w7Lxjxktxg-rRMJJAAAN","timestamp":"2025-07-16 06:24:09"}
+{"level":"info","message":"Usuario conectado: a6DNBiuyo9ENtAbSAAAQ","timestamp":"2025-07-16 15:34:55"}
+{"level":"info","message":"Usuario desconectado: a6DNBiuyo9ENtAbSAAAQ","timestamp":"2025-07-16 15:34:55"}
+{"level":"info","message":"LOGIN: Intento de login para email: ala@gmail.com","timestamp":"2025-07-16 15:35:12"}
+{"level":"info","message":"LOGIN: Password recibida: santi1234","timestamp":"2025-07-16 15:35:12"}
+{"level":"info","message":"LOGIN: Hash recuperado de la BD: $2b$10$.WVJraeJ0nmeCTZS7aMmu.jdRUzHRyG5quuAUf.z5aeV9ClUaoLKy","timestamp":"2025-07-16 15:35:12"}
+{"level":"info","message":"LOGIN: El resultado de la comparación fue: true","timestamp":"2025-07-16 15:35:12"}
+{"level":"info","message":"LOGIN: Login exitoso para ala@gmail.com","timestamp":"2025-07-16 15:35:13"}
+{"level":"info","message":"Usuario conectado: xpJbpNtlJ_Ww6hvAAAAS","timestamp":"2025-07-16 15:35:13"}
+{"level":"info","message":"Usuario ID 14 registrado con socket ID xpJbpNtlJ_Ww6hvAAAAS","timestamp":"2025-07-16 15:35:13"}
+{"level":"info","message":"Usuario desconectado: xpJbpNtlJ_Ww6hvAAAAS","timestamp":"2025-07-16 15:35:37"}
+{"level":"info","message":"Usuario conectado: f_zQ_ToJsoGjnGaRAAAU","timestamp":"2025-07-16 15:35:38"}
+{"level":"info","message":"Usuario ID 14 registrado con socket ID f_zQ_ToJsoGjnGaRAAAU","timestamp":"2025-07-16 15:35:38"}
+{"level":"info","message":"Usuario ID 14 registrado con socket ID f_zQ_ToJsoGjnGaRAAAU","timestamp":"2025-07-16 15:35:38"}
+{"level":"info","message":"Usuario desconectado: f_zQ_ToJsoGjnGaRAAAU","timestamp":"2025-07-16 15:35:55"}
+{"level":"info","message":"Usuario conectado: gMFMOAgkAgvmjL8LAAAW","timestamp":"2025-07-16 15:35:56"}
+{"level":"info","message":"Usuario ID 14 registrado con socket ID gMFMOAgkAgvmjL8LAAAW","timestamp":"2025-07-16 15:35:56"}
+{"level":"info","message":"Usuario ID 14 registrado con socket ID gMFMOAgkAgvmjL8LAAAW","timestamp":"2025-07-16 15:35:56"}
+{"level":"info","message":"Usuario desconectado: gMFMOAgkAgvmjL8LAAAW","timestamp":"2025-07-16 15:35:58"}
+{"level":"info","message":"LOGIN: Intento de login para email: ala@gmail.com","timestamp":"2025-07-16 15:36:00"}
+{"level":"info","message":"LOGIN: Password recibida: santi1234","timestamp":"2025-07-16 15:36:00"}
+{"level":"info","message":"LOGIN: Hash recuperado de la BD: $2b$10$.WVJraeJ0nmeCTZS7aMmu.jdRUzHRyG5quuAUf.z5aeV9ClUaoLKy","timestamp":"2025-07-16 15:36:00"}
+{"level":"info","message":"LOGIN: El resultado de la comparación fue: true","timestamp":"2025-07-16 15:36:00"}
+{"level":"info","message":"LOGIN: Login exitoso para ala@gmail.com","timestamp":"2025-07-16 15:36:00"}
+{"level":"info","message":"Usuario conectado: LmuKjidZJ2yyHMUYAAAY","timestamp":"2025-07-16 15:36:00"}
+{"level":"info","message":"Usuario ID 14 registrado con socket ID LmuKjidZJ2yyHMUYAAAY","timestamp":"2025-07-16 15:36:00"}
+{"level":"info","message":"Usuario desconectado: LmuKjidZJ2yyHMUYAAAY","timestamp":"2025-07-16 15:38:37"}
+{"level":"info","message":"Usuario conectado: nIVYlKQ7GtiT4fr1AAAa","timestamp":"2025-07-16 15:38:38"}
+{"level":"info","message":"Usuario ID 14 registrado con socket ID nIVYlKQ7GtiT4fr1AAAa","timestamp":"2025-07-16 15:38:39"}
+{"level":"info","message":"Usuario ID 14 registrado con socket ID nIVYlKQ7GtiT4fr1AAAa","timestamp":"2025-07-16 15:38:39"}
+{"level":"info","message":"LOGIN: Intento de login para email: ala@gmail.com","timestamp":"2025-07-16 15:38:40"}
+{"level":"info","message":"LOGIN: Password recibida: santi1234","timestamp":"2025-07-16 15:38:40"}
+{"level":"info","message":"LOGIN: Hash recuperado de la BD: $2b$10$.WVJraeJ0nmeCTZS7aMmu.jdRUzHRyG5quuAUf.z5aeV9ClUaoLKy","timestamp":"2025-07-16 15:38:40"}
+{"level":"info","message":"LOGIN: El resultado de la comparación fue: true","timestamp":"2025-07-16 15:38:41"}
+{"level":"info","message":"LOGIN: Login exitoso para ala@gmail.com","timestamp":"2025-07-16 15:38:41"}
+{"level":"info","message":"Usuario ID 14 registrado con socket ID nIVYlKQ7GtiT4fr1AAAa","timestamp":"2025-07-16 15:38:41"}
+{"level":"info","message":"Usuario desconectado: nIVYlKQ7GtiT4fr1AAAa","timestamp":"2025-07-16 15:39:03"}
+{"level":"info","message":"LOGIN: Intento de login para email: ala@gmail.com","timestamp":"2025-07-16 15:39:04"}
+{"level":"info","message":"LOGIN: Password recibida: santi1234","timestamp":"2025-07-16 15:39:04"}
+{"level":"info","message":"LOGIN: Hash recuperado de la BD: $2b$10$.WVJraeJ0nmeCTZS7aMmu.jdRUzHRyG5quuAUf.z5aeV9ClUaoLKy","timestamp":"2025-07-16 15:39:04"}
+{"level":"info","message":"LOGIN: El resultado de la comparación fue: true","timestamp":"2025-07-16 15:39:04"}
+{"level":"info","message":"LOGIN: Login exitoso para ala@gmail.com","timestamp":"2025-07-16 15:39:04"}
+{"level":"info","message":"Usuario conectado: LdpS9WhyuozkGIEEAAAc","timestamp":"2025-07-16 15:39:04"}
+{"level":"info","message":"Usuario ID 14 registrado con socket ID LdpS9WhyuozkGIEEAAAc","timestamp":"2025-07-16 15:39:04"}
+{"level":"info","message":"Usuario desconectado: LdpS9WhyuozkGIEEAAAc","timestamp":"2025-07-16 15:39:34"}
+{"level":"info","message":"Usuario conectado: 43ZCpd7lJqpMXHxBAAAe","timestamp":"2025-07-16 15:39:34"}
+{"level":"info","message":"Usuario ID 14 registrado con socket ID 43ZCpd7lJqpMXHxBAAAe","timestamp":"2025-07-16 15:39:35"}
+{"level":"info","message":"Usuario ID 14 registrado con socket ID 43ZCpd7lJqpMXHxBAAAe","timestamp":"2025-07-16 15:39:35"}
+{"level":"info","message":"Usuario conectado: 8yZE3OR9tLFiDjveAAAh","timestamp":"2025-07-16 15:43:08"}
+{"level":"info","message":"Usuario conectado: 4EWG7fwrijIT7KL6AAAi","timestamp":"2025-07-16 15:43:08"}
+{"level":"info","message":"Usuario desconectado: 43ZCpd7lJqpMXHxBAAAe","timestamp":"2025-07-16 15:48:21"}
+{"level":"info","message":"Usuario desconectado: 4EWG7fwrijIT7KL6AAAi","timestamp":"2025-07-16 15:48:21"}
+{"level":"info","message":"Usuario desconectado: 8yZE3OR9tLFiDjveAAAh","timestamp":"2025-07-16 15:48:21"}
+{"level":"info","message":"Usuario conectado: 2p0teLIoxHbvj6tHAAAm","timestamp":"2025-07-16 15:48:41"}
+{"level":"info","message":"Usuario conectado: WdQr7L7L8zBbnfdGAAAn","timestamp":"2025-07-16 15:48:41"}
+{"level":"info","message":"Usuario conectado: LT-74U50dHK9JIFCAAAo","timestamp":"2025-07-16 15:48:41"}
+{"level":"info","message":"Usuario desconectado: 2p0teLIoxHbvj6tHAAAm","timestamp":"2025-07-16 15:49:22"}
+{"level":"info","message":"Usuario desconectado: LT-74U50dHK9JIFCAAAo","timestamp":"2025-07-16 15:49:22"}
+{"level":"info","message":"Usuario desconectado: WdQr7L7L8zBbnfdGAAAn","timestamp":"2025-07-16 15:49:22"}
+{"level":"info","message":"Usuario conectado: EqAxTbSULeVrnLhUAAAq","timestamp":"2025-07-16 15:49:23"}
+{"level":"info","message":"Usuario ID 14 registrado con socket ID EqAxTbSULeVrnLhUAAAq","timestamp":"2025-07-16 15:49:24"}
+{"level":"info","message":"Usuario ID 14 registrado con socket ID EqAxTbSULeVrnLhUAAAq","timestamp":"2025-07-16 15:49:24"}
+{"level":"info","message":"LOGIN: Intento de login para email: ala@gmail.com","timestamp":"2025-07-16 15:49:25"}
+{"level":"info","message":"LOGIN: Password recibida: santi1234","timestamp":"2025-07-16 15:49:25"}
+{"level":"info","message":"LOGIN: Hash recuperado de la BD: $2b$10$.WVJraeJ0nmeCTZS7aMmu.jdRUzHRyG5quuAUf.z5aeV9ClUaoLKy","timestamp":"2025-07-16 15:49:25"}
+{"level":"info","message":"LOGIN: El resultado de la comparación fue: true","timestamp":"2025-07-16 15:49:25"}
+{"level":"info","message":"LOGIN: Login exitoso para ala@gmail.com","timestamp":"2025-07-16 15:49:25"}
+{"level":"info","message":"Usuario ID 14 registrado con socket ID EqAxTbSULeVrnLhUAAAq","timestamp":"2025-07-16 15:49:25"}
+{"level":"info","message":"Avatar antiguo borrado: C:\\Users\\54113\\Desktop\\LDL\\Backend\\public\\uploads\\avatar-1752691169432-555333712.jpg","timestamp":"2025-07-16 15:49:45"}
+{"level":"info","message":"Usuario conectado: bEJI-8xX4BHuDMabAAAt","timestamp":"2025-07-16 15:56:10"}
+{"level":"info","message":"Usuario conectado: YSgtPxculq1xceHQAAAu","timestamp":"2025-07-16 15:56:10"}
+{"level":"info","message":"Usuario desconectado: EqAxTbSULeVrnLhUAAAq","timestamp":"2025-07-16 15:57:27"}
+{"level":"info","message":"Usuario desconectado: YSgtPxculq1xceHQAAAu","timestamp":"2025-07-16 15:57:28"}
+{"level":"info","message":"Usuario desconectado: bEJI-8xX4BHuDMabAAAt","timestamp":"2025-07-16 15:57:28"}
+{"level":"info","message":"Usuario conectado: uRqGXpEtVcKlUQgaAAAw","timestamp":"2025-07-16 15:57:29"}
+{"level":"info","message":"LOGIN: Intento de login para email: ala@gmail.com","timestamp":"2025-07-16 15:57:31"}
+{"level":"info","message":"LOGIN: Password recibida: santi1234","timestamp":"2025-07-16 15:57:31"}
+{"level":"info","message":"LOGIN: Hash recuperado de la BD: $2b$10$.WVJraeJ0nmeCTZS7aMmu.jdRUzHRyG5quuAUf.z5aeV9ClUaoLKy","timestamp":"2025-07-16 15:57:31"}
+{"level":"info","message":"LOGIN: El resultado de la comparación fue: true","timestamp":"2025-07-16 15:57:31"}
+{"level":"info","message":"LOGIN: Login exitoso para ala@gmail.com","timestamp":"2025-07-16 15:57:31"}
+{"level":"info","message":"Avatar antiguo borrado: C:\\Users\\54113\\Desktop\\LDL\\Backend\\public\\uploads\\avatar-1752691785467-934473855.jpg","timestamp":"2025-07-16 15:57:44"}
+{"level":"info","message":"Usuario desconectado: uRqGXpEtVcKlUQgaAAAw","timestamp":"2025-07-16 16:01:21"}
+{"level":"info","message":"Usuario conectado: 2YiovJnYPy_fOYnbAAAy","timestamp":"2025-07-16 17:09:16"}
+{"level":"info","message":"Usuario ID 14 registrado con socket ID 2YiovJnYPy_fOYnbAAAy","timestamp":"2025-07-16 17:09:17"}
+{"level":"info","message":"Usuario ID 14 registrado con socket ID 2YiovJnYPy_fOYnbAAAy","timestamp":"2025-07-16 17:09:17"}
+{"level":"info","message":"Usuario conectado: gk16oxz9KjHI6b4yAAA1","timestamp":"2025-07-16 17:10:28"}
+{"level":"info","message":"Usuario conectado: CisbvGtBBTe4FZIAAAA2","timestamp":"2025-07-16 17:10:28"}
+{"level":"info","message":"Usuario desconectado: CisbvGtBBTe4FZIAAAA2","timestamp":"2025-07-16 17:14:32"}
+{"level":"info","message":"Usuario desconectado: 2YiovJnYPy_fOYnbAAAy","timestamp":"2025-07-16 17:14:32"}
+{"level":"info","message":"Usuario desconectado: gk16oxz9KjHI6b4yAAA1","timestamp":"2025-07-16 17:14:32"}
+{"level":"info","message":"Usuario conectado: N4ajZZTrL3D0-eduAAA6","timestamp":"2025-07-16 17:16:41"}
+{"level":"info","message":"Usuario conectado: sRPia0D70W3eN7YsAAA7","timestamp":"2025-07-16 17:16:41"}
+{"level":"info","message":"Usuario conectado: 1_k0Gcqo1OQGsTjsAAA8","timestamp":"2025-07-16 17:16:41"}
+{"level":"info","message":"Usuario desconectado: N4ajZZTrL3D0-eduAAA6","timestamp":"2025-07-16 17:17:58"}
+{"level":"info","message":"Usuario desconectado: 1_k0Gcqo1OQGsTjsAAA8","timestamp":"2025-07-16 17:17:58"}
+{"level":"info","message":"Usuario desconectado: sRPia0D70W3eN7YsAAA7","timestamp":"2025-07-16 17:17:58"}
+{"level":"info","message":"Usuario conectado: jJdSQ1yiIRH8u_MaAAA-","timestamp":"2025-07-16 17:18:00"}
+{"level":"info","message":"Avatar antiguo borrado: C:\\Users\\54113\\Desktop\\LDL\\Backend\\public\\uploads\\avatar-1752692264470-208426634.jpg","timestamp":"2025-07-16 17:18:15"}
+{"level":"info","message":"Usuario desconectado: jJdSQ1yiIRH8u_MaAAA-","timestamp":"2025-07-16 17:27:01"}
+{"level":"info","message":"Usuario conectado: 1lrxGGWhpuR__S92AABA","timestamp":"2025-07-16 17:27:32"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-16 17:32:34"}
+{"level":"info","message":"Usuario conectado: W_vyecCS9ft1a9VfAAAB","timestamp":"2025-07-16 17:32:34"}
+{"level":"info","message":"Usuario desconectado: W_vyecCS9ft1a9VfAAAB","timestamp":"2025-07-16 17:32:42"}
+{"level":"info","message":"Usuario conectado: 5raXPzbknImX5aHeAAAD","timestamp":"2025-07-16 17:32:43"}
+{"level":"info","message":"LOGIN: Intento de login para email: ala@gmail.com","timestamp":"2025-07-16 17:32:45"}
+{"level":"info","message":"LOGIN: Password recibida: santi1234","timestamp":"2025-07-16 17:32:45"}
+{"level":"info","message":"LOGIN: Hash recuperado de la BD: $2b$10$.WVJraeJ0nmeCTZS7aMmu.jdRUzHRyG5quuAUf.z5aeV9ClUaoLKy","timestamp":"2025-07-16 17:32:45"}
+{"level":"info","message":"LOGIN: El resultado de la comparación fue: true","timestamp":"2025-07-16 17:32:45"}
+{"level":"info","message":"LOGIN: Login exitoso para ala@gmail.com","timestamp":"2025-07-16 17:32:45"}
+{"level":"info","message":"Avatar antiguo borrado: C:\\Users\\54113\\Desktop\\LDL\\Backend\\public\\uploads\\avatar-1752697094968-922275092.jpg","timestamp":"2025-07-16 17:33:01"}
+{"level":"info","message":"Avatar antiguo borrado: C:\\Users\\54113\\Desktop\\LDL\\Backend\\public\\uploads\\avatar-1752697981180-475069955.jpg","timestamp":"2025-07-16 17:41:21"}
+{"level":"info","message":"Usuario desconectado: 5raXPzbknImX5aHeAAAD","timestamp":"2025-07-16 17:41:32"}
+{"level":"info","message":"Usuario conectado: 7oGmWISMAIT-HJmjAAAF","timestamp":"2025-07-16 17:41:33"}
+{"level":"info","message":"Usuario desconectado: 7oGmWISMAIT-HJmjAAAF","timestamp":"2025-07-16 17:41:33"}
+{"level":"info","message":"Usuario conectado: B2tWQv6CDcZb9Pu_AAAH","timestamp":"2025-07-16 17:41:34"}
+{"level":"info","message":"LOGIN: Intento de login para email: ala@gmail.com","timestamp":"2025-07-16 17:41:35"}
+{"level":"info","message":"LOGIN: Password recibida: santi1234","timestamp":"2025-07-16 17:41:35"}
+{"level":"info","message":"LOGIN: Hash recuperado de la BD: $2b$10$.WVJraeJ0nmeCTZS7aMmu.jdRUzHRyG5quuAUf.z5aeV9ClUaoLKy","timestamp":"2025-07-16 17:41:35"}
+{"level":"info","message":"LOGIN: El resultado de la comparación fue: true","timestamp":"2025-07-16 17:41:35"}
+{"level":"info","message":"LOGIN: Login exitoso para ala@gmail.com","timestamp":"2025-07-16 17:41:35"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-16 17:46:15"}
+{"level":"info","message":"Usuario conectado: tgfpEw6Zc54HFfaCAAAB","timestamp":"2025-07-16 17:46:19"}
+{"level":"info","message":"Usuario desconectado: tgfpEw6Zc54HFfaCAAAB","timestamp":"2025-07-16 17:50:01"}
+{"level":"info","message":"Usuario conectado: DvuV8QPjVBS60OPwAAAD","timestamp":"2025-07-16 18:37:15"}
+{"level":"info","message":"LOGIN: Intento de login para email: ala@gmail.com","timestamp":"2025-07-16 18:37:17"}
+{"level":"info","message":"LOGIN: Password recibida: santi1234","timestamp":"2025-07-16 18:37:17"}
+{"level":"info","message":"LOGIN: Hash recuperado de la BD: $2b$10$.WVJraeJ0nmeCTZS7aMmu.jdRUzHRyG5quuAUf.z5aeV9ClUaoLKy","timestamp":"2025-07-16 18:37:17"}
+{"level":"info","message":"LOGIN: El resultado de la comparación fue: true","timestamp":"2025-07-16 18:37:18"}
+{"level":"info","message":"LOGIN: Login exitoso para ala@gmail.com","timestamp":"2025-07-16 18:37:18"}
+{"level":"info","message":"Avatar antiguo borrado: C:\\Users\\54113\\Desktop\\LDL\\Backend\\public\\uploads\\avatar-1752698481073-128423067.jpg","timestamp":"2025-07-16 18:37:40"}
+{"level":"info","message":"Usuario desconectado: DvuV8QPjVBS60OPwAAAD","timestamp":"2025-07-16 18:47:50"}
+{"level":"info","message":"Usuario conectado: hwzL0cYN1HVh4ADkAAAF","timestamp":"2025-07-16 18:48:44"}
+{"level":"info","message":"LOGIN: Intento de login para email: ala@gmail.com","timestamp":"2025-07-16 18:48:46"}
+{"level":"info","message":"LOGIN: Password recibida: santi1234","timestamp":"2025-07-16 18:48:46"}
+{"level":"info","message":"LOGIN: Hash recuperado de la BD: $2b$10$.WVJraeJ0nmeCTZS7aMmu.jdRUzHRyG5quuAUf.z5aeV9ClUaoLKy","timestamp":"2025-07-16 18:48:46"}
+{"level":"info","message":"LOGIN: El resultado de la comparación fue: true","timestamp":"2025-07-16 18:48:46"}
+{"level":"info","message":"LOGIN: Login exitoso para ala@gmail.com","timestamp":"2025-07-16 18:48:46"}
+{"level":"info","message":"Avatar antiguo borrado: C:\\Users\\54113\\Desktop\\LDL\\Backend\\public\\uploads\\avatar-1752701860754-898208671.jpg","timestamp":"2025-07-16 18:49:10"}
+{"level":"info","message":"Usuario conectado: 9y55xqQR2sHqBqjHAAAH","timestamp":"2025-07-16 18:53:48"}
+{"level":"info","message":"Usuario desconectado: hwzL0cYN1HVh4ADkAAAF","timestamp":"2025-07-16 18:53:57"}
+{"level":"info","message":"Usuario desconectado: 9y55xqQR2sHqBqjHAAAH","timestamp":"2025-07-16 18:53:57"}
+{"level":"info","message":"Usuario conectado: bdxiQ51LaGqbl-uUAAAJ","timestamp":"2025-07-16 18:53:58"}
+{"level":"info","message":"LOGIN: Intento de login para email: ala@gmail.com","timestamp":"2025-07-16 18:53:59"}
+{"level":"info","message":"LOGIN: Password recibida: santi1234","timestamp":"2025-07-16 18:53:59"}
+{"level":"info","message":"LOGIN: Hash recuperado de la BD: $2b$10$.WVJraeJ0nmeCTZS7aMmu.jdRUzHRyG5quuAUf.z5aeV9ClUaoLKy","timestamp":"2025-07-16 18:53:59"}
+{"level":"info","message":"LOGIN: El resultado de la comparación fue: true","timestamp":"2025-07-16 18:54:00"}
+{"level":"info","message":"LOGIN: Login exitoso para ala@gmail.com","timestamp":"2025-07-16 18:54:00"}
+{"level":"info","message":"Usuario desconectado: bdxiQ51LaGqbl-uUAAAJ","timestamp":"2025-07-16 18:58:02"}
+{"level":"info","message":"Usuario conectado: -tfkUB8Q5Yma8f5YAAAL","timestamp":"2025-07-16 19:00:02"}
+{"level":"info","message":"Usuario desconectado: -tfkUB8Q5Yma8f5YAAAL","timestamp":"2025-07-16 19:00:39"}
+{"level":"info","message":"Usuario conectado: BOVB7SYxPOSQFgQ1AAAN","timestamp":"2025-07-16 19:00:41"}
+{"level":"info","message":"LOGIN: Intento de login para email: ala@gmail.com","timestamp":"2025-07-16 19:00:42"}
+{"level":"info","message":"LOGIN: Password recibida: santi1234","timestamp":"2025-07-16 19:00:42"}
+{"level":"info","message":"LOGIN: Hash recuperado de la BD: $2b$10$.WVJraeJ0nmeCTZS7aMmu.jdRUzHRyG5quuAUf.z5aeV9ClUaoLKy","timestamp":"2025-07-16 19:00:42"}
+{"level":"info","message":"LOGIN: El resultado de la comparación fue: true","timestamp":"2025-07-16 19:00:42"}
+{"level":"info","message":"LOGIN: Login exitoso para ala@gmail.com","timestamp":"2025-07-16 19:00:42"}
+{"level":"info","message":"Usuario desconectado: BOVB7SYxPOSQFgQ1AAAN","timestamp":"2025-07-16 19:04:32"}
+{"level":"info","message":"Usuario conectado: jirSn2wwXVRojwzfAAAP","timestamp":"2025-07-16 19:05:12"}
+{"level":"info","message":"Usuario desconectado: jirSn2wwXVRojwzfAAAP","timestamp":"2025-07-16 19:05:45"}
+{"level":"info","message":"Usuario conectado: peIxfcTUvEmykTy7AAAR","timestamp":"2025-07-16 19:05:46"}
+{"level":"info","message":"LOGIN: Intento de login para email: ala@gmail.com","timestamp":"2025-07-16 19:05:48"}
+{"level":"info","message":"LOGIN: Password recibida: santi1234","timestamp":"2025-07-16 19:05:48"}
+{"level":"info","message":"LOGIN: Hash recuperado de la BD: $2b$10$.WVJraeJ0nmeCTZS7aMmu.jdRUzHRyG5quuAUf.z5aeV9ClUaoLKy","timestamp":"2025-07-16 19:05:48"}
+{"level":"info","message":"LOGIN: El resultado de la comparación fue: true","timestamp":"2025-07-16 19:05:48"}
+{"level":"info","message":"LOGIN: Login exitoso para ala@gmail.com","timestamp":"2025-07-16 19:05:48"}
+{"level":"info","message":"Usuario desconectado: peIxfcTUvEmykTy7AAAR","timestamp":"2025-07-16 19:08:09"}
+{"level":"info","message":"Usuario conectado: gTjp5d-ec9eSPfqxAAAT","timestamp":"2025-07-16 19:08:11"}
+{"level":"info","message":"LOGIN: Intento de login para email: ala@gmail.com","timestamp":"2025-07-16 19:08:13"}
+{"level":"info","message":"LOGIN: Password recibida: santi1234","timestamp":"2025-07-16 19:08:13"}
+{"level":"info","message":"LOGIN: Hash recuperado de la BD: $2b$10$.WVJraeJ0nmeCTZS7aMmu.jdRUzHRyG5quuAUf.z5aeV9ClUaoLKy","timestamp":"2025-07-16 19:08:13"}
+{"level":"info","message":"LOGIN: El resultado de la comparación fue: true","timestamp":"2025-07-16 19:08:13"}
+{"level":"info","message":"LOGIN: Login exitoso para ala@gmail.com","timestamp":"2025-07-16 19:08:13"}
+{"level":"info","message":"Admin (ID: 14) generó el fixture para la liga (ID: 1).","timestamp":"2025-07-16 19:08:22"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-17 17:50:36"}
+{"level":"info","message":"Usuario conectado: x1fm9Jy2qxAMhPLYAAAB","timestamp":"2025-07-17 17:50:50"}
+{"level":"info","message":"Email de confirmación enviado a: vilasantiago47@gmail.com","timestamp":"2025-07-17 17:53:26"}
+{"level":"info","message":"Usuario conectado: dJ4ooOgj-rO_zPhWAAAD","timestamp":"2025-07-17 17:53:55"}
+{"level":"info","message":"Cuenta confirmada para el usuario ID: 15","timestamp":"2025-07-17 17:53:56"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-17 17:58:41"}
+{"level":"info","message":"Usuario conectado: XXZ9LnruDKsaVVJLAAAB","timestamp":"2025-07-17 17:58:42"}
+{"level":"info","message":"Usuario conectado: M86asCSpc8LPo8_9AAAD","timestamp":"2025-07-17 17:58:43"}
+{"level":"info","message":"Email de confirmación enviado a: vilasantiago47@gmail.com","timestamp":"2025-07-17 17:59:11"}
+{"level":"info","message":"Usuario conectado: dz5P1qm43hLeJ-1WAAAF","timestamp":"2025-07-17 17:59:32"}
+{"level":"info","message":"Cuenta confirmada para el usuario ID: 16","timestamp":"2025-07-17 17:59:33"}
+{"level":"info","message":"Usuario desconectado: XXZ9LnruDKsaVVJLAAAB","timestamp":"2025-07-17 18:10:02"}
+{"level":"info","message":"Usuario desconectado: dz5P1qm43hLeJ-1WAAAF","timestamp":"2025-07-17 18:10:02"}
+{"level":"info","message":"Usuario desconectado: M86asCSpc8LPo8_9AAAD","timestamp":"2025-07-17 18:18:46"}
+{"level":"info","message":"Usuario conectado: oOIsIQfzUMbnNmdJAAAH","timestamp":"2025-07-17 18:21:08"}
+{"level":"info","message":"Usuario desconectado: oOIsIQfzUMbnNmdJAAAH","timestamp":"2025-07-17 18:32:02"}
+{"level":"info","message":"Usuario conectado: JxUwGGEdWg4pm870AAAJ","timestamp":"2025-07-17 18:32:02"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-17 18:38:26"}
+{"level":"info","message":"Usuario conectado: 2tOTi-SsGHetBWMuAAAB","timestamp":"2025-07-17 18:38:26"}
+{"level":"info","message":"Usuario desconectado: 2tOTi-SsGHetBWMuAAAB","timestamp":"2025-07-17 18:38:29"}
+{"level":"info","message":"Usuario conectado: UDYGvy26SwjkHNW9AAAD","timestamp":"2025-07-17 18:38:29"}
+{"level":"info","message":"Usuario desconectado: UDYGvy26SwjkHNW9AAAD","timestamp":"2025-07-17 18:41:49"}
+{"level":"info","message":"Usuario conectado: yCGaPoilkes0kaIYAAAF","timestamp":"2025-07-17 18:41:49"}
+{"level":"info","message":"Usuario desconectado: yCGaPoilkes0kaIYAAAF","timestamp":"2025-07-17 18:50:37"}
+{"level":"info","message":"Usuario conectado: JG77vQRZjSozEQ_8AAAH","timestamp":"2025-07-17 18:54:39"}
+{"level":"info","message":"Usuario ID 16 registrado con socket ID JG77vQRZjSozEQ_8AAAH","timestamp":"2025-07-17 18:54:39"}
+{"level":"info","message":"Usuario desconectado: JG77vQRZjSozEQ_8AAAH","timestamp":"2025-07-17 19:01:18"}
+{"level":"info","message":"Usuario conectado: 7Fs4uxzjg4F7LA4vAAAJ","timestamp":"2025-07-17 19:01:18"}
+{"level":"info","message":"Usuario desconectado: 7Fs4uxzjg4F7LA4vAAAJ","timestamp":"2025-07-17 19:03:30"}
+{"level":"info","message":"Usuario conectado: VeHxGcxu1t8SHgRXAAAL","timestamp":"2025-07-17 19:03:31"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-17 19:21:54"}
+{"level":"info","message":"Usuario conectado: HB8Nnot8VjNxiNZTAAAB","timestamp":"2025-07-17 19:21:54"}
+{"level":"info","message":"Usuario desconectado: HB8Nnot8VjNxiNZTAAAB","timestamp":"2025-07-17 19:21:58"}
+{"level":"info","message":"Usuario conectado: UvktN1zfWT0su61bAAAD","timestamp":"2025-07-17 19:21:58"}
+{"level":"info","message":"Usuario desconectado: UvktN1zfWT0su61bAAAD","timestamp":"2025-07-17 19:23:18"}
+{"level":"info","message":"Usuario conectado: MiAHfUPwgjHiS4CtAAAF","timestamp":"2025-07-17 19:23:19"}
+{"level":"info","message":"Usuario desconectado: MiAHfUPwgjHiS4CtAAAF","timestamp":"2025-07-17 19:23:28"}
+{"level":"info","message":"Usuario conectado: sQxWss46xKjWop92AAAH","timestamp":"2025-07-17 19:23:28"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-17 19:32:44"}
+{"level":"info","message":"Usuario conectado: h5-AYH4Cyu41SxzsAAAB","timestamp":"2025-07-17 19:32:44"}
+{"level":"info","message":"Usuario desconectado: h5-AYH4Cyu41SxzsAAAB","timestamp":"2025-07-17 19:32:48"}
+{"level":"info","message":"Usuario conectado: Ws5E5x2ozLPBIaxsAAAD","timestamp":"2025-07-17 19:32:49"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-17 19:34:33"}
+{"level":"info","message":"Usuario conectado: Jl6KCrvJyX8HNA5KAAAB","timestamp":"2025-07-17 19:34:33"}
+{"level":"info","message":"Usuario desconectado: Jl6KCrvJyX8HNA5KAAAB","timestamp":"2025-07-17 19:34:36"}
+{"level":"info","message":"Usuario conectado: xSnFDygy3ufIwvPxAAAD","timestamp":"2025-07-17 19:34:37"}
+{"level":"info","message":"Usuario desconectado: xSnFDygy3ufIwvPxAAAD","timestamp":"2025-07-17 19:36:10"}
+{"level":"info","message":"Usuario conectado: FTFPkh7Qg1LZypANAAAF","timestamp":"2025-07-17 19:36:10"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-17 19:38:05"}
+{"level":"info","message":"Usuario conectado: Im_8qyszia-LQmZzAAAB","timestamp":"2025-07-17 19:38:05"}
+{"level":"info","message":"Usuario desconectado: Im_8qyszia-LQmZzAAAB","timestamp":"2025-07-17 19:38:09"}
+{"level":"info","message":"Usuario conectado: _oerHTHu-iqcFEM-AAAD","timestamp":"2025-07-17 19:38:09"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-17 19:42:39"}
+{"level":"info","message":"Usuario conectado: xiOps4Sjxa5atkoaAAAB","timestamp":"2025-07-17 19:42:40"}
+{"level":"info","message":"Usuario desconectado: xiOps4Sjxa5atkoaAAAB","timestamp":"2025-07-17 19:42:41"}
+{"level":"info","message":"Usuario conectado: o5G63_N8jTRj_dANAAAD","timestamp":"2025-07-17 19:42:42"}
+{"level":"info","message":"Usuario desconectado: o5G63_N8jTRj_dANAAAD","timestamp":"2025-07-17 19:47:46"}
+{"level":"info","message":"Usuario conectado: vz1ZaRpAEsFxUXvPAAAF","timestamp":"2025-07-17 19:52:03"}
+{"level":"info","message":"Usuario desconectado: vz1ZaRpAEsFxUXvPAAAF","timestamp":"2025-07-17 19:55:16"}
+{"level":"info","message":"Usuario conectado: yeVvJnCKUM1cY_6JAAAH","timestamp":"2025-07-17 20:30:47"}
+{"level":"info","message":"Usuario desconectado: yeVvJnCKUM1cY_6JAAAH","timestamp":"2025-07-17 20:30:49"}
+{"level":"info","message":"Usuario conectado: _2l4XpC3v91NUyNCAAAJ","timestamp":"2025-07-17 21:10:30"}
+{"level":"info","message":"Usuario desconectado: _2l4XpC3v91NUyNCAAAJ","timestamp":"2025-07-17 21:10:33"}
+{"level":"info","message":"Usuario conectado: ufYZMtrfUXS13nkEAAAL","timestamp":"2025-07-18 06:00:52"}
+{"level":"info","message":"Usuario desconectado: ufYZMtrfUXS13nkEAAAL","timestamp":"2025-07-18 06:02:41"}
+{"level":"info","message":"Usuario conectado: 4DX73_z4V7smV2dSAAAN","timestamp":"2025-07-18 06:02:42"}
+{"level":"info","message":"Usuario desconectado: 4DX73_z4V7smV2dSAAAN","timestamp":"2025-07-18 06:02:42"}
+{"level":"info","message":"Usuario conectado: Asw5L7cSNQyTTIcgAAAP","timestamp":"2025-07-18 06:03:04"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-18 06:06:27"}
+{"level":"info","message":"Usuario conectado: Fz0K1C-mLtg1_e8oAAAB","timestamp":"2025-07-18 06:06:28"}
+{"level":"info","message":"Usuario desconectado: Fz0K1C-mLtg1_e8oAAAB","timestamp":"2025-07-18 06:06:29"}
+{"level":"info","message":"Usuario conectado: Bg6MAQARXQruFGb7AAAD","timestamp":"2025-07-18 06:06:30"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-18 06:07:37"}
+{"level":"info","message":"Usuario conectado: 1yslMu5Llpav0axDAAAB","timestamp":"2025-07-18 06:07:37"}
+{"level":"info","message":"Usuario desconectado: 1yslMu5Llpav0axDAAAB","timestamp":"2025-07-18 06:07:41"}
+{"level":"info","message":"Usuario conectado: y-A3vswjCSh1ZZR1AAAD","timestamp":"2025-07-18 06:07:41"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-24 15:33:59"}
+{"level":"info","message":"Usuario conectado: bZe-OPuxAC_mjs9eAAAB","timestamp":"2025-07-24 15:35:10"}
+{"level":"info","message":"Email de confirmación enviado a: vilasantiago47@gmail.com","timestamp":"2025-07-24 15:35:25"}
+{"level":"info","message":"Usuario conectado: kKFMsoqql4xMM0jvAAAD","timestamp":"2025-07-24 15:35:55"}
+{"level":"info","message":"Cuenta confirmada para el usuario ID: 17","timestamp":"2025-07-24 15:35:55"}
+{"level":"info","message":"Usuario desconectado: kKFMsoqql4xMM0jvAAAD","timestamp":"2025-07-24 15:37:06"}
+{"level":"info","message":"Usuario desconectado: bZe-OPuxAC_mjs9eAAAB","timestamp":"2025-07-24 15:58:08"}
+{"level":"info","message":"Usuario conectado: GBklq8TAKsVXWdY9AAAF","timestamp":"2025-07-24 16:01:20"}
+{"level":"info","message":"Usuario desconectado: GBklq8TAKsVXWdY9AAAF","timestamp":"2025-07-24 16:20:40"}
+{"level":"info","message":"Usuario conectado: 6oxn9H34mqSUHdmLAAAH","timestamp":"2025-07-24 16:20:41"}
+{"level":"info","message":"Usuario desconectado: 6oxn9H34mqSUHdmLAAAH","timestamp":"2025-07-24 16:20:43"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-25 02:11:32"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-25 02:12:26"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-25 02:35:45"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-25 02:59:27"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-25 03:22:21"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-25 17:39:32"}
+{"level":"info","message":"Usuario conectado: H3vSHk1ML9OdmJt7AAAB","timestamp":"2025-07-25 17:39:36"}
+{"level":"info","message":"Servidor backend corriendo en http://localhost:3000","timestamp":"2025-07-25 17:44:15"}
+{"level":"info","message":"Usuario conectado: fUOGq6Mns17ZUUGlAAAB","timestamp":"2025-07-25 17:44:15"}
