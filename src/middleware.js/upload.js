@@ -20,4 +20,6 @@ const storage = multer.diskStorage({
 });
 
 // ✅ CAMBIO: Usamos multer sin un campo específico para que procese todo el formulario.
-module.exports = multer({ storage: storage });
+const upload = multer({ storage: storage });
+
+module.exports = upload;
