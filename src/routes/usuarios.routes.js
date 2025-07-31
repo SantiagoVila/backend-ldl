@@ -54,7 +54,7 @@ router.put("/:id/equipo", verificarToken, verifyRole('admin'), actualizarEquipoU
 
 router.put('/cambiar-password', verificarToken, cambiarPassword);
 
-router.post('/avatar', verificarToken, upload.single('avatar'), subirAvatar);
+router.post('/avatar', verificarToken, upload, subirAvatar);
 
 router.put('/perfil', verificarToken, actualizarPerfil);
 
