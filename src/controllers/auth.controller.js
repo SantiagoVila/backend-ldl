@@ -60,7 +60,7 @@ exports.forgotPassword = async (req, res) => {
                 [token, expires, usuario.id]
             );
 
-            const resetLink = `http://localhost:5173/reset-password/${token}`;
+            const resetLink = `${process.env.FRONTEND_URL}/reset-password/${token}`;
             
             // ✅ CONFIGURAMOS Y ENVIAMOS EL EMAIL REAL
             const mailOptions = {

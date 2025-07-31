@@ -38,7 +38,7 @@ exports.registrarUsuario = async (req, res) => {
         `;
         await db.query(sqlInsertar, [email, hashedPassword, 'jugador', nombre_in_game, posicion, numero_remera || null, confirmationToken]);
         
-        const confirmationLink = `http://localhost:5173/confirmar/${confirmationToken}`;
+        const confirmationLink = `${process.env.FRONTEND_URL}/confirmar/${confirmationToken}`;
         const mailOptions = {
             from: `"LDL SUPPORT" <${process.env.EMAIL_USER}>`,
             to: email,
