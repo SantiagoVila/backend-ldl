@@ -146,19 +146,11 @@ exports.obtenerDetallesPublicosLiga = async (req, res) => {
             ORDER BY p.jornada ASC, p.fecha ASC
         `, [id]);
 
-        const equiposQuery = db.query(`
-            SELECT id, nombre, escudo_url
-            FROM equipos
-            WHERE liga_id = ?
-            ORDER BY nombre ASC
-        `, [id]);
-
         const [
             [[liga]],
             [tabla],
-            [fixture],
-            [equipos]
-        ] = await Promise.all([ligaQuery, tablaQuery, fixtureQuery, equiposQuery]);
+            [fixture]
+        ] = await Promise.all([ligaQuery, tablaQuery, fixtureQuery]);
 
         if (!liga) {
             return res.status(404).json({ error: 'Liga no encontrada' });
@@ -167,8 +159,7 @@ exports.obtenerDetallesPublicosLiga = async (req, res) => {
         res.json({
             ...liga,
             tabla_posiciones: tabla,
-            fixture: fixture,
-            equipos: equipos // Añadimos los equipos a la respuesta
+            fixture: fixture
         });
 
     } catch (error) {
