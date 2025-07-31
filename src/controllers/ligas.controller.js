@@ -1,14 +1,13 @@
 // src/controllers/ligas.controller.js
 
 const db = require("../../databases");
-const logger = require('../config/logger'); // Asumiendo que tienes el logger configurado
+const logger = require('../config/logger');
 
 /**
- * ✅ FUNCIÓN MEJORADA
- * Permite a un administrador crear una nueva liga, asignándole una categoría.
+ * Permite a un administrador crear una nueva liga.
  */
 exports.crearLiga = async (req, res) => {
-    const { nombre, temporada, categoria } = req.body; // Se añade 'categoria'
+    const { nombre, temporada, categoria } = req.body;
     const admin_id = req.usuario.id;
     
     if (!nombre || !categoria) {
@@ -23,7 +22,6 @@ exports.crearLiga = async (req, res) => {
             return res.status(409).json({ error: 'Ya existe una liga con ese nombre para esa temporada.' });
         }
 
-        // Se añade la columna 'categoria' al INSERT
         const sqlInsertar = `INSERT INTO ligas (nombre, temporada, categoria, creada_por_admin_id) VALUES (?, ?, ?, ?)`;
         const [resultado] = await db.query(sqlInsertar, [nombre, temporada || null, categoria, admin_id]);
 
@@ -50,8 +48,7 @@ exports.obtenerLigas = async (req, res) => {
 };
 
 /**
- * ✅ NUEVA FUNCIÓN AÑADIDA
- * Obtiene los detalles de una liga específica, incluyendo sus equipos.
+ * Obtiene los detalles de una liga específica, incluyendo sus equipos (vista de admin).
  */
 exports.obtenerLigaPorId = async (req, res) => {
     const { id } = req.params;
@@ -81,6 +78,7 @@ exports.obtenerLigaPorId = async (req, res) => {
  * Obtiene las estadísticas clave de una liga.
  */
 exports.obtenerEstadisticasLiga = async (req, res) => {
+    // ... (Esta función no necesita cambios)
     const { id } = req.params;
     try {
         const goleadoresQuery = db.query(`SELECT u.nombre_in_game, SUM(es.goles) as total FROM estadisticas_jugadores_partido es JOIN usuarios u ON es.jugador_id = u.id JOIN partidos p ON es.partido_id = p.id WHERE p.liga_id = ? AND es.goles > 0 GROUP BY es.jugador_id ORDER BY total DESC LIMIT 10`, [id]);
@@ -115,22 +113,25 @@ exports.obtenerDetallesPublicosLiga = async (req, res) => {
     try {
         const ligaQuery = db.query(`SELECT * FROM ligas WHERE id = ?`, [id]);
         
-        // ✅ CORRECCIÓN: Se cambió t.nombre por t.equipo_nombre y se añadió t.equipo_id
+        // ✅ CORRECCIÓN: La consulta ahora se basa en la tabla 'equipos' y une las estadísticas
+        // de 'tabla_posiciones'. Esto asegura que solo se muestren los equipos que REALMENTE
+        // pertenecen a la liga. COALESCE se usa para mostrar 0 si un equipo aún no tiene estadísticas.
         const tablaQuery = db.query(`
             SELECT 
-                t.equipo_id,
-                t.equipo_nombre,
-                t.puntos,
-                t.partidos_jugados,
-                t.partidos_ganados,
-                t.partidos_empatados,
-                t.partidos_perdidos,
-                t.goles_a_favor,
-                t.goles_en_contra,
-                t.diferencia_goles
-            FROM tabla_posiciones t 
-            WHERE t.liga_id = ? 
-            ORDER BY t.puntos DESC, t.diferencia_goles DESC, t.goles_a_favor DESC
+                e.id as equipo_id,
+                e.nombre as equipo_nombre,
+                COALESCE(tp.puntos, 0) as puntos,
+                COALESCE(tp.partidos_jugados, 0) as partidos_jugados,
+                COALESCE(tp.partidos_ganados, 0) as partidos_ganados,
+                COALESCE(tp.partidos_empatados, 0) as partidos_empatados,
+                COALESCE(tp.partidos_perdidos, 0) as partidos_perdidos,
+                COALESCE(tp.goles_a_favor, 0) as goles_a_favor,
+                COALESCE(tp.goles_en_contra, 0) as goles_en_contra,
+                COALESCE(tp.diferencia_goles, 0) as diferencia_goles
+            FROM equipos e
+            LEFT JOIN tabla_posiciones tp ON e.id = tp.equipo_id AND e.liga_id = tp.liga_id
+            WHERE e.liga_id = ?
+            ORDER BY puntos DESC, diferencia_goles DESC, goles_a_favor DESC
         `, [id]);
 
         const fixtureQuery = db.query(`
