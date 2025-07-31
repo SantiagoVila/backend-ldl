@@ -3,6 +3,48 @@ const logger = require('../config/logger');
 const fs = require('fs');
 const path = require('path');
 
+// ✅ FUNCIÓN DE BORRADO SIMPLIFICADA Y CORREGIDA
+exports.borrarEquipo = async (req, res) => {
+    // El ID del equipo ahora viene de los parámetros de la URL, que es más seguro y estándar
+    const { id: equipoId } = req.params;
+    const adminId = req.usuario.id;
+
+    if (!equipoId) {
+        return res.status(400).json({ error: "Falta el ID del equipo a eliminar" });
+    }
+
+    let connection;
+    try {
+        connection = await db.getConnection();
+        await connection.beginTransaction();
+
+        // 1. Desvincular a todos los jugadores del equipo
+        await connection.query("UPDATE usuarios SET equipo_id = NULL WHERE equipo_id = ?", [equipoId]);
+
+        // 2. Borrar el equipo
+        const [result] = await connection.query("DELETE FROM equipos WHERE id = ?", [equipoId]);
+
+        if (result.affectedRows === 0) {
+            await connection.rollback();
+            return res.status(404).json({ error: "Equipo no encontrado o ya eliminado" });
+        }
+
+        await connection.commit();
+        
+        logger.info(`Admin (ID: ${adminId}) borró el equipo (ID: ${equipoId}).`);
+        res.json({ message: "Equipo y sus jugadores han sido desvinculados correctamente" });
+
+    } catch (error) {
+        if (connection) await connection.rollback();
+        logger.error("Error en borrarEquipo:", { message: error.message, error });
+        res.status(500).json({ error: "Error en el servidor al borrar el equipo" });
+    } finally {
+        if (connection) connection.release();
+    }
+};
+
+// --- El resto de tus funciones del controlador se quedan igual ---
+
 exports.crearEquipo = async (req, res) => {
     const dt_id = req.usuario.id;
     const { nombre, escudo, formacion } = req.body;
@@ -47,51 +89,17 @@ exports.obtenerMiSolicitudPendiente = async (req, res) => {
     }
 };
 
-exports.borrarEquipo = async (req, res) => {
-    const usuario = req.usuario;
-    let sql;
-    let valores;
-
-    try {
-        if (usuario.rol === "dt") {
-            sql = "DELETE FROM equipos WHERE dt_id = ?";
-            valores = [usuario.id];
-        } else if (usuario.rol === "admin") {
-            const equipoId = req.body.equipoId;
-            if (!equipoId) {
-                return res.status(400).json({ error: "Falta el ID del equipo a eliminar" });
-            }
-            sql = "DELETE FROM equipos WHERE id = ?";
-            valores = [equipoId];
-        } else {
-            return res.status(403).json({ error: "No tenés permiso para realizar esta acción" });
-        }
-
-        const [result] = await db.query(sql, valores);
-
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ error: "Equipo no encontrado o ya eliminado" });
-        }
-
-        res.json({ message: "Equipo eliminado correctamente" });
-
-    } catch (error) {
-        logger.error("Error en borrarEquipo:", { message: error.message, error });
-        res.status(500).json({ error: "Error en el servidor al borrar el equipo" });
-    }
-};
 
 exports.asignarLiga = async (req, res) => {
     const equipo_id = req.params.id;
     const { liga_id } = req.body;
 
-    if (!liga_id) {
-        return res.status(400).json({ error: "Falta el ID de la liga" });
-    }
+    // Permitimos que liga_id sea null para desasignar un equipo
+    const ligaIdParaDb = liga_id ? parseInt(liga_id) : null;
 
     try {
         const sql = `UPDATE equipos SET liga_id = ? WHERE id = ?`;
-        await db.query(sql, [liga_id, equipo_id]);
+        await db.query(sql, [ligaIdParaDb, equipo_id]);
 
         res.json({ message: 'Liga asignada correctamente al equipo' });
 
@@ -147,32 +155,25 @@ exports.obtenerTodosLosEquipos = async (req, res) => {
     }
 };
 
-/**
- * ✅ FUNCIÓN CORREGIDA Y DEFINITIVA
- * Obtiene un perfil detallado y completo de un equipo, incluyendo al DT en la plantilla.
- */
 exports.obtenerPerfilEquipo = async (req, res) => {
     const { id: equipoId } = req.params;
 
     try {
         const infoBasicaQuery = db.query(`
-            SELECT e.id, e.nombre, e.escudo, e.formacion, e.dt_id, u.nombre_in_game as nombre_dt
+            SELECT e.id, e.nombre, e.escudo, e.formacion, e.dt_id, u.nombre_in_game as nombre_dt, e.liga_id
             FROM equipos e
             LEFT JOIN usuarios u ON e.dt_id = u.id
             WHERE e.id = ?
         `, [equipoId]);
 
-        // ✅ CORRECCIÓN DEFINITIVA: Usamos una consulta UNION para combinar jugadores y el DT
         const plantillaQuery = db.query(`
             (
-                -- 1. Selecciona a todos los JUGADORES del equipo
                 SELECT id, nombre_in_game, posicion, numero_remera, rol
                 FROM usuarios
                 WHERE equipo_id = ? AND rol = 'jugador'
             )
             UNION
             (
-                -- 2. Selecciona al DT del equipo
                 SELECT u.id, u.nombre_in_game, u.posicion, u.numero_remera, u.rol
                 FROM usuarios u
                 JOIN equipos e ON u.id = e.dt_id
