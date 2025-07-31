@@ -20,6 +20,6 @@ const storage = multer.diskStorage({
 });
 
 // ✅ CAMBIO: Usamos multer sin un campo específico para que procese todo el formulario.
-const upload = multer({ storage: storage }).single('avatar');
+const upload = multer({ storage: storage });
 
 module.exports = upload;
