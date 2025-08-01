@@ -10,7 +10,8 @@ const { Server } = require("socket.io");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ✅ ESTA LÍNEA ES LA CORRECCIÓN IMPORTANTE Y PERMANENTE
+// ✅ LÍNEA AÑADIDA: Esto soluciona el error del rate-limit
+// Le dice a Express que confíe en el proxy (Nginx) que tiene por delante.
 app.set('trust proxy', 1);
 
 const server = http.createServer(app);
@@ -23,6 +24,10 @@ const io = new Server(server, {
 });
 
 const logger = require('./src/config/logger'); 
+
+// ===================================================================
+// --- Middleware Esencial ---
+// ===================================================================
 
 app.use(helmet());
 
@@ -45,14 +50,20 @@ app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 app.use(express.static(path.join(__dirname, 'public')));
 
+// ===================================================================
+// --- Lógica de Socket.IO ---
+// ===================================================================
+
 const activeUsers = new Map();
 
 io.on('connection', (socket) => {
   logger.info(`Usuario conectado: ${socket.id}`);
+
   socket.on('register', (userId) => {
     activeUsers.set(userId.toString(), socket.id);
     logger.info(`Usuario ID ${userId} registrado con socket ID ${socket.id}`);
   });
+
   socket.on('disconnect', () => {
     for (let [userId, socketId] of activeUsers.entries()) {
       if (socketId === socket.id) {
@@ -67,25 +78,60 @@ io.on('connection', (socket) => {
 app.set('socketio', io);
 app.set('activeUsers', activeUsers);
 
+// ===================================================================
+// --- Rutas de la Aplicación ---
+// ===================================================================
+
 app.get("/", (req, res) => {
     res.send("Servidor funcionando correctamente");
 });
 
-// Rutas
-app.use('/api/usuarios', require('./src/routes/usuarios.routes'));
-app.use('/api/auth', require('./src/routes/auth.routes'));
-app.use('/api/equipos', require('./src/routes/equipos.routes'));
-app.use('/api/mercado', require('./src/routes/mercado.routes'));
-app.use('/api/transferencias', require('./src/routes/transferencias.routes'));
-app.use('/api/jugadores', require("./src/routes/jugadores.routes"));
-app.use('/api/ligas', require('./src/routes/ligas.routes'));
-app.use('/api/partidos', require('./src/routes/partidos.routes'));
-app.use('/api/notificaciones', require('./src/routes/notificaciones.routes'));
-app.use('/api/noticias', require('./src/routes/noticias.routes'));
-app.use('/api/admin', require('./src/routes/admin.routes'));
-app.use('/api/reportes', require('./src/routes/reportes.routes'));
-app.use('/api/stats', require('./src/routes/stats.routes'));
-app.use('/api/logs', require('./src/routes/log.routes'));
+// (El resto de tus rutas no necesitan cambios)
+const usuariosRoutes = require('./src/routes/usuarios.routes');
+app.use('/api/usuarios', usuariosRoutes);
+
+const authRoutes = require('./src/routes/auth.routes');
+app.use('/api/auth', authRoutes);
+
+const equiposRoutes = require('./src/routes/equipos.routes');
+app.use('/api/equipos', equiposRoutes);
+
+const mercadoRoutes = require('./src/routes/mercado.routes');
+app.use('/api/mercado', mercadoRoutes);
+
+const transferenciasRoutes = require('./src/routes/transferencias.routes');
+app.use('/api/transferencias', transferenciasRoutes);
+
+const jugadoresRoutes = require("./src/routes/jugadores.routes")
+app.use('/api/jugadores', jugadoresRoutes);
+
+const ligasRoutes = require('./src/routes/ligas.routes');
+app.use('/api/ligas', ligasRoutes);
+
+const partidosRoutes = require('./src/routes/partidos.routes');
+app.use('/api/partidos', partidosRoutes);
+
+const notificacionesRoutes = require('./src/routes/notificaciones.routes');
+app.use('/api/notificaciones', notificacionesRoutes);
+
+const noticiasRoutes = require('./src/routes/noticias.routes');
+app.use('/api/noticias', noticiasRoutes);
+
+const adminRoutes = require('./src/routes/admin.routes');
+app.use('/api/admin', adminRoutes);
+
+const reportesRoutes = require('./src/routes/reportes.routes');
+app.use('/api/reportes', reportesRoutes);
+
+const statsRoutes = require('./src/routes/stats.routes');
+app.use('/api/stats', statsRoutes);
+
+const logRoutes = require('./src/routes/log.routes');
+app.use('/api/logs', logRoutes);
+
+// ===================================================================
+// --- Manejo de Errores y Arranque del Servidor ---
+// ===================================================================
 
 app.use((req, res, next) => {
     res.status(404).json({ error: 'Ruta no encontrada' });
