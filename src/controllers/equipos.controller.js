@@ -3,9 +3,39 @@ const logger = require('../config/logger');
 const fs = require('fs');
 const path = require('path');
 
-// ✅ FUNCIÓN DE BORRADO SIMPLIFICADA Y CORREGIDA
+// ✅ FUNCIÓN CORREGIDA: Ahora maneja la subida de un archivo de imagen
+exports.crearEquipo = async (req, res) => {
+    const dt_id = req.usuario.id;
+    const { nombre, formacion } = req.body;
+    
+    // La URL del escudo se genera a partir del archivo subido por el middleware 'upload'
+    const escudo_url = req.file ? `/uploads/${req.file.filename}` : null;
+
+    if (!nombre || !formacion) {
+        return res.status(400).json({ error: "El nombre y la formación son obligatorios" });
+    }
+
+    try {
+        const verificarSql = "SELECT id FROM equipos WHERE dt_id = ?";
+        const [results] = await db.query(verificarSql, [dt_id]);
+
+        if (results.length > 0) {
+            return res.status(409).json({ error: "Ya tienes un equipo o una solicitud de creación pendiente." });
+        }
+
+        const insertarSql = "INSERT INTO equipos (nombre, escudo, formacion, dt_id, estado) VALUES (?, ?, ?, ?, 'pendiente')";
+        const [result] = await db.query(insertarSql, [nombre, escudo_url, formacion, dt_id]);
+
+        res.status(201).json({ message: "Solicitud de equipo enviada correctamente. Pendiente de aprobación.", equipoId: result.insertId });
+
+    } catch (error) {
+        logger.error("Error en crearEquipo:", { message: error.message, error });
+        res.status(500).json({ error: "Error en el servidor al crear el equipo" });
+    }
+};
+
+// ✅ FUNCIÓN DE BORRADO CORREGIDA
 exports.borrarEquipo = async (req, res) => {
-    // El ID del equipo ahora viene de los parámetros de la URL, que es más seguro y estándar
     const { id: equipoId } = req.params;
     const adminId = req.usuario.id;
 
@@ -18,10 +48,10 @@ exports.borrarEquipo = async (req, res) => {
         connection = await db.getConnection();
         await connection.beginTransaction();
 
-        // 1. Desvincular a todos los jugadores del equipo
+        // Desvincula a todos los jugadores del equipo
         await connection.query("UPDATE usuarios SET equipo_id = NULL WHERE equipo_id = ?", [equipoId]);
 
-        // 2. Borrar el equipo
+        // Borra el equipo
         const [result] = await connection.query("DELETE FROM equipos WHERE id = ?", [equipoId]);
 
         if (result.affectedRows === 0) {
@@ -43,34 +73,6 @@ exports.borrarEquipo = async (req, res) => {
     }
 };
 
-// --- El resto de tus funciones del controlador se quedan igual ---
-
-exports.crearEquipo = async (req, res) => {
-    const dt_id = req.usuario.id;
-    const { nombre, escudo, formacion } = req.body;
-
-    if (!nombre || !formacion) {
-        return res.status(400).json({ error: "Faltan campos obligatorios" });
-    }
-
-    try {
-        const verificarSql = "SELECT id FROM equipos WHERE dt_id = ?";
-        const [results] = await db.query(verificarSql, [dt_id]);
-
-        if (results.length > 0) {
-            return res.status(409).json({ error: "Ya tienes un equipo o una solicitud de creación pendiente." });
-        }
-
-        const insertarSql = "INSERT INTO equipos (nombre, escudo, formacion, dt_id, estado) VALUES (?, ?, ?, ?, 'pendiente')";
-        const [result] = await db.query(insertarSql, [nombre, escudo, formacion, dt_id]);
-
-        res.status(201).json({ message: "Solicitud de equipo enviada correctamente. Pendiente de aprobación.", equipoId: result.insertId });
-
-    } catch (error) {
-        logger.error("Error en crearEquipo:", { message: error.message, error });
-        res.status(500).json({ error: "Error en el servidor al crear el equipo" });
-    }
-};
 
 exports.obtenerMiSolicitudPendiente = async (req, res) => {
     const dt_id = req.usuario.id;
@@ -93,8 +95,6 @@ exports.obtenerMiSolicitudPendiente = async (req, res) => {
 exports.asignarLiga = async (req, res) => {
     const equipo_id = req.params.id;
     const { liga_id } = req.body;
-
-    // Permitimos que liga_id sea null para desasignar un equipo
     const ligaIdParaDb = liga_id ? parseInt(liga_id) : null;
 
     try {

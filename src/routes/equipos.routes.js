@@ -27,11 +27,12 @@ router.get('/publico/:id/perfil', obtenerPerfilEquipo);
 router.get('/', verificarToken, verifyRole('admin'), obtenerTodosLosEquipos);
 router.put('/:id/asignar-liga', verificarToken, verifyRole('admin'), asignarLiga);
 router.put('/admin/solicitudes/:id/responder', verificarToken, verifyRole('admin'), aprobarRechazarEquipo);
-// ✅ RUTA DE BORRADO CORREGIDA: Ahora usa el ID del equipo en la URL
 router.delete('/:id', verificarToken, verifyRole('admin'), borrarEquipo);
 
 // --- Rutas de DT ---
-router.post('/crear', verificarToken, verifyRole('dt'), crearEquipo);
+// ✅ CAMBIO: Se añade upload.single('escudo') para manejar la subida de la imagen
+router.post('/crear', verificarToken, verifyRole('dt'), upload.single('escudo'), crearEquipo);
+
 router.get('/:id/perfil-detallado', verificarToken, obtenerPerfilEquipo);
 router.get('/dt/mi-solicitud', verificarToken, verifyRole('dt'), obtenerMiSolicitudPendiente);
 router.put('/dt/liberar-jugador', verificarToken, verifyRole('dt'), liberarJugador);
