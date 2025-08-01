@@ -3,12 +3,9 @@ const logger = require('../config/logger');
 const fs = require('fs');
 const path = require('path');
 
-// ✅ FUNCIÓN CORREGIDA: Ahora maneja la subida de un archivo de imagen
 exports.crearEquipo = async (req, res) => {
     const dt_id = req.usuario.id;
     const { nombre, formacion } = req.body;
-    
-    // La URL del escudo se genera a partir del archivo subido por el middleware 'upload'
     const escudo_url = req.file ? `/uploads/${req.file.filename}` : null;
 
     if (!nombre || !formacion) {
@@ -34,7 +31,6 @@ exports.crearEquipo = async (req, res) => {
     }
 };
 
-// ✅ FUNCIÓN DE BORRADO CORREGIDA
 exports.borrarEquipo = async (req, res) => {
     const { id: equipoId } = req.params;
     const adminId = req.usuario.id;
@@ -48,10 +44,7 @@ exports.borrarEquipo = async (req, res) => {
         connection = await db.getConnection();
         await connection.beginTransaction();
 
-        // Desvincula a todos los jugadores del equipo
         await connection.query("UPDATE usuarios SET equipo_id = NULL WHERE equipo_id = ?", [equipoId]);
-
-        // Borra el equipo
         const [result] = await connection.query("DELETE FROM equipos WHERE id = ?", [equipoId]);
 
         if (result.affectedRows === 0) {
@@ -73,7 +66,6 @@ exports.borrarEquipo = async (req, res) => {
     }
 };
 
-
 exports.obtenerMiSolicitudPendiente = async (req, res) => {
     const dt_id = req.usuario.id;
     try {
@@ -91,7 +83,6 @@ exports.obtenerMiSolicitudPendiente = async (req, res) => {
     }
 };
 
-
 exports.asignarLiga = async (req, res) => {
     const equipo_id = req.params.id;
     const { liga_id } = req.body;
@@ -100,9 +91,7 @@ exports.asignarLiga = async (req, res) => {
     try {
         const sql = `UPDATE equipos SET liga_id = ? WHERE id = ?`;
         await db.query(sql, [ligaIdParaDb, equipo_id]);
-
         res.json({ message: 'Liga asignada correctamente al equipo' });
-
     } catch (error) {
         logger.error("Error en asignarLiga:", { message: error.message, error });
         res.status(500).json({ error: 'Error al asignar la liga al equipo' });
@@ -148,7 +137,6 @@ exports.obtenerTodosLosEquipos = async (req, res) => {
             limit,
             equipos
         });
-
     } catch (error) {
         logger.error(`Error en obtenerTodosLosEquipos: ${error.message}`, { error });
         res.status(500).json({ error: "Error al obtener los equipos" });
@@ -157,7 +145,6 @@ exports.obtenerTodosLosEquipos = async (req, res) => {
 
 exports.obtenerPerfilEquipo = async (req, res) => {
     const { id: equipoId } = req.params;
-
     try {
         const infoBasicaQuery = db.query(`
             SELECT e.id, e.nombre, e.escudo, e.formacion, e.dt_id, u.nombre_in_game as nombre_dt, e.liga_id
@@ -165,65 +152,36 @@ exports.obtenerPerfilEquipo = async (req, res) => {
             LEFT JOIN usuarios u ON e.dt_id = u.id
             WHERE e.id = ?
         `, [equipoId]);
-
         const plantillaQuery = db.query(`
-            (
-                SELECT id, nombre_in_game, posicion, numero_remera, rol
-                FROM usuarios
-                WHERE equipo_id = ? AND rol = 'jugador'
-            )
+            (SELECT id, nombre_in_game, posicion, numero_remera, rol FROM usuarios WHERE equipo_id = ? AND rol = 'jugador')
             UNION
-            (
-                SELECT u.id, u.nombre_in_game, u.posicion, u.numero_remera, u.rol
-                FROM usuarios u
-                JOIN equipos e ON u.id = e.dt_id
-                WHERE e.id = ?
-            )
+            (SELECT u.id, u.nombre_in_game, u.posicion, u.numero_remera, u.rol FROM usuarios u JOIN equipos e ON u.id = e.dt_id WHERE e.id = ?)
             ORDER BY FIELD(rol, 'dt', 'jugador'), FIELD(posicion, 'Arquero', 'Defensor', 'Mediocampista', 'Delantero'), nombre_in_game
         `, [equipoId, equipoId]);
-
         const ultimosPartidosQuery = db.query(`
-            SELECT p.id, p.fecha, p.goles_local, p.goles_visitante,
-                   el.nombre as equipo_local, ev.nombre as equipo_visitante
+            SELECT p.id, p.fecha, p.goles_local, p.goles_visitante, el.nombre as equipo_local, ev.nombre as equipo_visitante
             FROM partidos p
             JOIN equipos el ON p.equipo_local_id = el.id
             JOIN equipos ev ON p.equipo_visitante_id = ev.id
             WHERE (p.equipo_local_id = ? OR p.equipo_visitante_id = ?) AND p.estado = 'aprobado'
-            ORDER BY p.fecha DESC
-            LIMIT 5
+            ORDER BY p.fecha DESC LIMIT 5
         `, [equipoId, equipoId]);
-
-        const [
-            [[infoResult]],
-            [plantillaResult],
-            [partidosResult]
-        ] = await Promise.all([
-            infoBasicaQuery,
-            plantillaQuery,
-            ultimosPartidosQuery
-        ]);
-        
+        const [ [[infoResult]], [plantillaResult], [partidosResult] ] = await Promise.all([infoBasicaQuery, plantillaQuery, ultimosPartidosQuery]);
         if (!infoResult) {
             return res.status(404).json({ error: 'Equipo no encontrado' });
         }
-
-        const perfilCompleto = {
-            ...infoResult,
-            plantilla: plantillaResult,
-            ultimos_partidos: partidosResult
-        };
-
-        res.json(perfilCompleto);
-
+        res.json({ ...infoResult, plantilla: plantillaResult, ultimos_partidos: partidosResult });
     } catch (error) {
         logger.error(`Error en obtenerPerfilEquipo: ${error.message}`, { error });
         res.status(500).json({ error: "Error en el servidor al obtener el perfil del equipo." });
     }
 };
 
+// ✅ FUNCIÓN CORREGIDA Y MEJORADA: Ahora notifica al DT en tiempo real
 exports.aprobarRechazarEquipo = async (req, res) => {
     const { id: equipoId } = req.params;
     const { respuesta, liga_id } = req.body;
+    const adminId = req.usuario.id;
 
     if (!['aprobado', 'rechazado'].includes(respuesta)) {
         return res.status(400).json({ error: 'Respuesta inválida.' });
@@ -246,12 +204,32 @@ exports.aprobarRechazarEquipo = async (req, res) => {
             await connection.query(sqlUpdateEquipo, [liga_id || null, equipoId]);
             
             await connection.query("UPDATE usuarios SET equipo_id = ? WHERE id = ?", [equipoId, equipo.dt_id]);
+
+            if (liga_id) {
+                await connection.query(
+                    "INSERT INTO tabla_posiciones (liga_id, equipo_id, equipo_nombre) VALUES (?, ?, ?)",
+                    [liga_id, equipoId, equipo.nombre]
+                );
+            }
         } else {
             await connection.query("DELETE FROM equipos WHERE id = ?", [equipoId]);
         }
 
         await connection.commit();
-        logger.info(`Admin (ID: ${req.usuario.id}) ha '${respuesta}' la solicitud para el equipo ID ${equipoId}.`);
+
+        const io = req.app.get('socketio');
+        const activeUsers = req.app.get('activeUsers');
+        const dtSocketId = activeUsers.get(equipo.dt_id.toString());
+
+        if (dtSocketId) {
+            io.to(dtSocketId).emit('equipo_actualizado', { 
+                status: respuesta, 
+                equipoId: respuesta === 'aprobado' ? equipoId : null 
+            });
+            logger.info(`Notificación de equipo ${respuesta} enviada al DT (ID: ${equipo.dt_id})`);
+        }
+
+        logger.info(`Admin (ID: ${adminId}) ha '${respuesta}' la solicitud para el equipo ID ${equipoId}.`);
         res.json({ message: `Solicitud de equipo ${respuesta} correctamente.` });
 
     } catch (error) {
@@ -267,41 +245,25 @@ exports.liberarJugador = async (req, res) => {
     const { jugador_id } = req.body;
     const dt_id = req.usuario.id;
     const equipo_id_dt = req.usuario.equipo_id;
-
     if (!jugador_id) {
         return res.status(400).json({ error: 'Se requiere el ID del jugador a liberar.' });
     }
     if (!equipo_id_dt) {
         return res.status(403).json({ error: 'No tienes un equipo asignado para realizar esta acción.' });
     }
-
     const connection = await db.getConnection();
     try {
         await connection.beginTransaction();
-
-        const [[jugador]] = await connection.query(
-            'SELECT id FROM usuarios WHERE id = ? AND equipo_id = ?', 
-            [jugador_id, equipo_id_dt]
-        );
-
+        const [[jugador]] = await connection.query('SELECT id FROM usuarios WHERE id = ? AND equipo_id = ?', [jugador_id, equipo_id_dt]);
         if (!jugador) {
             await connection.rollback();
             return res.status(403).json({ error: 'No puedes liberar a este jugador porque no pertenece a tu equipo.' });
         }
-
         await connection.query('UPDATE usuarios SET equipo_id = NULL WHERE id = ?', [jugador_id]);
-
-        await connection.query(
-            `UPDATE historial_transferencias SET fecha_salida = NOW() 
-             WHERE jugador_id = ? AND equipo_id = ? AND fecha_salida IS NULL`,
-            [jugador_id, equipo_id_dt]
-        );
-
+        await connection.query(`UPDATE historial_transferencias SET fecha_salida = NOW() WHERE jugador_id = ? AND equipo_id = ? AND fecha_salida IS NULL`, [jugador_id, equipo_id_dt]);
         await connection.commit();
-        
         logger.info(`El DT (ID: ${dt_id}) liberó al jugador (ID: ${jugador_id}) de su equipo (ID: ${equipo_id_dt}).`);
         res.json({ message: 'Jugador liberado correctamente. Ahora es agente libre.' });
-
     } catch (error) {
         await connection.rollback();
         logger.error(`Error en liberarJugador: ${error.message}`, { error });
@@ -313,32 +275,24 @@ exports.liberarJugador = async (req, res) => {
 
 exports.subirEscudo = async (req, res) => {
     const equipoId = req.usuario.equipo_id;
-
     if (!req.file) {
         return res.status(400).json({ error: 'No se ha subido ningún archivo.' });
     }
     if (!equipoId) {
         return res.status(403).json({ error: 'No tienes un equipo asignado para realizar esta acción.' });
     }
-
     try {
         const [[equipo]] = await db.query("SELECT escudo FROM equipos WHERE id = ?", [equipoId]);
         if (equipo && equipo.escudo) {
             const escudoAntiguoPath = path.join(__dirname, '../../public', equipo.escudo);
             fs.unlink(escudoAntiguoPath, (err) => {
-                if (err) {
-                    logger.warn(`No se pudo borrar el escudo antiguo: ${escudoAntiguoPath}.`);
-                } else {
-                    logger.info(`Escudo antiguo borrado: ${escudoAntiguoPath}`);
-                }
+                if (err) logger.warn(`No se pudo borrar el escudo antiguo: ${escudoAntiguoPath}.`);
+                else logger.info(`Escudo antiguo borrado: ${escudoAntiguoPath}`);
             });
         }
-        
         const nuevoEscudoUrl = `/uploads/${req.file.filename}`;
         await db.query("UPDATE equipos SET escudo = ? WHERE id = ?", [nuevoEscudoUrl, equipoId]);
-
         res.json({ message: 'Escudo actualizado con éxito.', escudo_url: nuevoEscudoUrl });
-
     } catch (error) {
         logger.error(`Error en subirEscudo: ${error.message}`, { error });
         res.status(500).json({ error: 'Error en el servidor al subir el escudo.' });
@@ -347,38 +301,26 @@ exports.subirEscudo = async (req, res) => {
 
 exports.getDtDashboardStats = async (req, res) => {
     const equipoId = req.usuario.equipo_id;
-
     if (!equipoId) {
         return res.status(404).json({ error: 'No tienes un equipo asignado.' });
     }
-
     try {
         const playerCountQuery = db.query("SELECT COUNT(*) as count FROM usuarios WHERE equipo_id = ?", [equipoId]);
-        
         const nextMatchQuery = db.query(`
             SELECT p.fecha, el.nombre as nombre_local, ev.nombre as nombre_visitante
             FROM partidos p
             JOIN equipos el ON p.equipo_local_id = el.id
             JOIN equipos ev ON p.equipo_visitante_id = ev.id
             WHERE (p.equipo_local_id = ? OR p.equipo_visitante_id = ?) AND p.estado = 'pendiente'
-            ORDER BY p.fecha ASC
-            LIMIT 1
+            ORDER BY p.fecha ASC LIMIT 1
         `, [equipoId, equipoId]);
-
         const leaguePositionQuery = db.query("SELECT puntos, partidos_jugados FROM tabla_posiciones WHERE equipo_id = ?", [equipoId]);
-
-        const [
-            [[{ count: playerCount }]],
-            [[nextMatch]],
-            [[leaguePosition]]
-        ] = await Promise.all([playerCountQuery, nextMatchQuery, leaguePositionQuery]);
-
+        const [ [[{ count: playerCount }]], [[nextMatch]], [[leaguePosition]] ] = await Promise.all([playerCountQuery, nextMatchQuery, leaguePositionQuery]);
         res.json({
             playerCount: playerCount || 0,
             nextMatch: nextMatch || null,
             leaguePosition: leaguePosition || null
         });
-
     } catch (error) {
         logger.error(`Error en getDtDashboardStats: ${error.message}`, { error });
         res.status(500).json({ error: 'Error al obtener las estadísticas del dashboard.' });
