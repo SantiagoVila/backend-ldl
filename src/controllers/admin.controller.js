@@ -1,11 +1,39 @@
-// ✅ PASO 1: Importamos el logger al principio del archivo.
 const logger = require('../config/logger');
 const db = require('../../databases');
 const fixtureService = require('../services/fixture.service');
 
-/**
- * Mueve un jugador de un equipo a otro.
- */
+// ✅ FUNCIÓN CORREGIDA: Ahora maneja la subida de un archivo de imagen
+exports.adminCreaEquipo = async (req, res) => {
+    const { nombre, formacion, liga_id } = req.body;
+    const admin_id = req.usuario.id;
+    
+    // La URL del escudo se genera a partir del archivo subido por el middleware 'upload'
+    const escudo_url = req.file ? `/uploads/${req.file.filename}` : null;
+
+    if (!nombre || !formacion) {
+        return res.status(400).json({ error: "Nombre y formación son obligatorios." });
+    }
+
+    try {
+        const [existente] = await db.query('SELECT id FROM equipos WHERE nombre = ?', [nombre]);
+        if (existente.length > 0) {
+            return res.status(409).json({ error: 'Ya existe un equipo con ese nombre.' });
+        }
+
+        const sql = "INSERT INTO equipos (nombre, escudo, formacion, liga_id, estado) VALUES (?, ?, ?, ?, 'aprobado')";
+        const [result] = await db.query(sql, [nombre, escudo_url, formacion, liga_id || null]);
+
+        logger.info(`Admin (ID: ${admin_id}) creó el equipo '${nombre}' (ID: ${result.insertId})`);
+        res.status(201).json({ message: 'Equipo creado correctamente por el admin.', equipoId: result.insertId });
+    } catch (error) {
+        logger.error("Error en adminCreaEquipo:", { message: error.message, error });
+        res.status(500).json({ error: 'Error en el servidor al crear el equipo.' });
+    }
+};
+
+
+// --- El resto de tus funciones se quedan igual ---
+
 exports.moverJugador = async (req, res) => {
     const { jugador_id, nuevo_equipo_id } = req.body;
     const admin_id = req.usuario.id;
@@ -32,12 +60,10 @@ exports.moverJugador = async (req, res) => {
         const sqlUpdate = `UPDATE usuarios SET equipo_id = ? WHERE id = ?`;
         await db.query(sqlUpdate, [nuevo_equipo_id, jugador_id]);
         
-        // ✅ MEJORA: Registramos la acción exitosa
         logger.info(`Admin (ID: ${admin_id}) movió al jugador (ID: ${jugador_id}) al equipo (ID: ${nuevo_equipo_id}).`);
         res.json({ message: 'Jugador movido correctamente al nuevo equipo' });
 
     } catch (error) {
-        // ✅ MEJORA: Usamos logger.error para un registro detallado del error
         logger.error(`Error en moverJugador: ${error.message}`, { error });
         res.status(500).json({ error: 'Error en el servidor al mover al jugador' });
     }
@@ -74,8 +100,6 @@ exports.crearEquipoYAsignarDT = async (req, res) => {
         const actualizarRolSql = `UPDATE usuarios SET rol = 'DT' WHERE id = ?`;
         await connection.query(actualizarRolSql, [dt_id]);
 
-        // ✅ PASO ADICIONAL: Asignamos el nuevo equipo al usuario en la tabla 'usuarios'.
-        // Esto asegura que su token de login tenga el equipo_id correcto.
         const asignarEquipoAlUsuarioSql = `UPDATE usuarios SET equipo_id = ? WHERE id = ?`;
         await connection.query(asignarEquipoAlUsuarioSql, [equipoId, dt_id]);
 
@@ -98,9 +122,6 @@ exports.crearEquipoYAsignarDT = async (req, res) => {
     }
 };
 
-/**
- * Obtiene todos los reportes de los usuarios.
- */
 exports.obtenerReportes = async (req, res) => {
     try {
         const sql = `
@@ -117,9 +138,6 @@ exports.obtenerReportes = async (req, res) => {
     }
 };
 
-/**
- * Marca un reporte como atendido.
- */
 exports.marcarReporteComoAtendido = async (req, res) => {
     const { id } = req.params;
     const admin_id = req.usuario.id;
@@ -135,9 +153,6 @@ exports.marcarReporteComoAtendido = async (req, res) => {
     }
 };
 
-/**
- * Permite a un admin programar las fechas de inicio y fin del mercado de pases.
- */
 exports.programarMercado = async (req, res) => {
     const { fecha_inicio, fecha_fin } = req.body;
     const admin_id = req.usuario.id;
@@ -163,9 +178,6 @@ exports.programarMercado = async (req, res) => {
     }
 };
 
-/**
- * Genera el fixture completo para una liga.
- */
 exports.generarFixtureLiga = async (req, res) => {
     const { liga_id } = req.params;
     const { dias_de_juego, fecha_arranque } = req.body;
@@ -214,14 +226,9 @@ exports.generarFixtureLiga = async (req, res) => {
     }
 };
 
-/**
- * ✅ FUNCIÓN ACTUALIZADA Y MEJORADA
- * Un admin aprueba o rechaza una solicitud de rol.
- * Si se aprueba un rol de 'dt', actualiza tanto la tabla de usuarios como la de equipos.
- */
 exports.responderSolicitudRol = async (req, res) => {
     const { id: solicitudId } = req.params;
-    const { respuesta } = req.body; // 'aprobado' o 'rechazado'
+    const { respuesta } = req.body;
     const adminId = req.usuario.id;
 
     if (!['aprobado', 'rechazado'].includes(respuesta)) {
@@ -233,7 +240,6 @@ exports.responderSolicitudRol = async (req, res) => {
         connection = await db.getConnection();
         await connection.beginTransaction();
 
-        // 1. Obtenemos la solicitud y los datos del usuario asociado (su equipo y rol actual)
         const [[solicitud]] = await connection.query(`
             SELECT sr.*, u.equipo_id, u.rol as rol_actual 
             FROM solicitud_roles sr
@@ -246,23 +252,17 @@ exports.responderSolicitudRol = async (req, res) => {
             return res.status(404).json({ error: 'Solicitud no encontrada o ya ha sido procesada.' });
         }
 
-        // 2. Actualizamos el estado de la solicitud
         await connection.query('UPDATE solicitud_roles SET estado = ? WHERE id = ?', [respuesta, solicitudId]);
         
-        // 3. Si se aprueba la solicitud para ser DT, realizamos la lógica completa
         if (respuesta === 'aprobado' && solicitud.rol_solicitado === 'dt') {
-            // Actualizamos el rol del usuario a 'dt'
             await connection.query('UPDATE usuarios SET rol = "dt" WHERE id = ?', [solicitud.usuario_id]);
 
-            // Si el usuario ya pertenece a un equipo, lo asignamos como DT de ese equipo
             if (solicitud.equipo_id) {
-                // Primero, verificamos que el equipo no tenga ya otro DT
                 const [[equipo]] = await connection.query('SELECT dt_id FROM equipos WHERE id = ?', [solicitud.equipo_id]);
                 if (equipo && equipo.dt_id) {
-                     await connection.rollback();
-                     return res.status(409).json({ error: 'El equipo de este usuario ya tiene un DT asignado. Primero debe ser removido.' });
+                    await connection.rollback();
+                    return res.status(409).json({ error: 'El equipo de este usuario ya tiene un DT asignado. Primero debe ser removido.' });
                 }
-                // Si el puesto está libre, asignamos al nuevo DT
                 await connection.query('UPDATE equipos SET dt_id = ? WHERE id = ?', [solicitud.usuario_id, solicitud.equipo_id]);
             }
             logger.info(`Admin (ID: ${adminId}) aprobó la solicitud ${solicitudId}. Usuario (ID: ${solicitud.usuario_id}) es ahora DT.`);
@@ -270,7 +270,6 @@ exports.responderSolicitudRol = async (req, res) => {
             logger.info(`Admin (ID: ${adminId}) rechazó la solicitud ${solicitudId}.`);
         }
 
-        // 4. Si todo salió bien, confirmamos la transacción
         await connection.commit();
         res.json({ message: `Solicitud ${respuesta} correctamente.` });
 
@@ -283,38 +282,6 @@ exports.responderSolicitudRol = async (req, res) => {
     }
 };
 
-/**
- * ✅ NUEVA FUNCIÓN AÑADIDA
- * Un admin crea un nuevo equipo desde cero.
- */
-exports.adminCreaEquipo = async (req, res) => {
-    const { nombre, escudo, formacion, liga_id } = req.body;
-    const admin_id = req.usuario.id;
-
-    if (!nombre || !formacion) {
-        return res.status(400).json({ error: "Nombre y formación son obligatorios." });
-    }
-
-    try {
-        const [existente] = await db.query('SELECT id FROM equipos WHERE nombre = ?', [nombre]);
-        if (existente.length > 0) {
-            return res.status(409).json({ error: 'Ya existe un equipo con ese nombre.' });
-        }
-
-        const sql = "INSERT INTO equipos (nombre, escudo, formacion, liga_id, estado) VALUES (?, ?, ?, ?, 'aprobado')";
-        const [result] = await db.query(sql, [nombre, escudo || null, formacion, liga_id || null]);
-
-        logger.info(`Admin (ID: ${admin_id}) creó el equipo '${nombre}' (ID: ${result.insertId})`);
-        res.status(201).json({ message: 'Equipo creado correctamente por el admin.', equipoId: result.insertId });
-    } catch (error) {
-        logger.error("Error en adminCreaEquipo:", { message: error.message, error });
-        res.status(500).json({ error: 'Error en el servidor al crear el equipo.' });
-    }
-};
-
-/**
- * Finaliza la temporada de una liga: calcula posiciones finales y la archiva.
- */
 exports.finalizarTemporada = async (req, res) => {
     const { liga_id } = req.params;
     const admin_id = req.usuario.id;
@@ -355,9 +322,6 @@ exports.finalizarTemporada = async (req, res) => {
     }
 };
 
-/**
- * Ejecuta el proceso de ascensos y descensos entre dos ligas.
- */
 exports.ejecutarAscensosDescensos = async (req, res) => {
     const { liga_superior_id, liga_inferior_id, cantidad_equipos } = req.body;
     const admin_id = req.usuario.id;
@@ -402,34 +366,24 @@ exports.ejecutarAscensosDescensos = async (req, res) => {
     }
 };
 
-/**
- * ✅ NUEVA FUNCIÓN
- * Crea una nueva temporada para una liga existente.
- * Clona la liga y sus equipos para la siguiente temporada.
- */
 exports.crearNuevaTemporada = async (req, res) => {
     const { id: ligaAntiguaId } = req.params;
     const adminId = req.usuario.id;
-    const logger = require('../config/logger');
-
-    const connection = await db.getConnection(); // Usamos una conexión para manejar la transacción
+    const connection = await db.getConnection();
 
     try {
         await connection.beginTransaction();
 
-        // 1. Verificar que la liga antigua existe y está archivada
         const [[ligaAntigua]] = await connection.query("SELECT * FROM ligas WHERE id = ? AND estado_temporada = 'archivada'", [ligaAntiguaId]);
         if (!ligaAntigua) {
             await connection.rollback();
             return res.status(404).json({ error: "La liga no existe o no está archivada. Solo se puede crear una nueva temporada a partir de una liga archivada." });
         }
 
-        // 2. Determinar el nuevo nombre de la temporada
         const temporadaActual = ligaAntigua.temporada || 'Temporada 1';
         const numeroTemporada = parseInt(temporadaActual.match(/\d+/g)) || 1;
         const nuevaTemporadaNombre = `Temporada ${numeroTemporada + 1}`;
 
-        // 3. Crear la nueva liga
         const nuevaLigaQuery = `
             INSERT INTO ligas (nombre, categoria, temporada, creada_por_admin_id, estado_temporada) 
             VALUES (?, ?, ?, ?, 'activa')
@@ -437,25 +391,17 @@ exports.crearNuevaTemporada = async (req, res) => {
         const [result] = await connection.query(nuevaLigaQuery, [ligaAntigua.nombre, ligaAntigua.categoria, nuevaTemporadaNombre, adminId]);
         const nuevaLigaId = result.insertId;
 
-        // 4. Obtener los equipos de la liga antigua
         const [equiposAntiguos] = await connection.query("SELECT id FROM equipos WHERE liga_id = ?", [ligaAntiguaId]);
         if (equiposAntiguos.length === 0) {
-            // Si no hay equipos, la tarea está hecha.
             await connection.commit();
             return res.status(201).json({ message: `Nueva temporada '${nuevaTemporadaNombre}' creada con éxito, sin equipos.`, nuevaLigaId });
         }
 
-        // 5. Actualizar la liga_id de los equipos para que apunten a la nueva liga
         const idsEquipos = equiposAntiguos.map(e => e.id);
         const placeholders = idsEquipos.map(() => '?').join(',');
         const actualizarEquiposQuery = `UPDATE equipos SET liga_id = ? WHERE id IN (${placeholders})`;
         await connection.query(actualizarEquiposQuery, [nuevaLigaId, ...idsEquipos]);
 
-        // 6. Crear las entradas en la tabla de posiciones para la nueva liga
-        const valoresTablaPosiciones = equiposAntiguos.map(equipo => 
-            [nuevaLigaId, equipo.id, '(nombre pendiente)'] // El nombre se podría obtener con otro JOIN, pero lo simplificamos
-        );
-        // Necesitamos obtener los nombres de los equipos
         const nombresEquiposQuery = `SELECT id, nombre FROM equipos WHERE id IN (${placeholders})`;
         const [nombresEquipos] = await connection.query(nombresEquiposQuery, [...idsEquipos]);
         
@@ -466,29 +412,22 @@ exports.crearNuevaTemporada = async (req, res) => {
         const tablaPosicionesQuery = `INSERT INTO tabla_posiciones (liga_id, equipo_id, equipo_nombre) VALUES ?`;
         await connection.query(tablaPosicionesQuery, [valoresTablaFinal]);
 
-
-        await connection.commit(); // Si todo fue bien, confirmamos los cambios
+        await connection.commit();
         res.status(201).json({ message: `Nueva temporada '${nuevaTemporadaNombre}' creada y ${idsEquipos.length} equipos transferidos.`, nuevaLigaId });
 
     } catch (error) {
-        await connection.rollback(); // Si algo falla, revertimos todo
+        await connection.rollback();
         logger.error(`Error en crearNuevaTemporada: ${error.message}`, { error });
         res.status(500).json({ error: "Error en el servidor al crear la nueva temporada." });
     } finally {
-        connection.release(); // Liberamos la conexión al pool
+        connection.release();
     }
 };
 
-/**
- * ✅ NUEVA FUNCIÓN
- * Aplica una sanción a un jugador específico.
- */
 exports.crearSancion = async (req, res) => {
     const { jugador_id, motivo, partidos_de_sancion, partido_id } = req.body;
     const admin_id = req.usuario.id;
-    const logger = require('../config/logger');
 
-    // Validación básica de los datos de entrada
     if (!jugador_id || !motivo || !partidos_de_sancion) {
         return res.status(400).json({ error: 'Faltan datos obligatorios: jugador_id, motivo y partidos_de_sancion.' });
     }
@@ -508,7 +447,7 @@ exports.crearSancion = async (req, res) => {
             jugador_id, 
             motivo, 
             partidos_de_sancion, 
-            partido_id || null, // Se guarda null si no se especifica
+            partido_id || null,
             admin_id
         ]);
 
@@ -520,7 +459,6 @@ exports.crearSancion = async (req, res) => {
 
     } catch (error) {
         logger.error(`Error en crearSancion: ${error.message}`, { error });
-        // Error específico por si el jugador no existe
         if (error.code === 'ER_NO_REFERENCED_ROW_2') {
              return res.status(404).json({ error: 'El jugador especificado no existe.' });
         }
@@ -528,12 +466,8 @@ exports.crearSancion = async (req, res) => {
     }
 };
 
-/**
- * Obtiene todas las sanciones de un jugador específico.
- */
 exports.obtenerSancionesPorJugador = async (req, res) => {
     const { id: jugador_id } = req.params;
-    const logger = require('../config/logger');
 
     try {
         const sql = "SELECT * FROM sanciones WHERE jugador_id = ? ORDER BY fecha_creacion DESC";
@@ -545,15 +479,8 @@ exports.obtenerSancionesPorJugador = async (req, res) => {
     }
 };
 
-/**
- * ✅ NUEVA FUNCIÓN
- * Recopila varias estadísticas clave para el dashboard del admin.
- */
 exports.getDashboardStats = async (req, res) => {
-    const logger = require('../config/logger');
-
     try {
-        // Definimos todas las consultas de conteo que necesitamos
         const q_equipos_pendientes = db.query("SELECT COUNT(*) as count FROM equipos WHERE estado = 'pendiente'");
         const q_roles_pendientes = db.query("SELECT COUNT(*) as count FROM solicitud_roles WHERE estado = 'pendiente'");
         const q_partidos_pendientes = db.query("SELECT COUNT(*) as count FROM partidos WHERE estado = 'pendiente' AND imagen_resultado_url IS NOT NULL");
@@ -561,7 +488,6 @@ exports.getDashboardStats = async (req, res) => {
         const q_total_equipos = db.query("SELECT COUNT(*) as count FROM equipos WHERE estado = 'aprobado'");
         const q_total_ligas = db.query("SELECT COUNT(*) as count FROM ligas");
         
-        // Las ejecutamos todas en paralelo
         const [
             [[equipos_pendientes]],
             [[roles_pendientes]],
@@ -578,7 +504,6 @@ exports.getDashboardStats = async (req, res) => {
             q_total_ligas
         ]);
 
-        // Formateamos la respuesta en un solo objeto JSON
         res.json({
             equipos_pendientes: equipos_pendientes.count,
             roles_pendientes: roles_pendientes.count,

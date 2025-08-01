@@ -2,27 +2,37 @@ const express = require('express');
 const router = express.Router();
 
 const { 
-  moverJugador, 
-  crearEquipoYAsignarDT, 
-  obtenerReportes, 
-  marcarReporteComoAtendido,
-  programarMercado,
-  generarFixtureLiga,
-  responderSolicitudRol,
-  adminCreaEquipo,
-  finalizarTemporada,
-  ejecutarAscensosDescensos,
-  crearNuevaTemporada,
-  crearSancion,
-  obtenerSancionesPorJugador,
-  getDashboardStats // ✅ Se importa la nueva función
+    moverJugador, 
+    crearEquipoYAsignarDT, 
+    obtenerReportes, 
+    marcarReporteComoAtendido,
+    programarMercado,
+    generarFixtureLiga,
+    responderSolicitudRol,
+    adminCreaEquipo,
+    finalizarTemporada,
+    ejecutarAscensosDescensos,
+    crearNuevaTemporada,
+    crearSancion,
+    obtenerSancionesPorJugador,
+    getDashboardStats
 } = require('../controllers/admin.controller');
+
+const { verSolicitudesRol } = require('../controllers/usuarios.controller');
 
 const authMiddleware = require('../middleware.js/auth.middleware'); 
 const verifyRole = require('../middleware.js/verifyRole');
 const verificarToken = require('../middleware.js/auth.middleware');
+const upload = require('../middleware.js/upload'); // ✅ Se importa el middleware para subir archivos
 
 // --- RUTAS DE ADMINISTRADOR ---
+
+router.get('/solicitudes', verificarToken, verifyRole('admin'), verSolicitudesRol);
+
+// ✅ RUTA CORREGIDA: Ahora usa el middleware 'upload' para procesar la imagen del escudo
+router.post('/equipos', authMiddleware, verifyRole('admin'), upload.single('escudo'), adminCreaEquipo);
+
+// ... (El resto de tus rutas se quedan igual)
 router.post('/mover-jugador', authMiddleware, verifyRole('admin'), moverJugador);
 router.post('/ligas/:liga_id/generar-fixture', authMiddleware, verifyRole('admin'), generarFixtureLiga);
 router.put("/solicitudes/:id/responder", verificarToken, verifyRole("admin"), responderSolicitudRol);
@@ -36,9 +46,5 @@ router.post('/promocion-descenso', authMiddleware, verifyRole('admin'), ejecutar
 router.post('/sanciones', authMiddleware, verifyRole('admin'), crearSancion);
 router.get('/usuarios/:id/sanciones', authMiddleware, verifyRole('admin'), obtenerSancionesPorJugador);
 router.get('/dashboard-stats', authMiddleware, verifyRole('admin'), getDashboardStats);
-
-
-// ✅ NUEVA RUTA: Admin crea un equipo directamente
-router.post('/equipos', authMiddleware, verifyRole('admin'), adminCreaEquipo);
 
 module.exports = router;
