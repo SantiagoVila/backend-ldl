@@ -10,8 +10,6 @@ const { Server } = require("socket.io");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ✅ LÍNEA AÑADIDA: Esto soluciona el error del rate-limit
-// Le dice a Express que confíe en el proxy (Nginx) que tiene por delante.
 app.set('trust proxy', 1);
 
 const server = http.createServer(app);
@@ -39,11 +37,24 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
+// ✅ --- SECCIÓN DE CORS CORREGIDA ---
+const whitelist = [
+    process.env.CORS_ORIGIN, // Tu frontend en producción (ej: https://ldlargentina.com)
+    'http://localhost:5173'      // Tu frontend para desarrollo local (ajusta el puerto si es otro)
+];
+
 const corsOptions = {
-  origin: process.env.CORS_ORIGIN, 
-  optionsSuccessStatus: 200
+  origin: function (origin, callback) {
+    if (whitelist.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('No permitido por la política de CORS'));
+    }
+  }
 };
+
 app.use(cors(corsOptions));
+// ------------------------------------
 
 app.use(express.json());
 
@@ -86,7 +97,6 @@ app.get("/", (req, res) => {
     res.send("Servidor funcionando correctamente");
 });
 
-// (El resto de tus rutas no necesitan cambios)
 const usuariosRoutes = require('./src/routes/usuarios.routes');
 app.use('/api/usuarios', usuariosRoutes);
 
