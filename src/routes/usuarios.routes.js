@@ -2,20 +2,21 @@
 
 const express = require("express");
 const router = express.Router();
-const { body } = require('express-validator'); // Importamos 'body' para crear las reglas
+const { body } = require('express-validator');
 
 const { 
-  registrarUsuario, 
-  obtenerTodosLosUsuarios, 
-  solicitarRolDT,
-  verSolicitudesRol,
-  obtenerUsuarioPorId,
-  actualizarRolUsuario,   
-  actualizarEquipoUsuario,
-   cambiarPassword,
-   subirAvatar,
-   actualizarPerfil,
-   getPublicDtProfile 
+    registrarUsuario, 
+    obtenerTodosLosUsuarios, 
+    solicitarRolDT,
+    verSolicitudesRol,
+    obtenerUsuarioPorId,
+    actualizarRolUsuario,   
+    actualizarEquipoUsuario,
+    cambiarPassword,
+    subirAvatar,
+    actualizarPerfil,
+    getPublicDtProfile,
+    borrarUsuario // ✅ Se importa la nueva función
 } = require('../controllers/usuarios.controller');
 
 const verificarToken = require("../middleware.js/auth.middleware");
@@ -26,7 +27,6 @@ const upload = require('../middleware.js/upload');
 
 router.post(
     '/register',
-    // ✅ REGLAS DE VALIDACIÓN AÑADIDAS
     [
         body('email', 'El email proporcionado no es válido.').isEmail(),
         body('password', 'La contraseña debe tener al menos 8 caracteres.').isLength({ min: 8 }),
@@ -37,35 +37,24 @@ router.post(
 );
 
 router.get('/publico/dt/:id', getPublicDtProfile);
-
-// Ruta para obtener todos los usuarios (protegida para admins)
 router.get("/", verificarToken, verifyRole('admin'), obtenerTodosLosUsuarios);
-
-// Ruta para que un jugador solicite ser DT
 router.post("/solicitar-dt", verificarToken, verifyRole('jugador'), solicitarRolDT);
-
-// Ruta para que un admin vea las solicitudes de roles
 router.get("/solicitudes", verificarToken, verifyRole("admin"), verSolicitudesRol);
-
 router.get("/:id", verificarToken, obtenerUsuarioPorId);
-
 router.put("/:id/rol", verificarToken, verifyRole('admin'), actualizarRolUsuario);
 router.put("/:id/equipo", verificarToken, verifyRole('admin'), actualizarEquipoUsuario);
-
 router.put('/cambiar-password', verificarToken, cambiarPassword);
-
 router.post('/avatar', verificarToken, upload.single('avatar'), subirAvatar);
-
-
 router.put('/perfil', verificarToken, actualizarPerfil);
 
-// Ruta protegida de prueba 
-router.get('/protegida', verificarToken, (req, res) => {
-  res.json({
-    message: 'Accediste a una ruta protegida',
-    usuario: req.usuario,
-  });
-});
+// ✅ NUEVA RUTA para borrar un usuario
+router.delete('/:id', verificarToken, verifyRole('admin'), borrarUsuario);
 
+router.get('/protegida', verificarToken, (req, res) => {
+    res.json({
+        message: 'Accediste a una ruta protegida',
+        usuario: req.usuario,
+    });
+});
 
 module.exports = router;

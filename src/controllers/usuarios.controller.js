@@ -340,4 +340,29 @@ exports.getPublicDtProfile = async (req, res) => {
         res.status(500).json({ error: 'Error al obtener el perfil del DT.' });
     }
 };
+/**
+ * ✅ NUEVA FUNCIÓN
+ * Permite a un administrador borrar un usuario.
+ */
+exports.borrarUsuario = async (req, res) => {
+    const { id } = req.params;
+    const adminId = req.usuario.id;
 
+    if (parseInt(id) === adminId) {
+        return res.status(403).json({ error: "No puedes borrar tu propia cuenta de administrador." });
+    }
+
+    try {
+        const [result] = await db.query("DELETE FROM usuarios WHERE id = ?", [id]);
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: "Usuario no encontrado o ya ha sido eliminado." });
+        }
+
+        logger.info(`Admin (ID: ${adminId}) borró al usuario (ID: ${id}).`);
+        res.json({ message: "Usuario eliminado correctamente." });
+    } catch (error) {
+        logger.error(`Error en borrarUsuario: ${error.message}`, { error });
+        res.status(500).json({ error: 'Error en el servidor al borrar el usuario.' });
+    }
+};

@@ -78,7 +78,6 @@ exports.obtenerLigaPorId = async (req, res) => {
  * Obtiene las estadísticas clave de una liga.
  */
 exports.obtenerEstadisticasLiga = async (req, res) => {
-    // ... (Esta función no necesita cambios)
     const { id } = req.params;
     try {
         const goleadoresQuery = db.query(`SELECT u.nombre_in_game, SUM(es.goles) as total FROM estadisticas_jugadores_partido es JOIN usuarios u ON es.jugador_id = u.id JOIN partidos p ON es.partido_id = p.id WHERE p.liga_id = ? AND es.goles > 0 GROUP BY es.jugador_id ORDER BY total DESC LIMIT 10`, [id]);
@@ -104,30 +103,18 @@ exports.obtenerLigasPublico = async (req, res) => {
     }
 };
 
-/**
- * ✅ FUNCIÓN CORREGIDA
- * Obtiene todos los detalles públicos de una liga para su página de perfil.
- */
 exports.obtenerDetallesPublicosLiga = async (req, res) => {
     const { id } = req.params;
     try {
         const ligaQuery = db.query(`SELECT * FROM ligas WHERE id = ?`, [id]);
         
-        // ✅ CORRECCIÓN: La consulta ahora se basa en la tabla 'equipos' y une las estadísticas
-        // de 'tabla_posiciones'. Esto asegura que solo se muestren los equipos que REALMENTE
-        // pertenecen a la liga. COALESCE se usa para mostrar 0 si un equipo aún no tiene estadísticas.
         const tablaQuery = db.query(`
             SELECT 
-                e.id as equipo_id,
-                e.nombre as equipo_nombre,
-                COALESCE(tp.puntos, 0) as puntos,
-                COALESCE(tp.partidos_jugados, 0) as partidos_jugados,
-                COALESCE(tp.partidos_ganados, 0) as partidos_ganados,
-                COALESCE(tp.partidos_empatados, 0) as partidos_empatados,
-                COALESCE(tp.partidos_perdidos, 0) as partidos_perdidos,
-                COALESCE(tp.goles_a_favor, 0) as goles_a_favor,
-                COALESCE(tp.goles_en_contra, 0) as goles_en_contra,
-                COALESCE(tp.diferencia_goles, 0) as diferencia_goles
+                e.id as equipo_id, e.nombre as equipo_nombre,
+                COALESCE(tp.puntos, 0) as puntos, COALESCE(tp.partidos_jugados, 0) as partidos_jugados,
+                COALESCE(tp.partidos_ganados, 0) as partidos_ganados, COALESCE(tp.partidos_empatados, 0) as partidos_empatados,
+                COALESCE(tp.partidos_perdidos, 0) as partidos_perdidos, COALESCE(tp.goles_a_favor, 0) as goles_a_favor,
+                COALESCE(tp.goles_en_contra, 0) as goles_en_contra, COALESCE(tp.diferencia_goles, 0) as diferencia_goles
             FROM equipos e
             LEFT JOIN tabla_posiciones tp ON e.id = tp.equipo_id AND e.liga_id = tp.liga_id
             WHERE e.liga_id = ?
@@ -136,10 +123,8 @@ exports.obtenerDetallesPublicosLiga = async (req, res) => {
 
         const fixtureQuery = db.query(`
             SELECT 
-                p.id, p.jornada, p.fecha, p.estado,
-                p.goles_local, p.goles_visitante,
-                el.nombre as nombre_local,
-                ev.nombre as nombre_visitante
+                p.id, p.jornada, p.fecha, p.estado, p.goles_local, p.goles_visitante,
+                el.nombre as nombre_local, ev.nombre as nombre_visitante
             FROM partidos p
             JOIN equipos el ON p.equipo_local_id = el.id
             JOIN equipos ev ON p.equipo_visitante_id = ev.id
@@ -147,11 +132,7 @@ exports.obtenerDetallesPublicosLiga = async (req, res) => {
             ORDER BY p.jornada ASC, p.fecha ASC
         `, [id]);
 
-        const [
-            [[liga]],
-            [tabla],
-            [fixture]
-        ] = await Promise.all([ligaQuery, tablaQuery, fixtureQuery]);
+        const [ [[liga]], [tabla], [fixture] ] = await Promise.all([ligaQuery, tablaQuery, fixtureQuery]);
 
         if (!liga) {
             return res.status(404).json({ error: 'Liga no encontrada' });
@@ -166,5 +147,30 @@ exports.obtenerDetallesPublicosLiga = async (req, res) => {
     } catch (error) {
         logger.error(`Error en obtenerDetallesPublicosLiga: ${error.message}`, { error });
         res.status(500).json({ error: 'Error al obtener los detalles de la liga.' });
+    }
+};
+
+/**
+ * ✅ NUEVA FUNCIÓN
+ * Permite a un administrador borrar una liga.
+ */
+exports.borrarLiga = async (req, res) => {
+    const { id } = req.params;
+    const adminId = req.usuario.id;
+
+    try {
+        // La configuración 'ON DELETE CASCADE' en la base de datos se encargará
+        // de borrar partidos y tablas de posiciones asociadas.
+        const [result] = await db.query("DELETE FROM ligas WHERE id = ?", [id]);
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: "Liga no encontrada o ya ha sido eliminada." });
+        }
+
+        logger.info(`Admin (ID: ${adminId}) borró la liga (ID: ${id}).`);
+        res.json({ message: "Liga eliminada correctamente." });
+    } catch (error) {
+        logger.error(`Error en borrarLiga: ${error.message}`, { error });
+        res.status(500).json({ error: 'Error en el servidor al borrar la liga.' });
     }
 };
