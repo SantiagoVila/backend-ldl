@@ -3,12 +3,12 @@
 const express = require("express");
 const router = express.Router();
 
-// ✅ Se importan las nuevas funciones
 const { 
     crearCopa, 
     obtenerCopas, 
     obtenerCopaPorId,
-    obtenerDetallesPublicosCopa 
+    obtenerDetallesPublicosCopa,
+    borrarCopa // ✅ Se importa la nueva función
 } = require("../controllers/copas.controller");
 const verificarToken = require("../middleware.js/auth.middleware");
 const verificarRol = require("../middleware.js/verifyRole");
@@ -20,5 +20,6 @@ router.get('/publico/:id/detalles', obtenerDetallesPublicosCopa);
 router.get('/', verificarToken, verificarRol("admin"), obtenerCopas);
 router.get('/:id', verificarToken, verificarRol("admin"), obtenerCopaPorId);
 router.post('/', verificarToken, verificarRol("admin"), crearCopa);
+router.delete('/:id', verificarToken, verificarRol("admin"), borrarCopa); // ✅ NUEVA RUTA
 
 module.exports = router;
