@@ -5,7 +5,6 @@ const fixtureService = require("../services/fixture.service");
 const logger = require('../config/logger');
 
 exports.crearCopa = async (req, res) => {
-    // ... tu función crearCopa existente se mantiene igual ...
     const { nombre, temporada, equipos } = req.body;
     const admin_id = req.usuario.id;
 
@@ -49,11 +48,6 @@ exports.crearCopa = async (req, res) => {
     }
 };
 
-
-/**
- * ✅ NUEVA FUNCIÓN
- * Obtiene una lista de todas las copas creadas.
- */
 exports.obtenerCopas = async (req, res) => {
     try {
         const [copas] = await db.query('SELECT * FROM copas ORDER BY fecha_creacion DESC');
@@ -63,10 +57,7 @@ exports.obtenerCopas = async (req, res) => {
         res.status(500).json({ error: 'Error al obtener las copas' });
     }
 };
-/**
- * ✅ NUEVA FUNCIÓN
- * Obtiene los detalles de una copa específica para la vista de admin.
- */
+
 exports.obtenerCopaPorId = async (req, res) => {
     const { id } = req.params;
     try {
@@ -84,7 +75,6 @@ exports.obtenerCopaPorId = async (req, res) => {
             ORDER BY p.id_partido_llave ASC
         `, [id]);
         
-        // Agrupamos los partidos por fase para facilitar el renderizado del bracket
         const fixturePorFase = partidos.reduce((acc, p) => {
             const fase = p.fase || 'Desconocida';
             if (!acc[fase]) acc[fase] = [];
@@ -101,10 +91,6 @@ exports.obtenerCopaPorId = async (req, res) => {
     }
 };
 
-/**
- * ✅ NUEVA FUNCIÓN
- * Obtiene los detalles públicos de una copa.
- */
 exports.obtenerDetallesPublicosCopa = async (req, res) => {
     const { id } = req.params;
     try {
@@ -113,7 +99,6 @@ exports.obtenerDetallesPublicosCopa = async (req, res) => {
             return res.status(404).json({ error: 'Copa no encontrada o no está activa.' });
         }
 
-        // Reutilizamos la misma lógica de consulta que en la vista de admin
         const [partidos] = await db.query(`
             SELECT p.id, p.goles_local, p.goles_visitante, p.fase, p.estado,
                    el.nombre as nombre_local, el.escudo as escudo_local, 
@@ -140,25 +125,30 @@ exports.obtenerDetallesPublicosCopa = async (req, res) => {
         res.status(500).json({ error: 'Error al obtener los detalles públicos de la copa.' });
     }
 };
-/**
- * ✅ NUEVA FUNCIÓN
- * Permite a un administrador borrar una copa.
- */
+
 exports.borrarCopa = async (req, res) => {
     const { id } = req.params;
     const adminId = req.usuario.id;
 
     try {
         const [result] = await db.query("DELETE FROM copas WHERE id = ?", [id]);
-
         if (result.affectedRows === 0) {
             return res.status(404).json({ error: "Copa no encontrada o ya ha sido eliminada." });
         }
-
         logger.info(`Admin (ID: ${adminId}) borró la copa (ID: ${id}).`);
         res.json({ message: "Copa eliminada correctamente." });
     } catch (error) {
         logger.error(`Error en borrarCopa: ${error.message}`, { error });
         res.status(500).json({ error: 'Error en el servidor al borrar la copa.' });
+    }
+};
+
+exports.obtenerCopasPublico = async (req, res) => {
+    try {
+        const [copas] = await db.query("SELECT id, nombre, temporada FROM copas WHERE estado = 'activa' ORDER BY fecha_creacion DESC");
+        res.json(copas);
+    } catch (error) {
+        logger.error(`Error en obtenerCopasPublico: ${error.message}`, { error });
+        res.status(500).json({ error: 'Error al obtener las copas' });
     }
 };
