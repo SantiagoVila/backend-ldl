@@ -140,3 +140,25 @@ exports.obtenerDetallesPublicosCopa = async (req, res) => {
         res.status(500).json({ error: 'Error al obtener los detalles públicos de la copa.' });
     }
 };
+/**
+ * ✅ NUEVA FUNCIÓN
+ * Permite a un administrador borrar una copa.
+ */
+exports.borrarCopa = async (req, res) => {
+    const { id } = req.params;
+    const adminId = req.usuario.id;
+
+    try {
+        const [result] = await db.query("DELETE FROM copas WHERE id = ?", [id]);
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: "Copa no encontrada o ya ha sido eliminada." });
+        }
+
+        logger.info(`Admin (ID: ${adminId}) borró la copa (ID: ${id}).`);
+        res.json({ message: "Copa eliminada correctamente." });
+    } catch (error) {
+        logger.error(`Error en borrarCopa: ${error.message}`, { error });
+        res.status(500).json({ error: 'Error en el servidor al borrar la copa.' });
+    }
+};

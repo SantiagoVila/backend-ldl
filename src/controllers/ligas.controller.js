@@ -174,25 +174,3 @@ exports.borrarLiga = async (req, res) => {
         res.status(500).json({ error: 'Error en el servidor al borrar la liga.' });
     }
 };
-/**
- * ✅ NUEVA FUNCIÓN
- * Permite a un administrador borrar una liga.
- */
-exports.borrarLiga = async (req, res) => {
-    const { id } = req.params;
-    const adminId = req.usuario.id;
-
-    try {
-        const [result] = await db.query("DELETE FROM ligas WHERE id = ?", [id]);
-
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ error: "Liga no encontrada o ya ha sido eliminada." });
-        }
-
-        logger.info(`Admin (ID: ${adminId}) borró la liga (ID: ${id}).`);
-        res.json({ message: "Liga eliminada correctamente." });
-    } catch (error) {
-        logger.error(`Error en borrarLiga: ${error.message}`, { error });
-        res.status(500).json({ error: 'Error en el servidor al borrar la liga.' });
-    }
-};
