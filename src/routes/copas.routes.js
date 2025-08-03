@@ -7,9 +7,8 @@ const { crearCopa } = require("../controllers/copas.controller");
 const verificarToken = require("../middleware.js/auth.middleware");
 const verificarRol = require("../middleware.js/verifyRole");
 
-// Por ahora solo tenemos la ruta para crear
+// Esta es la línea 11 que daba el error. 
+// Ahora 'crearCopa' será una función válida porque el controlador la exporta correctamente.
 router.post('/', verificarToken, verificarRol("admin"), crearCopa);
-
-// Aquí podrías añadir más rutas como GET para ver las copas
 
 module.exports = router;
