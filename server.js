@@ -118,6 +118,10 @@ app.use('/api/jugadores', jugadoresRoutes);
 const ligasRoutes = require('./src/routes/ligas.routes');
 app.use('/api/ligas', ligasRoutes);
 
+// ✅ AÑADIR ESTA LÍNEA
+const copasRoutes = require('./src/routes/copas.routes');
+app.use('/api/copas', copasRoutes);
+
 const partidosRoutes = require('./src/routes/partidos.routes');
 app.use('/api/partidos', partidosRoutes);
 
