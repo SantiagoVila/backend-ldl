@@ -122,6 +122,9 @@ app.use('/api/ligas', ligasRoutes);
 const copasRoutes = require('./src/routes/copas.routes');
 app.use('/api/copas', copasRoutes);
 
+// ✅ AÑADIR ESTA LÍNEA
+app.use('/api/partidos_copa', require('./src/routes/partidos_copa.routes'));
+
 const partidosRoutes = require('./src/routes/partidos.routes');
 app.use('/api/partidos', partidosRoutes);
 
