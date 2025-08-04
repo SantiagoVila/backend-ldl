@@ -32,20 +32,29 @@ exports.crearLiga = async (req, res) => {
             return res.status(409).json({ error: 'Ya existe una liga con ese nombre para esa temporada.' });
         }
 
+        // 1. Insertar la nueva liga
         const sqlInsertar = `INSERT INTO ligas (nombre, temporada, categoria, creada_por_admin_id, fixture_generado) VALUES (?, ?, ?, ?, ?)`;
         const [resultado] = await connection.query(sqlInsertar, [nombre, temporada || null, categoria, admin_id, true]);
         const nuevaLigaId = resultado.insertId;
 
+        const equipoIds = equipos.map(e => e.id);
+
+        // 2. ✅ LÓGICA CORREGIDA: Asociar los equipos a la nueva liga
+        const sqlAsociarEquipos = `UPDATE equipos SET liga_id = ? WHERE id IN (?)`;
+        await connection.query(sqlAsociarEquipos, [nuevaLigaId, equipoIds]);
+
+        // 3. Generar y programar partidos
         let partidosParaCrear = fixtureService.generarPartidosRoundRobin(equipos);
         partidosParaCrear = fixtureService.programarPartidos(partidosParaCrear, fecha_arranque, dias_de_juego);
 
+        // 4. Insertar los partidos
         const sqlInsertarPartidos = `INSERT INTO partidos (liga_id, equipo_local_id, equipo_visitante_id, jornada, fecha) VALUES ?`;
         const valoresPartidos = partidosParaCrear.map(p => [
             nuevaLigaId, p.equipo_local_id, p.equipo_visitante_id, p.jornada, p.fecha || null
         ]);
         await connection.query(sqlInsertarPartidos, [valoresPartidos]);
 
-        // ✅ LÓGICA AÑADIDA: Crear las entradas en la tabla de posiciones
+        // 5. Crear las entradas en la tabla de posiciones
         const valoresPosiciones = equipos.map(e => [nuevaLigaId, e.id, e.nombre]);
         const sqlPosiciones = `INSERT INTO tabla_posiciones (liga_id, equipo_id, equipo_nombre) VALUES ?`;
         await connection.query(sqlPosiciones, [valoresPosiciones]);
