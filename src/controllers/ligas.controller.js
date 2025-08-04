@@ -6,6 +6,11 @@ const logger = require('../config/logger');
 /**
  * Permite a un administrador crear una nueva liga.
  */
+/**
+ * ✅ FUNCIÓN MEJORADA
+ * Permite a un administrador crear una nueva liga y genera automáticamente
+ * el fixture con fechas programadas.
+ */
 exports.crearLiga = async (req, res) => {
     // Se leen los nuevos campos para la programación de fechas
     const { nombre, temporada, categoria, fecha_arranque, dias_de_juego, equipos } = req.body;
