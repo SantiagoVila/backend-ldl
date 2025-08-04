@@ -2,6 +2,7 @@
 
 const db = require("../../databases");
 const logger = require('../config/logger');
+const fixtureService = require("../services/fixture.service");
 
 /**
  * ✅ FUNCIÓN CORREGIDA Y COMPLETADA
@@ -24,6 +25,7 @@ exports.crearLiga = async (req, res) => {
     try {
         await connection.beginTransaction();
 
+        // 1. Verificar si la liga ya existe
         const sqlVerificar = `SELECT id FROM ligas WHERE nombre = ? AND temporada = ?`;
         const [ligasExistentes] = await connection.query(sqlVerificar, [nombre, temporada || null]);
 
@@ -32,19 +34,25 @@ exports.crearLiga = async (req, res) => {
             return res.status(409).json({ error: 'Ya existe una liga con ese nombre para esa temporada.' });
         }
 
+        // 2. Crear la liga en la base de datos
         const sqlInsertar = `INSERT INTO ligas (nombre, temporada, categoria, creada_por_admin_id, fixture_generado) VALUES (?, ?, ?, ?, ?)`;
         const [resultado] = await connection.query(sqlInsertar, [nombre, temporada || null, categoria, admin_id, true]);
         const nuevaLigaId = resultado.insertId;
 
+        // 3. Generar el fixture de partidos (ida y vuelta)
         let partidosParaCrear = fixtureService.generarPartidosRoundRobin(equipos);
+        
+        // 4. Asignar fechas a los partidos generados
         partidosParaCrear = fixtureService.programarPartidos(partidosParaCrear, fecha_arranque, dias_de_juego);
 
+        // 5. Insertar todos los partidos en la base de datos
         const sqlInsertarPartidos = `INSERT INTO partidos (liga_id, equipo_local_id, equipo_visitante_id, jornada, fecha) VALUES ?`;
         const valoresPartidos = partidosParaCrear.map(p => [
             nuevaLigaId, p.equipo_local_id, p.equipo_visitante_id, p.jornada, p.fecha || null
         ]);
         await connection.query(sqlInsertarPartidos, [valoresPartidos]);
 
+        // 6. Crear las entradas en la tabla de posiciones
         const valoresPosiciones = equipos.map(e => [nuevaLigaId, e.id, e.nombre]);
         const sqlPosiciones = `INSERT INTO tabla_posiciones (liga_id, equipo_id, equipo_nombre) VALUES ?`;
         await connection.query(sqlPosiciones, [valoresPosiciones]);
