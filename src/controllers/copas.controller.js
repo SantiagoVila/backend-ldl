@@ -208,6 +208,10 @@ exports.obtenerCopasPublico = async (req, res) => {
     }
 };
 
+/**
+ * ✅ FUNCIÓN CORREGIDA
+ * Obtiene los detalles públicos de una copa, incluyendo los nombres de los equipos en los partidos de grupo.
+ */
 exports.obtenerDetallesPublicosCopa = async (req, res) => {
     const { id } = req.params;
     try {
@@ -217,7 +221,17 @@ exports.obtenerDetallesPublicosCopa = async (req, res) => {
         if (copa.fase_actual === 'grupos') {
             const [tablaGrupo1] = await db.query('SELECT * FROM tabla_posiciones_copa WHERE copa_id = ? AND grupo_id = 1 ORDER BY puntos DESC, diferencia_goles DESC', [id]);
             const [tablaGrupo2] = await db.query('SELECT * FROM tabla_posiciones_copa WHERE copa_id = ? AND grupo_id = 2 ORDER BY puntos DESC, diferencia_goles DESC', [id]);
-            const [partidos] = await db.query('SELECT * FROM partidos_copa WHERE copa_id = ? AND fase = "Grupos" ORDER BY jornada', [id]);
+            
+            // ✅ CONSULTA CORREGIDA: Ahora se unen los nombres de los equipos
+            const [partidos] = await db.query(`
+                SELECT p.*, el.nombre as nombre_local, ev.nombre as nombre_visitante
+                FROM partidos_copa p
+                LEFT JOIN equipos el ON p.equipo_local_id = el.id
+                LEFT JOIN equipos ev ON p.equipo_visitante_id = ev.id
+                WHERE p.copa_id = ? AND p.fase = 'Grupos' 
+                ORDER BY p.jornada
+            `, [id]);
+
             copa.grupos = {
                 1: { tabla: tablaGrupo1, partidos: partidos.filter(p => p.grupo_id === 1) },
                 2: { tabla: tablaGrupo2, partidos: partidos.filter(p => p.grupo_id === 2) }
