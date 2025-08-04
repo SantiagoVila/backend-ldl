@@ -144,3 +144,50 @@ exports.generarCopaConGrupos = (equipos, equiposPorGrupo = 6) => {
         partidos: [...partidosDeGrupos, ...partidosEliminatoria]
     };
 };
+/**
+ * ✅ NUEVA FUNCIÓN
+ * Asigna fechas a una lista de partidos basándose en una fecha de inicio y días de juego.
+ * @param {Array} partidos - La lista de partidos generados (sin fecha).
+ * @param {string} fechaArranque - La fecha de inicio en formato 'YYYY-MM-DD'.
+ * @param {Array<string>} diasDeJuego - Array con los días de la semana (ej: ['lunes', 'miercoles']).
+ */
+exports.programarPartidos = (partidos, fechaArranque, diasDeJuego) => {
+    if (!fechaArranque || !diasDeJuego || diasDeJuego.length === 0) {
+        return partidos; // Si no se proveen datos, devuelve los partidos sin fecha
+    }
+
+    const diasMap = { 'domingo': 0, 'lunes': 1, 'martes': 2, 'miercoles': 3, 'jueves': 4, 'viernes': 5, 'sabado': 6 };
+    const diasSeleccionados = diasDeJuego.map(dia => diasMap[dia.toLowerCase()]);
+
+    let fechaActual = new Date(`${fechaArranque}T12:00:00Z`); // Usamos mediodía para evitar problemas de zona horaria
+    const partidosProgramados = [];
+    
+    // Agrupamos los partidos por jornada
+    const partidosPorJornada = partidos.reduce((acc, partido) => {
+        const jornada = partido.jornada || 0;
+        if (!acc[jornada]) {
+            acc[jornada] = [];
+        }
+        acc[jornada].push(partido);
+        return acc;
+    }, {});
+
+    // Iteramos sobre cada jornada para asignarle una fecha
+    Object.keys(partidosPorJornada).sort((a, b) => a - b).forEach(jornada => {
+        // Buscamos el próximo día de juego disponible
+        while (!diasSeleccionados.includes(fechaActual.getUTCDay())) {
+            fechaActual.setUTCDate(fechaActual.getUTCDate() + 1);
+        }
+
+        // Asignamos la fecha encontrada a todos los partidos de esta jornada
+        partidosPorJornada[jornada].forEach(partido => {
+            partido.fecha = fechaActual.toISOString().split('T')[0]; // Formato YYYY-MM-DD
+            partidosProgramados.push(partido);
+        });
+
+        // Avanzamos al siguiente día para la próxima jornada
+        fechaActual.setUTCDate(fechaActual.getUTCDate() + 1);
+    });
+
+    return partidosProgramados;
+};

@@ -7,30 +7,65 @@ const logger = require('../config/logger');
  * Permite a un administrador crear una nueva liga.
  */
 exports.crearLiga = async (req, res) => {
-    const { nombre, temporada, categoria } = req.body;
+    // Se leen los nuevos campos para la programación de fechas
+    const { nombre, temporada, categoria, fecha_arranque, dias_de_juego, equipos } = req.body;
     const admin_id = req.usuario.id;
     
     if (!nombre || !categoria) {
         return res.status(400).json({ msg: 'El nombre y la categoría de la liga son obligatorios' });
     }
+    if (!equipos || equipos.length < 2) {
+        return res.status(400).json({ msg: 'Se deben seleccionar al menos 2 equipos para crear la liga.' });
+    }
+
+    const connection = await db.getConnection();
 
     try {
+        await connection.beginTransaction();
+
+        // 1. Verificar si la liga ya existe
         const sqlVerificar = `SELECT id FROM ligas WHERE nombre = ? AND temporada = ?`;
-        const [ligasExistentes] = await db.query(sqlVerificar, [nombre, temporada || null]);
+        const [ligasExistentes] = await connection.query(sqlVerificar, [nombre, temporada || null]);
 
         if (ligasExistentes.length > 0) {
+            await connection.rollback();
             return res.status(409).json({ error: 'Ya existe una liga con ese nombre para esa temporada.' });
         }
 
-        const sqlInsertar = `INSERT INTO ligas (nombre, temporada, categoria, creada_por_admin_id) VALUES (?, ?, ?, ?)`;
-        const [resultado] = await db.query(sqlInsertar, [nombre, temporada || null, categoria, admin_id]);
+        // 2. Crear la liga en la base de datos
+        const sqlInsertar = `INSERT INTO ligas (nombre, temporada, categoria, creada_por_admin_id, fixture_generado) VALUES (?, ?, ?, ?, ?)`;
+        const [resultado] = await connection.query(sqlInsertar, [nombre, temporada || null, categoria, admin_id, true]);
+        const nuevaLigaId = resultado.insertId;
 
-        const [[nuevaLiga]] = await db.query('SELECT * FROM ligas WHERE id = ?', [resultado.insertId]);
+        // 3. Generar el fixture de partidos (ida y vuelta)
+        let partidosParaCrear = fixtureService.generarPartidosRoundRobin(equipos);
+        
+        // 4. Asignar fechas a los partidos generados
+        partidosParaCrear = fixtureService.programarPartidos(partidosParaCrear, fecha_arranque, dias_de_juego);
+
+        // 5. Insertar todos los partidos en la base de datos
+        const sqlInsertarPartidos = `INSERT INTO partidos (liga_id, equipo_local_id, equipo_visitante_id, jornada, fecha) VALUES ?`;
+        const valoresPartidos = partidosParaCrear.map(p => [
+            nuevaLigaId, p.equipo_local_id, p.equipo_visitante_id, p.jornada, p.fecha || null
+        ]);
+        await connection.query(sqlInsertarPartidos, [valoresPartidos]);
+
+        // 6. Crear las entradas en la tabla de posiciones
+        const valoresPosiciones = equipos.map(e => [nuevaLigaId, e.id, e.nombre]);
+        const sqlPosiciones = `INSERT INTO tabla_posiciones (liga_id, equipo_id, equipo_nombre) VALUES ?`;
+        await connection.query(sqlPosiciones, [valoresPosiciones]);
+
+        await connection.commit();
+
+        const [[nuevaLiga]] = await connection.query('SELECT * FROM ligas WHERE id = ?', [nuevaLigaId]);
         res.status(201).json(nuevaLiga);
 
     } catch (error) {
+        await connection.rollback();
         logger.error(`Error en crearLiga: ${error.message}`, { error });
         res.status(500).json({ error: 'Error en el servidor al crear la liga' });
+    } finally {
+        if (connection) connection.release();
     }
 };
 
