@@ -9,21 +9,23 @@ const {
     obtenerCopaPorId,
     obtenerDetallesPublicosCopa,
     borrarCopa,
-    obtenerCopasPublico
+    obtenerCopasPublico,
+    avanzarFaseCopa // ✅ Se importa la nueva función
 } = require("../controllers/copas.controller");
 const verificarToken = require("../middleware.js/auth.middleware");
 const verificarRol = require("../middleware.js/verifyRole");
 
 // --- RUTAS PÚBLICAS ---
-// ✅ Estas rutas no usan 'verificarToken' y son accesibles para todos.
 router.get('/publico', obtenerCopasPublico);
 router.get('/publico/:id/detalles', obtenerDetallesPublicosCopa);
 
 // --- RUTAS DE ADMIN ---
-// ✅ 'verificarToken' y 'verificarRol' se aplican individualmente a cada ruta protegida.
 router.get('/', verificarToken, verificarRol("admin"), obtenerCopas);
 router.get('/:id', verificarToken, verificarRol("admin"), obtenerCopaPorId);
 router.post('/', verificarToken, verificarRol("admin"), crearCopa);
 router.delete('/:id', verificarToken, verificarRol("admin"), borrarCopa);
+
+// ✅ NUEVA RUTA para avanzar de fase
+router.post('/:id/avanzar-fase', verificarToken, verificarRol("admin"), avanzarFaseCopa);
 
 module.exports = router;
