@@ -248,33 +248,59 @@ exports.obtenerPerfilPublicoJugador = async (req, res) => {
 };
 
 /**
- * Obtiene el calendario de próximos partidos para el jugador logueado.
+ * ✅ FUNCIÓN MEJORADA
+ * Obtiene el calendario de un jugador, buscando tanto en ligas como en copas.
  */
 exports.obtenerMiCalendario = async (req, res) => {
-    const equipo_id = req.usuario.equipo_id;
-    if (!equipo_id) return res.json([]);
+    const equipoId = req.usuario.equipo_id;
+
+    if (!equipoId) {
+        return res.status(404).json({ message: "No estás asignado a ningún equipo." });
+    }
 
     try {
-        const sql = `
-            SELECT p.id, p.fecha, p.estado, el.nombre as nombre_local, ev.nombre as nombre_visitante
+        // Query para buscar partidos de LIGA
+        const partidosLigaQuery = db.query(`
+            SELECT 
+                p.id, p.fecha, p.estado, p.jornada, NULL as fase,
+                'liga' as tipo_competicion, l.nombre as nombre_competicion,
+                el.nombre as nombre_local, ev.nombre as nombre_visitante
             FROM partidos p
             JOIN equipos el ON p.equipo_local_id = el.id
             JOIN equipos ev ON p.equipo_visitante_id = ev.id
-            WHERE (p.equipo_local_id = ? OR p.equipo_visitante_id = ?) 
-            AND p.estado = 'pendiente'
-            ORDER BY p.fecha ASC
-            LIMIT 5
-        `;
-        const [partidos] = await db.query(sql, [equipo_id, equipo_id]);
-        res.json(partidos);
+            JOIN ligas l ON p.liga_id = l.id
+            WHERE (p.equipo_local_id = ? OR p.equipo_visitante_id = ?) AND p.estado = 'pendiente'
+        `, [equipoId, equipoId]);
+
+        // Query para buscar partidos de COPA
+        const partidosCopaQuery = db.query(`
+            SELECT 
+                p.id, p.fecha, p.estado, NULL as jornada, p.fase,
+                'copa' as tipo_competicion, c.nombre as nombre_competicion,
+                el.nombre as nombre_local, ev.nombre as nombre_visitante
+            FROM partidos_copa p
+            JOIN equipos el ON p.equipo_local_id = el.id
+            JOIN equipos ev ON p.equipo_visitante_id = ev.id
+            JOIN copas c ON p.copa_id = c.id
+            WHERE (p.equipo_local_id = ? OR p.equipo_visitante_id = ?) AND p.estado = 'pendiente'
+        `, [equipoId, equipoId]);
+
+        // Ejecutamos ambas consultas en paralelo
+        const [ [partidosDeLiga], [partidosDeCopa] ] = await Promise.all([partidosLigaQuery, partidosCopaQuery]);
+
+        // Combinamos los resultados y los ordenamos por fecha
+        const calendarioCompleto = [...partidosDeLiga, ...partidosDeCopa].sort((a, b) => {
+            if (!a.fecha) return 1;
+            if (!b.fecha) return -1;
+            return new Date(a.fecha) - new Date(b.fecha);
+        });
+
+        res.json(calendarioCompleto);
+
     } catch (error) {
         logger.error(`Error en obtenerMiCalendario: ${error.message}`, { error });
-        res.status(500).json({ error: 'Error al obtener el calendario de partidos.' });
+        res.status(500).json({ error: "Error en el servidor al obtener el calendario." });
     }
 };
 
-/*
-  Funciones eliminadas por redundancia:
-  - Se eliminó la versión simple de `obtenerJugadoresFichables`.
-  - Se eliminó `getAgentesLibres` ya que su lógica se integró en `obtenerJugadoresFichables`.
-*/
+
