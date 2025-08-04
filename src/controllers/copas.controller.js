@@ -5,22 +5,34 @@ const fixtureService = require("../services/fixture.service");
 const logger = require('../config/logger');
 
 exports.crearCopa = async (req, res) => {
-    const { nombre, temporada, equipos } = req.body;
+    // Renombramos 'equipos' a 'equiposIds' para mayor claridad
+    const { nombre, temporada, equipos: equiposIds } = req.body;
     const admin_id = req.usuario.id;
 
-    if (!nombre || !equipos || equipos.length < 4) {
+    if (!nombre || !equiposIds || equiposIds.length < 4) {
         return res.status(400).json({ msg: 'El nombre y al menos 4 equipos son obligatorios.' });
     }
 
     try {
         await db.query('START TRANSACTION');
 
+        // ✅ PASO 1: Obtener los datos completos de los equipos desde la DB
+        const ids = equiposIds.map(e => e.id);
+        const placeholders = ids.map(() => '?').join(',');
+        const [equiposCompletos] = await db.query(`SELECT id, nombre FROM equipos WHERE id IN (${placeholders})`, ids);
+
+        // Verificamos que encontramos todos los equipos que nos mandó el frontend
+        if (equiposCompletos.length !== ids.length) {
+            await db.query('ROLLBACK');
+            return res.status(404).json({ error: "Uno o más de los equipos seleccionados no fueron encontrados en la base de datos." });
+        }
+
         const sqlInsertarCopa = `INSERT INTO copas (nombre, temporada, creada_por_admin_id) VALUES (?, ?, ?)`;
         const [resultadoCopa] = await db.query(sqlInsertarCopa, [nombre, temporada || null, admin_id]);
         const nuevaCopaId = resultadoCopa.insertId;
 
-        // Llamamos a la nueva función del servicio que genera grupos y eliminatorias
-        const { grupos, partidos } = fixtureService.generarCopaConGrupos(equipos, equipos.length / 2);
+        // ✅ PASO 2: Pasamos los equipos completos (con id y nombre) al servicio
+        const { grupos, partidos } = fixtureService.generarCopaConGrupos(equiposCompletos, equiposCompletos.length / 2);
 
         const sqlInsertarPartidos = `INSERT INTO partidos_copa (copa_id, equipo_local_id, equipo_visitante_id, fase, grupo_id, id_partido_llave, id_siguiente_partido_llave, jornada) VALUES ?`;
         const valoresPartidos = partidos.map(p => [
@@ -28,7 +40,7 @@ exports.crearCopa = async (req, res) => {
         ]);
         await db.query(sqlInsertarPartidos, [valoresPartidos]);
         
-        // Creamos las entradas iniciales en la tabla de posiciones de la copa
+        // ✅ PASO 3: Ahora 'equipo.nombre' tiene un valor y la inserción funcionará
         const valoresPosiciones = [];
         for (const equipo of grupos[1]) { valoresPosiciones.push([nuevaCopaId, 1, equipo.id, equipo.nombre]); }
         for (const equipo of grupos[2]) { valoresPosiciones.push([nuevaCopaId, 2, equipo.id, equipo.nombre]); }
