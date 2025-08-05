@@ -127,7 +127,6 @@ exports.reportarResultado = async (req, res) => {
     }
 
     const tabla = tipo === 'liga' ? 'partidos' : 'partidos_copa';
-    const campoEstadisticas = tipo === 'liga' ? 'partido_id' : 'partido_copa_id';
 
     let connection;
     try {
@@ -156,8 +155,21 @@ exports.reportarResultado = async (req, res) => {
         if (jugadores) {
             const estadisticas = JSON.parse(jugadores);
             if (Array.isArray(estadisticas) && estadisticas.length > 0) {
-                const values = estadisticas.map(j => [id, j.jugador_id, j.equipo_id, j.goles || 0, j.asistencias || 0, 0, 0]);
-                const sqlStats = `INSERT INTO estadisticas_jugadores_partido (${campoEstadisticas}, jugador_id, equipo_id, goles, asistencias, tarjetas_amarillas, tarjetas_rojas) VALUES ?`;
+                const values = estadisticas.map(j => {
+                    const partidoLigaId = tipo === 'liga' ? id : null;
+                    const partidoCopaId = tipo === 'copa' ? id : null;
+                    return [
+                        partidoLigaId,
+                        partidoCopaId,
+                        j.jugador_id,
+                        j.equipo_id,
+                        j.goles || 0,
+                        j.asistencias || 0,
+                        0, // tarjetas_amarillas
+                        0  // tarjetas_rojas
+                    ];
+                });
+                const sqlStats = `INSERT INTO estadisticas_jugadores_partido (partido_id, partido_copa_id, jugador_id, equipo_id, goles, asistencias, tarjetas_amarillas, tarjetas_rojas) VALUES ?`;
                 await connection.query(sqlStats, [values]);
             }
         }
