@@ -153,24 +153,30 @@ exports.reportarResultado = async (req, res) => {
         await connection.query(sqlPartido, [goles_local, goles_visitante, imageUrl, id]);
         
         if (jugadores) {
-            const estadisticas = JSON.parse(jugadores);
-            if (Array.isArray(estadisticas) && estadisticas.length > 0) {
-                const values = estadisticas.map(j => {
-                    const partidoLigaId = tipo === 'liga' ? id : null;
-                    const partidoCopaId = tipo === 'copa' ? id : null;
-                    return [
-                        partidoLigaId,
-                        partidoCopaId,
-                        j.jugador_id,
-                        j.equipo_id,
-                        j.goles || 0,
-                        j.asistencias || 0,
-                        0, // tarjetas_amarillas
-                        0  // tarjetas_rojas
-                    ];
-                });
-                const sqlStats = `INSERT INTO estadisticas_jugadores_partido (partido_id, partido_copa_id, jugador_id, equipo_id, goles, asistencias, tarjetas_amarillas, tarjetas_rojas) VALUES ?`;
-                await connection.query(sqlStats, [values]);
+            try {
+                const estadisticas = JSON.parse(jugadores);
+                if (Array.isArray(estadisticas) && estadisticas.length > 0) {
+                    const values = estadisticas.map(j => {
+                        const partidoLigaId = tipo === 'liga' ? id : null;
+                        const partidoCopaId = tipo === 'copa' ? id : null;
+                        return [
+                            partidoLigaId,
+                            partidoCopaId,
+                            j.jugador_id,
+                            j.equipo_id,
+                            j.goles || 0,
+                            j.asistencias || 0,
+                            0, // tarjetas_amarillas
+                            0  // tarjetas_rojas
+                        ];
+                    });
+                    const sqlStats = `INSERT INTO estadisticas_jugadores_partido (partido_id, partido_copa_id, jugador_id, equipo_id, goles, asistencias, tarjetas_amarillas, tarjetas_rojas) VALUES ?`;
+                    await connection.query(sqlStats, [values]);
+                }
+            } catch (jsonError) {
+                logger.error('Error al parsear las estadísticas (JSON inválido). Recibido:', jugadores);
+                await connection.rollback(); 
+                return res.status(400).json({ error: 'El formato de las estadísticas de los jugadores es inválido.' });
             }
         }
         
@@ -269,13 +275,6 @@ exports.obtenerPartidoPorId = async (req, res) => {
     }
 };
 
-// En: backend/src/controllers/partidos.controller.js
-// Añade esta función al final del archivo
-
-/**
- * ✅ NUEVA FUNCIÓN PÚBLICA
- * Obtiene los 5 partidos más recientes que hayan sido aprobados.
- */
 exports.obtenerPartidosPublico = async (req, res) => {
     try {
         const sql = `
@@ -297,10 +296,6 @@ exports.obtenerPartidosPublico = async (req, res) => {
     }
 };
 
-/**
- * ✅ NUEVA FUNCIÓN PÚBLICA
- * Obtiene los detalles completos de un partido, incluyendo goleadores y asistidores.
- */
 exports.getPartidoPublico = async (req, res) => {
     const { id: partidoId } = req.params;
 
