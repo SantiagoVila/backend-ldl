@@ -155,7 +155,7 @@ exports.generarCopaConGrupos = (equipos, equiposPorGrupo = 6) => {
  * ✅ FUNCIÓN CORREGIDA
  * Asigna fechas a una lista de partidos, corrigiendo el problema de la zona horaria.
  */
-exports.programarPartidos = (partidos, fechaArranque, diasDeJuego) => {
+exports.programarPartidos = (partidos, fechaArranque, diasDeJuego, jornadas_por_dia = 1) => {
     if (!fechaArranque || !diasDeJuego || diasDeJuego.length === 0) {
         return partidos.map(p => ({ ...p, fecha: null }));
     }
@@ -173,26 +173,63 @@ exports.programarPartidos = (partidos, fechaArranque, diasDeJuego) => {
     const partidosProgramados = [];
     
     const partidosPorJornada = partidos.reduce((acc, partido) => {
-        const jornada = partido.jornada || 0;
+        const jornada = partido.jornada || "eliminatoria"; // Agrupamos eliminatorias
         if (!acc[jornada]) acc[jornada] = [];
         acc[jornada].push(partido);
         return acc;
     }, {});
 
-    Object.keys(partidosPorJornada).sort((a, b) => a - b).forEach(jornada => {
-        while (!diasSeleccionados.includes(fechaActual.getUTCDay())) {
-            fechaActual.setUTCDate(fechaActual.getUTCDate() + 1);
-        }
-
-        partidosPorJornada[jornada].forEach(partido => {
-            partido.fecha = fechaActual.toISOString().split('T')[0];
-            partidosProgramados.push(partido);
-        });
-
-        fechaActual.setUTCDate(fechaActual.getUTCDate() + 1);
+    const jornadasOrdenadas = Object.keys(partidosPorJornada).sort((a, b) => {
+        if (a === 'eliminatoria') return 1;
+        if (b === 'eliminatoria') return -1;
+        return a - b;
     });
 
-    // Nos aseguramos de que los partidos que no tenían jornada (eliminatorias) se mantengan
-    const partidosSinJornada = partidos.filter(p => !p.jornada);
-    return [...partidosProgramados, ...partidosSinJornada];
+    let contadorJornadas = 0;
+    jornadasOrdenadas.forEach(keyJornada => {
+        // Si es una jornada de liga/grupos
+        if (keyJornada !== 'eliminatoria') {
+            if (contadorJornadas % jornadas_por_dia === 0) {
+                while (!diasSeleccionados.includes(fechaActual.getUTCDay())) {
+                    fechaActual.setUTCDate(fechaActual.getUTCDate() + 1);
+                }
+            }
+
+            partidosPorJornada[keyJornada].forEach(partido => {
+                partido.fecha = fechaActual.toISOString().split('T')[0];
+                partidosProgramados.push(partido);
+            });
+
+            contadorJornadas++;
+            if (contadorJornadas % jornadas_por_dia === 0) {
+                fechaActual.setUTCDate(fechaActual.getUTCDate() + 1);
+            }
+        } else {
+            // Lógica para eliminatorias
+            const partidosEliminatoria = partidosPorJornada.eliminatoria;
+            const llaves = partidosEliminatoria.reduce((acc, p) => {
+                if (!acc[p.id_partido_llave]) acc[p.id_partido_llave] = [];
+                acc[p.id_partido_llave].push(p);
+                return acc;
+            }, {});
+
+            // Asegurarnos que la fecha no ha quedado en el pasado
+            if (contadorJornadas > 0 && contadorJornadas % jornadas_por_dia !== 0) {
+                 fechaActual.setUTCDate(fechaActual.getUTCDate() + 1);
+            }
+
+            Object.values(llaves).forEach(partidosDeLlave => {
+                while (!diasSeleccionados.includes(fechaActual.getUTCDay())) {
+                    fechaActual.setUTCDate(fechaActual.getUTCDate() + 1);
+                }
+                partidosDeLlave.forEach(partido => {
+                    partido.fecha = fechaActual.toISOString().split('T')[0];
+                    partidosProgramados.push(partido);
+                });
+                fechaActual.setUTCDate(fechaActual.getUTCDate() + 1);
+            });
+        }
+    });
+
+    return partidosProgramados;
 };

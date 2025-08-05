@@ -9,7 +9,8 @@ const {
   reportarResultado,
   obtenerPartidoPorId,
   obtenerPartidosPublico,
-  getPartidoPublico // <-- Añade la nueva función aquí
+  getPartidoPublico, // <-- Añade la nueva función aquí
+  getPartidoParaReportar // <-- Y esta también
 } = require('../controllers/partidos.controller');
 
 const verificarToken = require('../middleware.js/auth.middleware');
@@ -25,7 +26,8 @@ router.get("/", verificarToken, verificarRol("admin"), obtenerPartidos)
 router.post('/', verificarToken, verificarRol('dt'), crearPartido);
 router.put('/:id/confirmar', verificarToken, verificarRol('admin'), confirmarPartido);
 router.get('/dt/mis-partidos', verificarToken, verificarRol('dt'), obtenerPartidosDT);
-router.put('/dt/reportar/:id', verificarToken, verificarRol('dt'), upload.any(), reportarResultado);
+router.get('/dt/partido-para-reportar/:tipo/:id', verificarToken, verificarRol('dt'), getPartidoParaReportar);
+router.put('/dt/reportar/:tipo/:id', verificarToken, verificarRol('dt'), upload.any(), reportarResultado);
 router.get('/:id', verificarToken, obtenerPartidoPorId);
 
 module.exports = router;

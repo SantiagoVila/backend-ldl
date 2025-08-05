@@ -5,7 +5,7 @@ const fixtureService = require("../services/fixture.service");
 const logger = require('../config/logger');
 
 exports.crearCopa = async (req, res) => {
-    const { nombre, temporada, equipos: equiposIds, fecha_arranque, dias_de_juego } = req.body;
+    const { nombre, temporada, equipos: equiposIds, fecha_arranque, dias_de_juego, jornadas_por_dia } = req.body;
     const admin_id = req.usuario.id;
 
     if (!nombre || !equiposIds || equiposIds.length < 4) {
@@ -37,7 +37,7 @@ exports.crearCopa = async (req, res) => {
         // 4. Asignar fechas a los partidos de la fase de grupos
         const partidosDeGrupos = partidos.filter(p => p.fase === 'Grupos');
         const partidosEliminatoria = partidos.filter(p => p.fase !== 'Grupos');
-        const partidosDeGruposProgramados = fixtureService.programarPartidos(partidosDeGrupos, fecha_arranque, dias_de_juego);
+        const partidosDeGruposProgramados = fixtureService.programarPartidos(partidosDeGrupos, fecha_arranque, dias_de_juego, jornadas_por_dia);
 
         const partidosParaCrear = [...partidosDeGruposProgramados, ...partidosEliminatoria];
 

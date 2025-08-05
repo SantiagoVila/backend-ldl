@@ -9,7 +9,7 @@ const fixtureService = require("../services/fixture.service");
  * Crea una nueva liga, genera el fixture y también la tabla de posiciones inicial.
  */
 exports.crearLiga = async (req, res) => {
-    const { nombre, temporada, categoria, fecha_arranque, dias_de_juego, equipos } = req.body;
+    const { nombre, temporada, categoria, fecha_arranque, dias_de_juego, equipos, jornadas_por_dia } = req.body;
     const admin_id = req.usuario.id;
     
     if (!nombre || !categoria) {
@@ -45,7 +45,7 @@ exports.crearLiga = async (req, res) => {
 
         // 3. Generar y programar partidos
         let partidosParaCrear = fixtureService.generarPartidosRoundRobin(equipos);
-        partidosParaCrear = fixtureService.programarPartidos(partidosParaCrear, fecha_arranque, dias_de_juego);
+        partidosParaCrear = fixtureService.programarPartidos(partidosParaCrear, fecha_arranque, dias_de_juego, jornadas_por_dia);
 
         // 4. Insertar los partidos
         const sqlInsertarPartidos = `INSERT INTO partidos (liga_id, equipo_local_id, equipo_visitante_id, jornada, fecha) VALUES ?`;

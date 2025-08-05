@@ -110,26 +110,31 @@ exports.confirmarPartido = async (req, res) => {
  * Un DT reporta el resultado de un partido jugado.
  */
 exports.reportarResultado = async (req, res) => {
-    const { id: partidoId } = req.params;
-    // Con upload.any(), los campos de texto están en req.body
+    const { tipo, id } = req.params;
     const { goles_local, goles_visitante, jugadores } = req.body;
-    // Y los archivos están en el array req.files
     const imagenPrueba = req.files && req.files.length > 0 ? req.files[0] : null;
     const equipo_id_dt = req.usuario.equipo_id;
 
-    if (!goles_local || !goles_visitante) {
+    if (!['liga', 'copa'].includes(tipo)) {
+        return res.status(400).json({ error: 'Tipo de partido inválido.' });
+    }
+
+    if (goles_local == null || goles_visitante == null) {
         return res.status(400).json({ error: 'Debes proporcionar los goles de ambos equipos.' });
     }
     if (!imagenPrueba) {
         return res.status(400).json({ error: 'Se requiere una imagen como prueba del resultado.' });
     }
 
+    const tabla = tipo === 'liga' ? 'partidos' : 'partidos_copa';
+    const campoEstadisticas = tipo === 'liga' ? 'partido_id' : 'partido_copa_id';
+
     let connection;
     try {
         connection = await db.getConnection();
         await connection.beginTransaction();
 
-        const [[partido]] = await connection.query('SELECT * FROM partidos WHERE id = ? FOR UPDATE', [partidoId]);
+        const [[partido]] = await connection.query(`SELECT * FROM ${tabla} WHERE id = ? FOR UPDATE`, [id]);
         if (!partido) {
             await connection.rollback();
             return res.status(404).json({ error: 'Partido no encontrado.' });
@@ -145,14 +150,14 @@ exports.reportarResultado = async (req, res) => {
 
         const imageUrl = `/uploads/${imagenPrueba.filename}`;
         
-        const sqlPartido = 'UPDATE partidos SET goles_local = ?, goles_visitante = ?, imagen_resultado_url = ? WHERE id = ?';
-        await connection.query(sqlPartido, [goles_local, goles_visitante, imageUrl, partidoId]);
+        const sqlPartido = `UPDATE ${tabla} SET goles_local = ?, goles_visitante = ?, imagen_resultado_url = ? WHERE id = ?`;
+        await connection.query(sqlPartido, [goles_local, goles_visitante, imageUrl, id]);
         
         if (jugadores) {
             const estadisticas = JSON.parse(jugadores);
             if (Array.isArray(estadisticas) && estadisticas.length > 0) {
-                const values = estadisticas.map(j => [partidoId, j.jugador_id, j.equipo_id, j.goles || 0, j.asistencias || 0, 0, 0]);
-                const sqlStats = `INSERT INTO estadisticas_jugadores_partido (partido_id, jugador_id, equipo_id, goles, asistencias, tarjetas_amarillas, tarjetas_rojas) VALUES ?`;
+                const values = estadisticas.map(j => [id, j.jugador_id, j.equipo_id, j.goles || 0, j.asistencias || 0, 0, 0]);
+                const sqlStats = `INSERT INTO estadisticas_jugadores_partido (${campoEstadisticas}, jugador_id, equipo_id, goles, asistencias, tarjetas_amarillas, tarjetas_rojas) VALUES ?`;
                 await connection.query(sqlStats, [values]);
             }
         }
@@ -200,17 +205,30 @@ exports.obtenerPartidosDT = async (req, res) => {
     const equipo_id = req.usuario.equipo_id;
     if (!equipo_id) return res.status(400).json({ error: 'No tienes un equipo asignado.' });
     try {
-        const sql = `
+        const sqlLiga = `
             SELECT p.id, p.fecha, p.estado, p.goles_local, p.goles_visitante,
-                   el.nombre as nombre_local, ev.nombre as nombre_visitante
+                   el.nombre as nombre_local, ev.nombre as nombre_visitante, 'liga' as tipo
             FROM partidos p
             JOIN equipos el ON p.equipo_local_id = el.id
             JOIN equipos ev ON p.equipo_visitante_id = ev.id
             WHERE (p.equipo_local_id = ? OR p.equipo_visitante_id = ?) 
             AND p.estado = 'pendiente' AND p.imagen_resultado_url IS NULL
-            ORDER BY p.fecha ASC
         `;
-        const [partidos] = await db.query(sql, [equipo_id, equipo_id]);
+        const sqlCopa = `
+            SELECT pc.id, pc.fecha, pc.estado, pc.goles_local, pc.goles_visitante,
+                   el.nombre as nombre_local, ev.nombre as nombre_visitante, 'copa' as tipo
+            FROM partidos_copa pc
+            JOIN equipos el ON pc.equipo_local_id = el.id
+            JOIN equipos ev ON pc.equipo_visitante_id = ev.id
+            WHERE (pc.equipo_local_id = ? OR pc.equipo_visitante_id = ?) 
+            AND pc.estado = 'pendiente' AND pc.imagen_resultado_url IS NULL
+        `;
+
+        const [partidosLiga] = await db.query(sqlLiga, [equipo_id, equipo_id]);
+        const [partidosCopa] = await db.query(sqlCopa, [equipo_id, equipo_id]);
+
+        const partidos = [...partidosLiga, ...partidosCopa].sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+
         res.json(partidos);
     } catch (error) {
         logger.error(`Error en obtenerPartidosDT: ${error.message}`, { error });
@@ -320,6 +338,36 @@ exports.getPartidoPublico = async (req, res) => {
 
     } catch (error) {
         logger.error(`Error en getPartidoPublico: ${error.message}`, { error });
+        res.status(500).json({ error: 'Error al obtener los detalles del partido.' });
+    }
+};
+
+exports.getPartidoParaReportar = async (req, res) => {
+    const { tipo, id } = req.params;
+
+    if (!['liga', 'copa'].includes(tipo)) {
+        return res.status(400).json({ error: 'Tipo de partido inválido.' });
+    }
+
+    const tabla = tipo === 'liga' ? 'partidos' : 'partidos_copa';
+
+    try {
+        const sql = `
+            SELECT p.id, p.fecha, p.estado, el.nombre as nombre_local, ev.nombre as nombre_visitante, '${tipo}' as tipo
+            FROM ${tabla} p
+            JOIN equipos AS el ON p.equipo_local_id = el.id
+            JOIN equipos AS ev ON p.equipo_visitante_id = ev.id
+            WHERE p.id = ?
+        `;
+        const [[partido]] = await db.query(sql, [id]);
+
+        if (!partido) {
+            return res.status(404).json({ error: 'Partido no encontrado.' });
+        }
+
+        res.json(partido);
+    } catch (error) {
+        logger.error(`Error en getPartidoParaReportar: ${error.message}`, { error });
         res.status(500).json({ error: 'Error al obtener los detalles del partido.' });
     }
 };

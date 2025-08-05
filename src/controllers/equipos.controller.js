@@ -305,18 +305,49 @@ exports.getDtDashboardStats = async (req, res) => {
         return res.status(404).json({ error: 'No tienes un equipo asignado.' });
     }
     try {
+        const equipoInfoQuery = db.query("SELECT nombre, escudo FROM equipos WHERE id = ?", [equipoId]);
         const playerCountQuery = db.query("SELECT COUNT(*) as count FROM usuarios WHERE equipo_id = ?", [equipoId]);
-        const nextMatchQuery = db.query(`
-            SELECT p.fecha, el.nombre as nombre_local, ev.nombre as nombre_visitante
+        const nextLeagueMatchQuery = db.query(`
+            SELECT p.id, p.fecha, el.nombre as nombre_local, ev.nombre as nombre_visitante, 'liga' as tipo
             FROM partidos p
             JOIN equipos el ON p.equipo_local_id = el.id
             JOIN equipos ev ON p.equipo_visitante_id = ev.id
             WHERE (p.equipo_local_id = ? OR p.equipo_visitante_id = ?) AND p.estado = 'pendiente'
             ORDER BY p.fecha ASC LIMIT 1
         `, [equipoId, equipoId]);
+        const nextCupMatchQuery = db.query(`
+            SELECT pc.id, pc.fecha, el.nombre as nombre_local, ev.nombre as nombre_visitante, 'copa' as tipo
+            FROM partidos_copa pc
+            JOIN equipos el ON pc.equipo_local_id = el.id
+            JOIN equipos ev ON pc.equipo_visitante_id = ev.id
+            WHERE (pc.equipo_local_id = ? OR pc.equipo_visitante_id = ?) AND pc.estado = 'pendiente'
+            ORDER BY pc.fecha ASC LIMIT 1
+        `, [equipoId, equipoId]);
         const leaguePositionQuery = db.query("SELECT puntos, partidos_jugados FROM tabla_posiciones WHERE equipo_id = ?", [equipoId]);
-        const [ [[{ count: playerCount }]], [[nextMatch]], [[leaguePosition]] ] = await Promise.all([playerCountQuery, nextMatchQuery, leaguePositionQuery]);
+
+        const [
+            [[equipoInfo]],
+            [[{ count: playerCount }]],
+            [[nextLeagueMatch]],
+            [[nextCupMatch]],
+            [[leaguePosition]]
+        ] = await Promise.all([
+            equipoInfoQuery,
+            playerCountQuery,
+            nextLeagueMatchQuery,
+            nextCupMatchQuery,
+            leaguePositionQuery
+        ]);
+
+        let nextMatch = null;
+        if (nextLeagueMatch && nextCupMatch) {
+            nextMatch = new Date(nextLeagueMatch.fecha) < new Date(nextCupMatch.fecha) ? nextLeagueMatch : nextCupMatch;
+        } else {
+            nextMatch = nextLeagueMatch || nextCupMatch;
+        }
+
         res.json({
+            equipoInfo: equipoInfo || null,
             playerCount: playerCount || 0,
             nextMatch: nextMatch || null,
             leaguePosition: leaguePosition || null
