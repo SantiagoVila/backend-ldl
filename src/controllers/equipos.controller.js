@@ -307,49 +307,54 @@ exports.getDtDashboardStats = async (req, res) => {
     try {
         const equipoInfoQuery = db.query("SELECT nombre, escudo FROM equipos WHERE id = ?", [equipoId]);
         const playerCountQuery = db.query("SELECT COUNT(*) as count FROM usuarios WHERE equipo_id = ?", [equipoId]);
-        const nextLeagueMatchQuery = db.query(`
+        
+        // Obtener los próximos 2 partidos de liga
+        const nextLeagueMatchesQuery = db.query(`
             SELECT p.id, p.fecha, el.nombre as nombre_local, ev.nombre as nombre_visitante, 'liga' as tipo
             FROM partidos p
             JOIN equipos el ON p.equipo_local_id = el.id
             JOIN equipos ev ON p.equipo_visitante_id = ev.id
             WHERE (p.equipo_local_id = ? OR p.equipo_visitante_id = ?) AND p.estado = 'pendiente'
-            ORDER BY p.fecha ASC LIMIT 1
+            ORDER BY p.fecha ASC LIMIT 2
         `, [equipoId, equipoId]);
-        const nextCupMatchQuery = db.query(`
+
+        // Obtener los próximos 2 partidos de copa
+        const nextCupMatchesQuery = db.query(`
             SELECT pc.id, pc.fecha, el.nombre as nombre_local, ev.nombre as nombre_visitante, 'copa' as tipo
             FROM partidos_copa pc
             JOIN equipos el ON pc.equipo_local_id = el.id
             JOIN equipos ev ON pc.equipo_visitante_id = ev.id
             WHERE (pc.equipo_local_id = ? OR pc.equipo_visitante_id = ?) AND pc.estado = 'pendiente'
-            ORDER BY pc.fecha ASC LIMIT 1
+            ORDER BY pc.fecha ASC LIMIT 2
         `, [equipoId, equipoId]);
+
         const leaguePositionQuery = db.query("SELECT puntos, partidos_jugados FROM tabla_posiciones WHERE equipo_id = ?", [equipoId]);
 
         const [
             [[equipoInfo]],
             [[{ count: playerCount }]],
-            [[nextLeagueMatch]],
-            [[nextCupMatch]],
+            [nextLeagueMatches],
+            [nextCupMatches],
             [[leaguePosition]]
         ] = await Promise.all([
             equipoInfoQuery,
             playerCountQuery,
-            nextLeagueMatchQuery,
-            nextCupMatchQuery,
+            nextLeagueMatchesQuery,
+            nextCupMatchesQuery,
             leaguePositionQuery
         ]);
 
-        let nextMatch = null;
-        if (nextLeagueMatch && nextCupMatch) {
-            nextMatch = new Date(nextLeagueMatch.fecha) < new Date(nextCupMatch.fecha) ? nextLeagueMatch : nextCupMatch;
-        } else {
-            nextMatch = nextLeagueMatch || nextCupMatch;
-        }
+        // Combinar y ordenar todos los partidos pendientes
+        const allNextMatches = [...nextLeagueMatches, ...nextCupMatches].sort((a, b) => {
+            const dateA = a.fecha ? new Date(a.fecha) : new Date('9999-12-31'); // Poner nulos al final
+            const dateB = b.fecha ? new Date(b.fecha) : new Date('9999-12-31');
+            return dateA - dateB;
+        }).slice(0, 2); // Tomar solo los 2 más próximos
 
         res.json({
             equipoInfo: equipoInfo || null,
             playerCount: playerCount || 0,
-            nextMatch: nextMatch || null,
+            nextMatches: allNextMatches, // Cambiado a un array
             leaguePosition: leaguePosition || null
         });
     } catch (error) {
