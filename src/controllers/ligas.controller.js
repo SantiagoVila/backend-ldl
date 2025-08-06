@@ -5,7 +5,6 @@ const logger = require('../config/logger');
 const fixtureService = require("../services/fixture.service");
 
 /**
- * ✅ FUNCIÓN CORREGIDA
  * Crea una nueva liga, genera el fixture y también la tabla de posiciones inicial.
  */
 exports.crearLiga = async (req, res) => {
@@ -39,7 +38,7 @@ exports.crearLiga = async (req, res) => {
 
         const equipoIds = equipos.map(e => e.id);
 
-        // 2. ✅ LÓGICA CORREGIDA: Asociar los equipos a la nueva liga
+        // 2. Asociar los equipos a la nueva liga
         const sqlAsociarEquipos = `UPDATE equipos SET liga_id = ? WHERE id IN (?)`;
         await connection.query(sqlAsociarEquipos, [nuevaLigaId, equipoIds]);
 
@@ -114,14 +113,42 @@ exports.obtenerLigaPorId = async (req, res) => {
 };
 
 /**
- * Obtiene las estadísticas clave de una liga.
+ * ✅ FUNCIÓN CORREGIDA v2.0
+ * Obtiene las estadísticas clave de una liga, adaptada a la nueva estructura de reportes.
  */
 exports.obtenerEstadisticasLiga = async (req, res) => {
     const { id } = req.params;
     try {
+        // Goleadores y Asistidores no necesitan grandes cambios, ya que se basan en la tabla de estadísticas
         const goleadoresQuery = db.query(`SELECT u.nombre_in_game, SUM(es.goles) as total FROM estadisticas_jugadores_partido es JOIN usuarios u ON es.jugador_id = u.id JOIN partidos p ON es.partido_id = p.id WHERE p.liga_id = ? AND es.goles > 0 GROUP BY es.jugador_id ORDER BY total DESC LIMIT 10`, [id]);
         const asistidoresQuery = db.query(`SELECT u.nombre_in_game, SUM(es.asistencias) as total FROM estadisticas_jugadores_partido es JOIN usuarios u ON es.jugador_id = u.id JOIN partidos p ON es.partido_id = p.id WHERE p.liga_id = ? AND es.asistencias > 0 GROUP BY es.jugador_id ORDER BY total DESC LIMIT 10`, [id]);
-        const vallasInvictasQuery = db.query(`SELECT u.nombre_in_game, COUNT(p.id) as total FROM estadisticas_jugadores_partido es JOIN usuarios u ON es.jugador_id = u.id JOIN partidos p ON es.partido_id = p.id WHERE u.posicion = 'Arquero' AND p.liga_id = ? AND ((p.equipo_local_id = es.equipo_id AND p.goles_visitante = 0) OR (p.equipo_visitante_id = es.equipo_id AND p.goles_local = 0)) GROUP BY u.id ORDER BY total DESC LIMIT 5`, [id]);
+
+        // Vallas invictas sí necesita ser corregido para leer los goles de la tabla de reportes
+        const vallasInvictasQuery = db.query(`
+            SELECT 
+                u.nombre_in_game, 
+                COUNT(p.id) as total 
+            FROM partidos p
+            JOIN estadisticas_jugadores_partido es ON p.id = es.partido_id
+            JOIN usuarios u ON es.jugador_id = u.id AND u.posicion = 'Arquero'
+            JOIN (
+                SELECT partido_id, MIN(id) as first_report_id
+                FROM reportes_partidos
+                WHERE tipo_partido = 'liga'
+                GROUP BY partido_id
+            ) as first_report ON first_report.partido_id = p.id
+            JOIN reportes_partidos rp ON rp.id = first_report.first_report_id
+            WHERE 
+                p.liga_id = ? AND p.estado = 'aprobado'
+                AND (
+                    (p.equipo_local_id = es.equipo_id AND rp.goles_visitante_reportados = 0) 
+                    OR 
+                    (p.equipo_visitante_id = es.equipo_id AND rp.goles_local_reportados = 0)
+                )
+            GROUP BY u.id 
+            ORDER BY total DESC 
+            LIMIT 5
+        `, [id]);
 
         const [ [goleadores], [asistidores], [vallas_invictas] ] = await Promise.all([goleadoresQuery, asistidoresQuery, vallasInvictasQuery]);
         
@@ -142,6 +169,10 @@ exports.obtenerLigasPublico = async (req, res) => {
     }
 };
 
+/**
+ * ✅ FUNCIÓN CORREGIDA v2.0
+ * Obtiene los detalles públicos de la liga, adaptada a la nueva estructura de reportes.
+ */
 exports.obtenerDetallesPublicosLiga = async (req, res) => {
     const { id } = req.params;
     try {
@@ -160,13 +191,24 @@ exports.obtenerDetallesPublicosLiga = async (req, res) => {
             ORDER BY puntos DESC, diferencia_goles DESC, goles_a_favor DESC
         `, [id]);
 
+        // Consulta del fixture corregida para obtener los goles de la tabla de reportes
         const fixtureQuery = db.query(`
             SELECT 
-                p.id, p.jornada, p.fecha, p.estado, p.goles_local, p.goles_visitante,
-                el.nombre as nombre_local, ev.nombre as nombre_visitante
+                p.id, p.jornada, p.fecha, p.estado,
+                rp.goles_local_reportados as goles_local, 
+                rp.goles_visitante_reportados as goles_visitante,
+                el.nombre as nombre_local, 
+                ev.nombre as nombre_visitante
             FROM partidos p
             JOIN equipos el ON p.equipo_local_id = el.id
             JOIN equipos ev ON p.equipo_visitante_id = ev.id
+            LEFT JOIN (
+                SELECT partido_id, MIN(id) as first_report_id
+                FROM reportes_partidos
+                WHERE tipo_partido = 'liga'
+                GROUP BY partido_id
+            ) as first_report ON first_report.partido_id = p.id
+            LEFT JOIN reportes_partidos rp ON rp.id = first_report.first_report_id
             WHERE p.liga_id = ?
             ORDER BY p.jornada ASC, p.fecha ASC
         `, [id]);
@@ -190,7 +232,6 @@ exports.obtenerDetallesPublicosLiga = async (req, res) => {
 };
 
 /**
- * ✅ NUEVA FUNCIÓN
  * Permite a un administrador borrar una liga.
  */
 exports.borrarLiga = async (req, res) => {
@@ -198,8 +239,6 @@ exports.borrarLiga = async (req, res) => {
     const adminId = req.usuario.id;
 
     try {
-        // La configuración 'ON DELETE CASCADE' en la base de datos se encargará
-        // de borrar partidos y tablas de posiciones asociadas.
         const [result] = await db.query("DELETE FROM ligas WHERE id = ?", [id]);
 
         if (result.affectedRows === 0) {
