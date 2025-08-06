@@ -12,7 +12,8 @@ const {
     getPartidoParaReportar,
     crearReporte,              // <-- Nueva función para reportes de DT
     resolverDisputa,           // <-- Nueva función para que el admin resuelva
-    obtenerPartidosParaRevision // <-- Nueva función para la página de admin
+    obtenerPartidosParaRevision,
+    adminCargarResultado // <-- Nueva función para la página de admin
 } = require('../controllers/partidos.controller');
 
 // Usamos los nombres de tus middlewares
@@ -51,6 +52,12 @@ router.get(
     '/admin/revision',
     [verificarToken, verificarRol('admin')],
     obtenerPartidosParaRevision
+);
+
+router.post(
+    '/admin/cargar-resultado/:tipo/:partido_id',
+    [verificarToken, verificarRol('admin')],
+    adminCargarResultado
 );
 
 // Ruta para que un Admin resuelva una disputa o confirme un reporte único

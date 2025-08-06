@@ -1,61 +1,41 @@
 const db = require("../../databases");
 
 /**
- * Abre el mercado de pases.
+ * Obtiene el estado actual del mercado de pases.
+ * Esta es la nueva lógica que considera el estado manual.
  */
-exports.abrirMercado = async (req, res) => {
-  try {
-    const sql = "UPDATE mercado SET abierto = true WHERE id = 1";
-    const [result] = await db.query(sql);
+exports.getEstadoMercado = async (req, res) => {
+    try {
+        const [[mercado]] = await db.query("SELECT * FROM mercado WHERE id = 1");
 
-    // ✅ MEJORA: Verificamos si la consulta realmente cambió algo.
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ error: "No se encontró la configuración del mercado para actualizar." });
+        if (!mercado) {
+            return res.status(404).json({ error: 'Configuración del mercado no encontrada.' });
+        }
+
+        let estaAbierto = false;
+        const ahora = new Date();
+
+        if (mercado.estado === 'abierto_manual') {
+            estaAbierto = true;
+        } else if (mercado.estado === 'cerrado_manual') {
+            estaAbierto = false;
+        } else { // estado 'automatico'
+            const inicio = mercado.fecha_inicio ? new Date(mercado.fecha_inicio) : null;
+            const fin = mercado.fecha_fin ? new Date(mercado.fecha_fin) : null;
+            if (inicio && fin) {
+                estaAbierto = ahora >= inicio && ahora <= fin;
+            }
+        }
+
+        res.json({
+            abierto: estaAbierto,
+            estado: mercado.estado,
+            fecha_inicio: mercado.fecha_inicio,
+            fecha_fin: mercado.fecha_fin
+        });
+
+    } catch (error) {
+        logger.error(`Error en getEstadoMercado: ${error.message}`, { error });
+        res.status(500).json({ error: 'Error al obtener el estado del mercado.' });
     }
-
-    res.json({ message: "Mercado abierto correctamente" });
-  } catch (error) {
-    console.error("Error en abrirMercado:", error);
-    res.status(500).json({ error: "Error al abrir el mercado" });
-  }
-};
-
-/**
- * Cierra el mercado de pases.
- */
-exports.cerrarMercado = async (req, res) => {
-  try {
-    const sql = "UPDATE mercado SET abierto = false WHERE id = 1";
-    const [result] = await db.query(sql);
-
-    // ✅ MEJORA: Verificamos si la consulta realmente cambió algo.
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ error: "No se encontró la configuración del mercado para actualizar." });
-    }
-
-    res.json({ message: "Mercado cerrado correctamente" });
-  } catch (error) {
-    console.error("Error en cerrarMercado:", error);
-    res.status(500).json({ error: "Error al cerrar el mercado" });
-  }
-};
-
-/**
- * Consulta el estado actual del mercado (abierto/cerrado).
- */
-exports.estadoMercado = async (req, res) => {
-  try {
-    const sql = "SELECT abierto FROM mercado WHERE id = 1";
-    const [results] = await db.query(sql);
-
-    if (results.length === 0) {
-      return res.status(404).json({ error: 'No se encontró la configuración del mercado' });
-    }
-
-    const estado = Boolean(results[0].abierto);
-    res.json({ abierto: estado });
-  } catch (error) {
-    console.error("Error en estadoMercado:", error);
-    res.status(500).json({ error: "Error al consultar el estado del mercado" });
-  }
 };

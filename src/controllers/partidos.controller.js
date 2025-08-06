@@ -415,3 +415,63 @@ exports.getPartidoParaReportar = async (req, res) => {
         res.status(500).json({ error: 'Error al obtener los detalles del partido.' });
     }
 };
+/**
+ * ✅ NUEVA FUNCIÓN v2.1
+ * Permite a un Admin cargar un resultado directamente, saltándose el reporte de los DTs.
+ * Ideal para casos donde nadie reporta o para corregir un resultado.
+ */
+exports.adminCargarResultado = async (req, res) => {
+    const { tipo, partido_id } = req.params;
+    const { goles_local, goles_visitante } = req.body;
+    const admin_id = req.usuario.id;
+
+    if (goles_local == null || goles_visitante == null) {
+        return res.status(400).json({ error: 'Debes proporcionar los goles de ambos equipos.' });
+    }
+
+    const tablaPartido = tipo === 'liga' ? 'partidos' : 'partidos_copa';
+    const connection = await db.getConnection();
+
+    try {
+        await connection.beginTransaction();
+
+        const [[partidoInfo]] = await connection.query(`SELECT * FROM ${tablaPartido} WHERE id = ?`, [partido_id]);
+        if (!partidoInfo) {
+            await connection.rollback();
+            return res.status(404).json({ error: 'Partido no encontrado.' });
+        }
+
+        // 1. Creamos un reporte "oficial" del admin. Usamos el ID del equipo local como referencia.
+        const sqlInsertReporte = `
+            INSERT INTO reportes_partidos (partido_id, tipo_partido, equipo_reportador_id, goles_local_reportados, goles_visitante_reportados, imagen_prueba_url)
+            VALUES (?, ?, ?, ?, ?, ?)
+        `;
+        // Usamos una URL de imagen genérica ya que el admin no sube una.
+        const imagenUrlAdmin = '/uploads/admin_override.png';
+        await connection.query(sqlInsertReporte, [partido_id, tipo, partidoInfo.equipo_local_id, goles_local, goles_visitante, imagenUrlAdmin]);
+
+        // 2. Actualizamos el estado del partido directamente a "confirmado por admin"
+        await connection.query(`UPDATE ${tablaPartido} SET estado = 'aprobado', estado_reporte = 'confirmado_admin' WHERE id = ?`, [partido_id]);
+
+        // 3. Actualizamos la tabla de posiciones si es un partido de liga
+        if (tipo === 'liga' && partidoInfo.liga_id) {
+            const datosParaTabla = { ...partidoInfo, goles_local, goles_visitante };
+            const queries = generarQueriesActualizacionTabla(datosParaTabla);
+            for (const query of queries) {
+                await connection.query(query);
+            }
+        }
+        // Aquí iría la lógica para copas si es necesario
+
+        await connection.commit();
+        logger.info(`Admin (ID: ${admin_id}) cargó manualmente el resultado para el partido ID ${partido_id}.`);
+        res.json({ message: 'Resultado cargado y partido confirmado por el administrador.' });
+
+    } catch (error) {
+        if (connection) await connection.rollback();
+        logger.error(`Error en adminCargarResultado: ${error.message}`, { error, partido_id });
+        res.status(500).json({ error: 'Error en el servidor al cargar el resultado.' });
+    } finally {
+        if (connection) connection.release();
+    }
+};
