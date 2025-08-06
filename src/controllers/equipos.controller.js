@@ -143,6 +143,10 @@ exports.obtenerTodosLosEquipos = async (req, res) => {
     }
 };
 
+/**
+ * ✅ FUNCIÓN CORREGIDA v2.0
+ * Obtiene el perfil de un equipo, adaptada a la nueva estructura de reportes.
+ */
 exports.obtenerPerfilEquipo = async (req, res) => {
     const { id: equipoId } = req.params;
     try {
@@ -152,24 +156,42 @@ exports.obtenerPerfilEquipo = async (req, res) => {
             LEFT JOIN usuarios u ON e.dt_id = u.id
             WHERE e.id = ?
         `, [equipoId]);
+
         const plantillaQuery = db.query(`
             (SELECT id, nombre_in_game, posicion, numero_remera, rol FROM usuarios WHERE equipo_id = ? AND rol = 'jugador')
             UNION
             (SELECT u.id, u.nombre_in_game, u.posicion, u.numero_remera, u.rol FROM usuarios u JOIN equipos e ON u.id = e.dt_id WHERE e.id = ?)
             ORDER BY FIELD(rol, 'dt', 'jugador'), FIELD(posicion, 'Arquero', 'Defensor', 'Mediocampista', 'Delantero'), nombre_in_game
         `, [equipoId, equipoId]);
+
+        // Consulta de últimos partidos corregida para usar la tabla de reportes
         const ultimosPartidosQuery = db.query(`
-            SELECT p.id, p.fecha, p.goles_local, p.goles_visitante, el.nombre as equipo_local, ev.nombre as equipo_visitante
+            SELECT 
+                p.id, p.fecha, 
+                rp.goles_local_reportados as goles_local, 
+                rp.goles_visitante_reportados as goles_visitante, 
+                el.nombre as equipo_local, 
+                ev.nombre as equipo_visitante
             FROM partidos p
             JOIN equipos el ON p.equipo_local_id = el.id
             JOIN equipos ev ON p.equipo_visitante_id = ev.id
+            JOIN (
+                SELECT partido_id, MIN(id) as first_report_id
+                FROM reportes_partidos
+                WHERE tipo_partido = 'liga'
+                GROUP BY partido_id
+            ) as first_report ON first_report.partido_id = p.id
+            JOIN reportes_partidos rp ON rp.id = first_report.first_report_id
             WHERE (p.equipo_local_id = ? OR p.equipo_visitante_id = ?) AND p.estado = 'aprobado'
             ORDER BY p.fecha DESC LIMIT 5
         `, [equipoId, equipoId]);
+
         const [ [[infoResult]], [plantillaResult], [partidosResult] ] = await Promise.all([infoBasicaQuery, plantillaQuery, ultimosPartidosQuery]);
+        
         if (!infoResult) {
             return res.status(404).json({ error: 'Equipo no encontrado' });
         }
+        
         res.json({ ...infoResult, plantilla: plantillaResult, ultimos_partidos: partidosResult });
     } catch (error) {
         logger.error(`Error en obtenerPerfilEquipo: ${error.message}`, { error });
@@ -177,7 +199,6 @@ exports.obtenerPerfilEquipo = async (req, res) => {
     }
 };
 
-// ✅ FUNCIÓN CORREGIDA Y MEJORADA: Ahora notifica al DT en tiempo real
 exports.aprobarRechazarEquipo = async (req, res) => {
     const { id: equipoId } = req.params;
     const { respuesta, liga_id } = req.body;
@@ -269,7 +290,7 @@ exports.liberarJugador = async (req, res) => {
         logger.error(`Error en liberarJugador: ${error.message}`, { error });
         res.status(500).json({ error: 'Error en el servidor al liberar al jugador.' });
     } finally {
-        connection.release();
+        if (connection) connection.release();
     }
 };
 
@@ -308,7 +329,6 @@ exports.getDtDashboardStats = async (req, res) => {
         const equipoInfoQuery = db.query("SELECT nombre, escudo FROM equipos WHERE id = ?", [equipoId]);
         const playerCountQuery = db.query("SELECT COUNT(*) as count FROM usuarios WHERE equipo_id = ?", [equipoId]);
         
-        // Obtener los próximos 2 partidos de liga
         const nextLeagueMatchesQuery = db.query(`
             SELECT p.id, p.fecha, el.nombre as nombre_local, ev.nombre as nombre_visitante, 'liga' as tipo
             FROM partidos p
@@ -318,7 +338,6 @@ exports.getDtDashboardStats = async (req, res) => {
             ORDER BY p.fecha ASC LIMIT 2
         `, [equipoId, equipoId]);
 
-        // Obtener los próximos 2 partidos de copa
         const nextCupMatchesQuery = db.query(`
             SELECT pc.id, pc.fecha, el.nombre as nombre_local, ev.nombre as nombre_visitante, 'copa' as tipo
             FROM partidos_copa pc
@@ -344,17 +363,16 @@ exports.getDtDashboardStats = async (req, res) => {
             leaguePositionQuery
         ]);
 
-        // Combinar y ordenar todos los partidos pendientes
         const allNextMatches = [...nextLeagueMatches, ...nextCupMatches].sort((a, b) => {
-            const dateA = a.fecha ? new Date(a.fecha) : new Date('9999-12-31'); // Poner nulos al final
+            const dateA = a.fecha ? new Date(a.fecha) : new Date('9999-12-31');
             const dateB = b.fecha ? new Date(b.fecha) : new Date('9999-12-31');
             return dateA - dateB;
-        }).slice(0, 2); // Tomar solo los 2 más próximos
+        }).slice(0, 2);
 
         res.json({
             equipoInfo: equipoInfo || null,
             playerCount: playerCount || 0,
-            nextMatches: allNextMatches, // Cambiado a un array
+            nextMatches: allNextMatches,
             leaguePosition: leaguePosition || null
         });
     } catch (error) {
