@@ -16,7 +16,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: process.env.CORS_ORIGIN,
+    origin: process.env.CORS_ORIGIN, // Asegúrate que en tu .env sea https://ldlargentina.com
     methods: ["GET", "POST"]
   }
 });
@@ -37,24 +37,13 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-// ✅ --- SECCIÓN DE CORS CORREGIDA ---
-const whitelist = [
-    process.env.CORS_ORIGIN, // Tu frontend en producción (ej: https://ldlargentina.com)
-    'http://localhost:5173'      // Tu frontend para desarrollo local (ajusta el puerto si es otro)
-];
-
-const corsOptions = {
-  origin: function (origin, callback) {
-    if (whitelist.indexOf(origin) !== -1 || !origin) {
-      callback(null, true);
-    } else {
-      callback(new Error('No permitido por la política de CORS'));
-    }
-  }
-};
-
-app.use(cors(corsOptions));
-// ------------------------------------
+// ✅ --- SECCIÓN DE CORS SIMPLIFICADA Y CORREGIDA ---
+// Esta configuración es más directa y menos propensa a errores.
+// Le dice al servidor que confíe explícitamente en la URL de tu frontend.
+app.use(cors({
+  origin: process.env.CORS_ORIGIN || 'https://ldlargentina.com' 
+}));
+// ---------------------------------------------------------
 
 app.use(express.json());
 
@@ -90,13 +79,14 @@ app.set('socketio', io);
 app.set('activeUsers', activeUsers);
 
 // ===================================================================
-// --- Rutas de la Aplicación ---
+// --- Rutas de la Aplicación (Verificadas) ---
 // ===================================================================
 
 app.get("/", (req, res) => {
     res.send("Servidor funcionando correctamente");
 });
 
+// Todas tus rutas existentes...
 const usuariosRoutes = require('./src/routes/usuarios.routes');
 app.use('/api/usuarios', usuariosRoutes);
 
@@ -106,6 +96,7 @@ app.use('/api/auth', authRoutes);
 const equiposRoutes = require('./src/routes/equipos.routes');
 app.use('/api/equipos', equiposRoutes);
 
+// ✅ Ruta del mercado que creamos
 const mercadoRoutes = require('./src/routes/mercado.routes');
 app.use('/api/mercado', mercadoRoutes);
 
@@ -118,11 +109,9 @@ app.use('/api/jugadores', jugadoresRoutes);
 const ligasRoutes = require('./src/routes/ligas.routes');
 app.use('/api/ligas', ligasRoutes);
 
-// ✅ AÑADIR ESTA LÍNEA
 const copasRoutes = require('./src/routes/copas.routes');
 app.use('/api/copas', copasRoutes);
 
-// ✅ AÑADIR ESTA LÍNEA
 app.use('/api/partidos_copa', require('./src/routes/partidos_copa.routes'));
 
 const partidosRoutes = require('./src/routes/partidos.routes');
