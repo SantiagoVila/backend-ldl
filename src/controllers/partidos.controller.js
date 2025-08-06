@@ -1,36 +1,12 @@
 const db = require('../../databases');
 const logger = require('../config/logger');
 const { generarQueriesActualizacionTabla } = require('../services/ligas.service');
-const fs = require('fs');
-const path = require('path');
+
+// =================================================================================
+// SECCIÓN 1: LÓGICA DE REPORTE DUAL (v2.0)
+// =================================================================================
 
 /**
- * Crea un nuevo partido (usado por el fixture o por un admin).
- */
-exports.crearPartido = async (req, res) => {
-    const { equipo_visitante_id, liga_id, fecha } = req.body;
-    const equipo_local_id = req.usuario.equipo_id;
-    const creado_por = req.usuario.id;
-
-    if (!equipo_local_id || !equipo_visitante_id || !liga_id || !fecha) {
-        return res.status(400).json({ error: 'Faltan datos obligatorios' });
-    }
-
-    try {
-        const sql = `
-            INSERT INTO partidos (equipo_local_id, equipo_visitante_id, liga_id, fecha, creado_por)
-            VALUES (?, ?, ?, ?, ?)
-        `;
-        const [resultado] = await db.query(sql, [equipo_local_id, equipo_visitante_id, liga_id, fecha, creado_por]);
-        res.status(201).json({ message: 'Partido creado correctamente', partido_id: resultado.insertId });
-    } catch (error) {
-        logger.error("Error en crearPartido:", { message: error.message, error });
-        res.status(500).json({ error: 'Error al crear el partido' });
-    }
-};
-
-/**
- * ✅ v2.0
  * Recibe y procesa el reporte de un partido por parte de un DT.
  */
 exports.crearReporte = async (req, res) => {
@@ -123,9 +99,7 @@ exports.crearReporte = async (req, res) => {
     }
 };
 
-
 /**
- * ✅ v2.0 - ANTES LLAMADA 'confirmarManualmente'
  * Permite a un Admin resolver una disputa o confirmar un reporte único.
  */
 exports.resolverDisputa = async (req, res) => {
@@ -149,7 +123,6 @@ exports.resolverDisputa = async (req, res) => {
         const tablaPartido = reporteGanador.tipo_partido === 'liga' ? 'partidos' : 'partidos_copa';
         const [[partidoInfo]] = await connection.query(`SELECT * FROM ${tablaPartido} WHERE id = ?`, [partido_id]);
 
-        // LÓGICA MEJORADA: Acepta ambos casos
         if (!['en_disputa', 'reportado_parcialmente'].includes(partidoInfo.estado_reporte)) {
             await connection.rollback();
             return res.status(409).json({ error: 'Este partido no se puede confirmar manualmente.' });
@@ -174,35 +147,53 @@ exports.resolverDisputa = async (req, res) => {
     }
 };
 
-// --- El resto de las funciones se mantienen como estaban ---
+// =================================================================================
+// SECCIÓN 2: FUNCIONES DE CONSULTA (GET)
+// =================================================================================
 
-exports.obtenerPartidos = async (req, res) => {
-    const { estado } = req.query;
+/**
+ * Obtiene los partidos que requieren atención del admin (en disputa o con un solo reporte).
+ */
+exports.obtenerPartidosParaRevision = async (req, res) => {
     try {
-        let sql = `
+        const sql = `
             SELECT 
-                p.id, p.fecha, p.goles_local, p.goles_visitante, p.estado, p.imagen_resultado_url,
-                el.nombre as nombre_local, ev.nombre as nombre_visitante
+                p.id, p.fecha, p.estado_reporte, 
+                el.nombre as nombre_local, ev.nombre as nombre_visitante, 
+                'liga' as tipo
             FROM partidos p
-            JOIN equipos AS el ON p.equipo_local_id = el.id
-            JOIN equipos AS ev ON p.equipo_visitante_id = ev.id
+            JOIN equipos el ON p.equipo_local_id = el.id
+            JOIN equipos ev ON p.equipo_visitante_id = ev.id
+            WHERE p.estado_reporte IN ('en_disputa', 'reportado_parcialmente')
+            UNION
+            SELECT 
+                pc.id, pc.fecha, pc.estado_reporte, 
+                el.nombre as nombre_local, ev.nombre as nombre_visitante, 
+                'copa' as tipo
+            FROM partidos_copa pc
+            JOIN equipos el ON pc.equipo_local_id = el.id
+            JOIN equipos ev ON pc.equipo_visitante_id = ev.id
+            WHERE pc.estado_reporte IN ('en_disputa', 'reportado_parcialmente')
         `;
-        const params = [];
-        if (estado) {
-            sql += ' WHERE p.estado = ?';
-            params.push(estado);
-        }
-        sql += ' ORDER BY p.fecha DESC';
-        const [partidos] = await db.query(sql, params);
-        res.json(partidos);
+        const [partidos] = await db.query(sql);
+
+        const partidosConReportes = await Promise.all(partidos.map(async (partido) => {
+            const [reportes] = await db.query(
+                'SELECT * FROM reportes_partidos WHERE partido_id = ? AND tipo_partido = ? ORDER BY fecha_reporte ASC', 
+                [partido.id, partido.tipo]
+            );
+            return { ...partido, reportes };
+        }));
+
+        res.json(partidosConReportes);
+
     } catch (error) {
-        logger.error(`Error en obtenerPartidos: ${error.message}`, { error });
-        res.status(500).json({ error: 'Error al obtener los partidos' });
+        logger.error(`Error en obtenerPartidosParaRevision: ${error.message}`, { error });
+        res.status(500).json({ error: 'Error al obtener los partidos para revisión.' });
     }
 };
 
 /**
- * 🟡 FUNCIÓN MODIFICADA v2.0
  * Busca partidos pendientes de ser reportados por el DT logueado.
  */
 exports.obtenerPartidosDT = async (req, res) => {
@@ -243,6 +234,137 @@ exports.obtenerPartidosDT = async (req, res) => {
     }
 };
 
+/**
+ * Obtiene los 5 partidos públicos más recientes que hayan sido aprobados.
+ */
+exports.obtenerPartidosPublico = async (req, res) => {
+    try {
+        const sql = `
+            SELECT 
+                p.id, p.fecha, 
+                rp.goles_local_reportados as goles_local, 
+                rp.goles_visitante_reportados as goles_visitante,
+                el.nombre as nombre_local, 
+                ev.nombre as nombre_visitante
+            FROM partidos p
+            JOIN equipos AS el ON p.equipo_local_id = el.id
+            JOIN equipos AS ev ON p.equipo_visitante_id = ev.id
+            JOIN (
+                SELECT partido_id, tipo_partido, MIN(id) as first_report_id
+                FROM reportes_partidos
+                GROUP BY partido_id, tipo_partido
+            ) as first_report ON first_report.partido_id = p.id AND first_report.tipo_partido = 'liga'
+            JOIN reportes_partidos rp ON rp.id = first_report.first_report_id
+            WHERE p.estado = 'aprobado'
+            ORDER BY p.fecha DESC
+            LIMIT 5
+        `;
+        const [partidos] = await db.query(sql);
+        res.json(partidos);
+    } catch (error) {
+        logger.error(`Error en obtenerPartidosPublico: ${error.message}`, { error });
+        res.status(500).json({ error: 'Error al obtener los partidos recientes' });
+    }
+};
+
+/**
+ * Obtiene los detalles completos de un partido público, incluyendo goleadores y asistidores.
+ */
+exports.getPartidoPublico = async (req, res) => {
+    const { id: partidoId } = req.params;
+    try {
+        const [[partido]] = await db.query(`
+            SELECT 
+                p.id, p.fecha, p.estado,
+                rp.goles_local_reportados as goles_local,
+                rp.goles_visitante_reportados as goles_visitante,
+                el.id as equipo_local_id, el.nombre as nombre_local,
+                ev.id as equipo_visitante_id, ev.nombre as nombre_visitante,
+                l.nombre as nombre_liga, l.id as liga_id
+            FROM partidos p
+            JOIN equipos el ON p.equipo_local_id = el.id
+            JOIN equipos ev ON p.equipo_visitante_id = ev.id
+            LEFT JOIN ligas l ON p.liga_id = l.id
+            JOIN (
+                SELECT partido_id, tipo_partido, MIN(id) as first_report_id
+                FROM reportes_partidos GROUP BY partido_id, tipo_partido
+            ) as first_report ON first_report.partido_id = p.id AND first_report.tipo_partido = 'liga'
+            JOIN reportes_partidos rp ON rp.id = first_report.first_report_id
+            WHERE p.id = ? AND p.estado = 'aprobado'
+        `, [partidoId]);
+
+        if (!partido) {
+            return res.status(404).json({ error: 'Partido no encontrado o aún no ha sido aprobado.' });
+        }
+
+        const [estadisticas] = await db.query(`
+            SELECT ejp.goles, ejp.asistencias, u.id as jugador_id, u.nombre_in_game, ejp.equipo_id
+            FROM estadisticas_jugadores_partido ejp
+            JOIN usuarios u ON ejp.jugador_id = u.id
+            JOIN reportes_partidos rp ON ejp.reporte_id = rp.id
+            WHERE rp.partido_id = ? AND rp.tipo_partido = 'liga'
+        `, [partidoId]);
+
+        const estadisticas_local = estadisticas.filter(stat => stat.equipo_id === partido.equipo_local_id);
+        const estadisticas_visitante = estadisticas.filter(stat => stat.equipo_id === partido.equipo_visitante_id);
+
+        res.json({ ...partido, estadisticas_local, estadisticas_visitante });
+    } catch (error) {
+        logger.error(`Error en getPartidoPublico: ${error.message}`, { error });
+        res.status(500).json({ error: 'Error al obtener los detalles del partido.' });
+    }
+};
+
+
+// --- Funciones de utilidad que se mantienen ---
+exports.crearPartido = async (req, res) => {
+    const { equipo_visitante_id, liga_id, fecha } = req.body;
+    const equipo_local_id = req.usuario.equipo_id;
+    const creado_por = req.usuario.id;
+
+    if (!equipo_local_id || !equipo_visitante_id || !liga_id || !fecha) {
+        return res.status(400).json({ error: 'Faltan datos obligatorios' });
+    }
+
+    try {
+        const sql = `
+            INSERT INTO partidos (equipo_local_id, equipo_visitante_id, liga_id, fecha, creado_por)
+            VALUES (?, ?, ?, ?, ?)
+        `;
+        const [resultado] = await db.query(sql, [equipo_local_id, equipo_visitante_id, liga_id, fecha, creado_por]);
+        res.status(201).json({ message: 'Partido creado correctamente', partido_id: resultado.insertId });
+    } catch (error) {
+        logger.error("Error en crearPartido:", { message: error.message, error });
+        res.status(500).json({ error: 'Error al crear el partido' });
+    }
+};
+
+// Esta función es para el admin, la mantenemos pero la adaptamos a la nueva estructura
+exports.obtenerPartidos = async (req, res) => {
+    const { estado } = req.query;
+    try {
+        let sql = `
+            SELECT 
+                p.id, p.fecha, p.estado, p.estado_reporte,
+                el.nombre as nombre_local, ev.nombre as nombre_visitante
+            FROM partidos p
+            JOIN equipos AS el ON p.equipo_local_id = el.id
+            JOIN equipos AS ev ON p.equipo_visitante_id = ev.id
+        `;
+        const params = [];
+        if (estado) {
+            sql += ' WHERE p.estado = ?';
+            params.push(estado);
+        }
+        sql += ' ORDER BY p.fecha DESC';
+        const [partidos] = await db.query(sql, params);
+        res.json(partidos);
+    } catch (error) {
+        logger.error(`Error en obtenerPartidos: ${error.message}`, { error });
+        res.status(500).json({ error: 'Error al obtener los partidos' });
+    }
+};
+
 exports.obtenerPartidoPorId = async (req, res) => {
     const { id } = req.params;
     try {
@@ -260,80 +382,6 @@ exports.obtenerPartidoPorId = async (req, res) => {
         res.json(partido);
     } catch (error) {
         logger.error(`Error en obtenerPartidoPorId: ${error.message}`, { error });
-        res.status(500).json({ error: 'Error al obtener los detalles del partido.' });
-    }
-};
-
-exports.obtenerPartidosPublico = async (req, res) => {
-    try {
-        const sql = `
-            SELECT 
-                p.id, p.fecha, p.goles_local, p.goles_visitante,
-                el.nombre as nombre_local, ev.nombre as nombre_visitante
-            FROM partidos p
-            JOIN equipos AS el ON p.equipo_local_id = el.id
-            JOIN equipos AS ev ON p.equipo_visitante_id = ev.id
-            WHERE p.estado = 'aprobado'
-            ORDER BY p.fecha DESC
-            LIMIT 5
-        `;
-        const [partidos] = await db.query(sql);
-        res.json(partidos);
-    } catch (error) {
-        logger.error(`Error en obtenerPartidosPublico: ${error.message}`, { error });
-        res.status(500).json({ error: 'Error al obtener los partidos recientes' });
-    }
-};
-
-exports.getPartidoPublico = async (req, res) => {
-    const { id: partidoId } = req.params;
-
-    try {
-        // 1. Obtener información básica del partido (equipos, resultado, liga)
-        const partidoQuery = db.query(`
-            SELECT 
-                p.id, p.fecha, p.goles_local, p.goles_visitante, p.estado,
-                el.id as equipo_local_id, el.nombre as nombre_local,
-                ev.id as equipo_visitante_id, ev.nombre as nombre_visitante,
-                l.nombre as nombre_liga, l.id as liga_id
-            FROM partidos p
-            JOIN equipos el ON p.equipo_local_id = el.id
-            JOIN equipos ev ON p.equipo_visitante_id = ev.id
-            LEFT JOIN ligas l ON p.liga_id = l.id
-            WHERE p.id = ? AND p.estado = 'aprobado'
-        `, [partidoId]);
-
-        // 2. Obtener las estadísticas individuales de todos los jugadores en ese partido
-        const statsQuery = db.query(`
-            SELECT 
-                ejp.goles, ejp.asistencias,
-                u.id as jugador_id, u.nombre_in_game,
-                ejp.equipo_id
-            FROM estadisticas_jugadores_partido ejp
-            JOIN usuarios u ON ejp.jugador_id = u.id
-            WHERE ejp.partido_id = ? AND (ejp.goles > 0 OR ejp.asistencias > 0)
-        `, [partidoId]);
-
-        // Ejecutamos ambas consultas en paralelo
-        const [ [[partido]], [estadisticas] ] = await Promise.all([partidoQuery, statsQuery]);
-
-        if (!partido) {
-            return res.status(404).json({ error: 'Partido no encontrado o aún no ha sido aprobado.' });
-        }
-
-        // 3. Procesamos las estadísticas para separarlas por equipo
-        const estadisticas_local = estadisticas.filter(stat => stat.equipo_id === partido.equipo_local_id);
-        const estadisticas_visitante = estadisticas.filter(stat => stat.equipo_id === partido.equipo_visitante_id);
-
-        // 4. Devolvemos un único objeto con toda la información
-        res.json({
-            ...partido,
-            estadisticas_local,
-            estadisticas_visitante
-        });
-
-    } catch (error) {
-        logger.error(`Error en getPartidoPublico: ${error.message}`, { error });
         res.status(500).json({ error: 'Error al obtener los detalles del partido.' });
     }
 };

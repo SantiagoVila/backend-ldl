@@ -10,13 +10,14 @@ const {
     obtenerPartidosPublico,
     getPartidoPublico,
     getPartidoParaReportar,
-    crearReporte,          // <-- NUEVA función para reportes de DT
-    resolverDisputa        // <-- NUEVA función para que el admin resuelva
+    crearReporte,              // <-- Nueva función para reportes de DT
+    resolverDisputa,           // <-- Nueva función para que el admin resuelva
+    obtenerPartidosParaRevision // <-- Nueva función para la página de admin
 } = require('../controllers/partidos.controller');
 
-// Asumo que la ruta a tus middlewares es esta, ajústala si es necesario
+// Usamos los nombres de tus middlewares
 const verificarToken = require('../middleware.js/auth.middleware');
-const verificarRol = require('../middleware.js/verifyRole'); // Asegúrate que el nombre de archivo sea correcto
+const verificarRol = require('../middleware.js/verifyRole');
 const upload = require('../middleware.js/upload'); 
 
 // --- RUTAS PÚBLICAS (Sin cambios) ---
@@ -25,36 +26,39 @@ router.get('/publico/:id', getPartidoPublico);
 
 // --- RUTAS PROTEGIDAS ---
 
-// Rutas de consulta generales (sin cambios)
+// Rutas de consulta generales
 router.get("/", verificarToken, verificarRol("admin"), obtenerPartidos);
 router.get('/:id', verificarToken, obtenerPartidoPorId);
 
-// Crear un partido (sin cambios)
+// Crear un partido
 router.post('/', verificarToken, verificarRol('dt'), crearPartido);
 
-// Obtener partidos para el DT (sin cambios en la ruta, pero el controlador fue modificado)
+// Rutas para el DT
 router.get('/dt/mis-partidos', verificarToken, verificarRol('dt'), obtenerPartidosDT);
-
-// Obtener datos de un partido específico para la página de reporte (sin cambios)
 router.get('/dt/partido-para-reportar/:tipo/:id', verificarToken, verificarRol('dt'), getPartidoParaReportar);
-
 
 // ✅ 2. NUEVAS RUTAS PARA EL SISTEMA v2.0
 // Ruta para que un DT envíe su reporte
 router.post(
     '/reportar/:tipo/:partido_id',
     [verificarToken, verificarRol('dt')],
-    upload.array('imagen_resultado', 1), // Más seguro que upload.any()
+    upload.array('imagen_resultado', 1), // Usamos upload.array para más seguridad
     crearReporte
 );
 
-// Ruta para que un Admin resuelva una disputa
+// Ruta para que un Admin obtenga los partidos a revisar
+router.get(
+    '/admin/revision',
+    [verificarToken, verificarRol('admin')],
+    obtenerPartidosParaRevision
+);
+
+// Ruta para que un Admin resuelva una disputa o confirme un reporte único
 router.post(
     '/admin/resolver/:partido_id',
     [verificarToken, verificarRol('admin')],
     resolverDisputa
 );
-
 
 /*
   ❌ 3. RUTAS OBSOLETAS (Eliminadas)
