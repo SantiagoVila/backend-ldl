@@ -30,79 +30,94 @@ exports.crearPartido = async (req, res) => {
 };
 
 /**
- * ✅ FUNCIÓN CORREGIDA Y MÁS ROBUSTA
- * Confirma o rechaza un partido pendiente.
+ * ✅ v2.0
+ * Recibe y procesa el reporte de un partido por parte de un DT.
  */
-exports.confirmarPartido = async (req, res) => {
-    const { id: partidoId } = req.params;
-    const { estado } = req.body;
+exports.crearReporte = async (req, res) => {
+    const { tipo, partido_id } = req.params;
+    const { goles_local_reportados, goles_visitante_reportados, jugadores } = req.body;
+    const imagenPrueba = req.files && req.files.length > 0 ? req.files[0] : null;
+    const equipo_reportador_id = req.usuario.equipo_id;
 
-    if (!['aprobado', 'rechazado'].includes(estado)) {
-        return res.status(400).json({ error: 'El estado solo puede ser "aprobado" o "rechazado".' });
+    if (!imagenPrueba || goles_local_reportados == null || goles_visitante_reportados == null) {
+        return res.status(400).json({ error: 'Faltan datos obligatorios (resultado, imagen de prueba).' });
     }
 
+    const tablaPartido = tipo === 'liga' ? 'partidos' : 'partidos_copa';
     const connection = await db.getConnection();
 
     try {
         await connection.beginTransaction();
 
-        const [[partido]] = await connection.query('SELECT * FROM partidos WHERE id = ? AND estado = "pendiente"', [partidoId]);
-
-        if (!partido) {
+        const [[partidoInfo]] = await connection.query(`SELECT * FROM ${tablaPartido} WHERE id = ?`, [partido_id]);
+        if (!partidoInfo) {
             await connection.rollback();
-            return res.status(404).json({ error: 'Partido no encontrado o ya fue procesado.' });
+            return res.status(404).json({ error: 'Partido no encontrado.' });
+        }
+        if (partidoInfo.estado !== 'pendiente' || !['pendiente_reportes', 'reportado_parcialmente'].includes(partidoInfo.estado_reporte)) {
+            await connection.rollback();
+            return res.status(409).json({ error: 'Este partido no está pendiente de reporte.' });
+        }
+        if (partidoInfo.equipo_local_id !== equipo_reportador_id && partidoInfo.equipo_visitante_id !== equipo_reportador_id) {
+            await connection.rollback();
+            return res.status(403).json({ error: 'No tienes permiso para reportar este partido.' });
+        }
+        const [[reportePrevio]] = await connection.query('SELECT id FROM reportes_partidos WHERE partido_id = ? AND tipo_partido = ? AND equipo_reportador_id = ?', [partido_id, tipo, equipo_reportador_id]);
+        if (reportePrevio) {
+            await connection.rollback();
+            return res.status(409).json({ error: 'Ya has enviado un reporte para este partido.' });
         }
 
-        // ✅ CORRECCIÓN: Se añade una validación de datos ANTES de procesar.
-        // Esto evita el error 500 si a un partido le faltan datos cruciales.
-        if (estado === 'aprobado') {
-            const { liga_id, equipo_local_id, equipo_visitante_id, goles_local, goles_visitante } = partido;
-            if (liga_id == null || equipo_local_id == null || equipo_visitante_id == null || goles_local == null || goles_visitante == null) {
-                await connection.rollback();
-                logger.error(`Intento de confirmar partido ID ${partidoId} con datos corruptos o incompletos.`, { partido });
-                return res.status(400).json({ error: 'No se puede confirmar el partido, los datos están incompletos (falta ID de liga, equipos o goles).' });
+        const imageUrl = `/uploads/${imagenPrueba.filename}`;
+        const sqlInsertReporte = `
+            INSERT INTO reportes_partidos (partido_id, tipo_partido, equipo_reportador_id, goles_local_reportados, goles_visitante_reportados, imagen_prueba_url)
+            VALUES (?, ?, ?, ?, ?, ?)
+        `;
+        const [resultReporte] = await connection.query(sqlInsertReporte, [partido_id, tipo, equipo_reportador_id, goles_local_reportados, goles_visitante_reportados, imageUrl]);
+        const nuevoReporteId = resultReporte.insertId;
+
+        if (jugadores && jugadores.trim() !== '' && jugadores.trim() !== '[]') {
+            const estadisticas = JSON.parse(jugadores);
+            if (Array.isArray(estadisticas) && estadisticas.length > 0) {
+                const values = estadisticas.map(j => [
+                    tipo === 'liga' ? partido_id : null,
+                    tipo === 'copa' ? partido_id : null,
+                    j.jugador_id,
+                    equipo_reportador_id,
+                    j.goles || 0,
+                    j.asistencias || 0,
+                    0, 0, // tarjetas
+                    nuevoReporteId
+                ]);
+                const sqlStats = `INSERT INTO estadisticas_jugadores_partido (partido_id, partido_copa_id, jugador_id, equipo_id, goles, asistencias, tarjetas_amarillas, tarjetas_rojas, reporte_id) VALUES ?`;
+                await connection.query(sqlStats, [values]);
             }
         }
 
-        await connection.query('UPDATE partidos SET estado = ? WHERE id = ?', [estado, partidoId]);
+        const [reportesDelPartido] = await connection.query('SELECT * FROM reportes_partidos WHERE partido_id = ? AND tipo_partido = ?', [partido_id, tipo]);
 
-        if (estado === 'aprobado') {
-            // Actualizar tabla de posiciones (ahora es más seguro)
-            const queries = generarQueriesActualizacionTabla(partido);
-            for (const query of queries) {
-                await connection.query(query);
-            }
-
-            // Lógica para cumplir sanciones (sin cambios, pero ahora se ejecuta en un contexto más seguro)
-            const [jugadoresDelPartido] = await connection.query('SELECT DISTINCT jugador_id FROM estadisticas_jugadores_partido WHERE partido_id = ?', [partidoId]);
-            const idsJugadores = jugadoresDelPartido.map(j => j.jugador_id);
-
-            if (idsJugadores.length > 0) {
-                const placeholders = idsJugadores.map(() => '?').join(',');
-                const sqlSanciones = `
-                    UPDATE sanciones 
-                    SET partidos_cumplidos = partidos_cumplidos + 1 
-                    WHERE jugador_id IN (${placeholders}) AND estado = 'activa'
-                `;
-                await connection.query(sqlSanciones, idsJugadores);
-
-                const sqlMarcarCumplidas = `
-                    UPDATE sanciones
-                    SET estado = 'cumplida'
-                    WHERE estado = 'activa' AND partidos_cumplidos >= partidos_de_sancion
-                `;
-                await connection.query(sqlMarcarCumplidas);
-                logger.info(`Sanciones actualizadas para el partido ID: ${partidoId}`);
+        if (reportesDelPartido.length === 1) {
+            await connection.query(`UPDATE ${tablaPartido} SET estado_reporte = 'reportado_parcialmente' WHERE id = ?`, [partido_id]);
+        } else if (reportesDelPartido.length === 2) {
+            const [reporteA, reporteB] = reportesDelPartido;
+            if (reporteA.goles_local_reportados == reporteB.goles_local_reportados && reporteA.goles_visitante_reportados == reporteB.goles_visitante_reportados) {
+                await connection.query(`UPDATE ${tablaPartido} SET estado = 'aprobado', estado_reporte = 'confirmado_auto' WHERE id = ?`, [partido_id]);
+                if (tipo === 'liga' && partidoInfo.liga_id) {
+                    const datosParaTabla = { ...partidoInfo, goles_local: reporteA.goles_local_reportados, goles_visitante: reporteA.goles_visitante_reportados };
+                    const queries = generarQueriesActualizacionTabla(datosParaTabla);
+                    for (const query of queries) await connection.query(query);
+                }
+            } else {
+                await connection.query(`UPDATE ${tablaPartido} SET estado_reporte = 'en_disputa' WHERE id = ?`, [partido_id]);
             }
         }
 
         await connection.commit();
-        res.json({ message: `Partido ${estado} con éxito.` });
-
+        res.status(201).json({ message: 'Reporte enviado con éxito.' });
     } catch (error) {
-        await connection.rollback();
-        logger.error(`Error en confirmarPartido: ${error.message}`, { error, partidoId });
-        res.status(500).json({ error: 'Error en el servidor al confirmar el partido.' });
+        if (connection) await connection.rollback();
+        logger.error(`Error en crearReporte: ${error.message}`, { error, partido_id });
+        res.status(500).json({ error: 'Error en el servidor al procesar el reporte.' });
     } finally {
         if (connection) connection.release();
     }
@@ -110,85 +125,50 @@ exports.confirmarPartido = async (req, res) => {
 
 
 /**
- * ✅ FUNCIÓN CORREGIDA Y MÁS ROBUSTA
- * Un DT reporta el resultado de un partido jugado.
+ * ✅ v2.0 - ANTES LLAMADA 'confirmarManualmente'
+ * Permite a un Admin resolver una disputa o confirmar un reporte único.
  */
-exports.reportarResultado = async (req, res) => {
-    const { tipo, id } = req.params;
-    const { goles_local, goles_visitante, jugadores } = req.body;
-    const imagenPrueba = req.files && req.files.length > 0 ? req.files[0] : null;
-    const equipo_id_dt = req.usuario.equipo_id;
+exports.resolverDisputa = async (req, res) => {
+    const { partido_id } = req.params;
+    const { reporte_ganador_id } = req.body;
 
-    if (!['liga', 'copa'].includes(tipo)) {
-        return res.status(400).json({ error: 'Tipo de partido inválido.' });
-    }
-    if (goles_local == null || goles_visitante == null) {
-        return res.status(400).json({ error: 'Debes proporcionar los goles de ambos equipos.' });
-    }
-    if (!imagenPrueba) {
-        return res.status(400).json({ error: 'Se requiere una imagen como prueba del resultado.' });
+    if (!reporte_ganador_id) {
+        return res.status(400).json({ error: 'Se debe especificar un reporte ganador.' });
     }
 
-    const tabla = tipo === 'liga' ? 'partidos' : 'partidos_copa';
-    let connection;
-
+    const connection = await db.getConnection();
     try {
-        connection = await db.getConnection();
         await connection.beginTransaction();
 
-        const [[partido]] = await connection.query(`SELECT * FROM ${tabla} WHERE id = ? FOR UPDATE`, [id]);
-        if (!partido) {
+        const [[reporteGanador]] = await connection.query('SELECT * FROM reportes_partidos WHERE id = ? AND partido_id = ?', [reporte_ganador_id, partido_id]);
+        if (!reporteGanador) {
             await connection.rollback();
-            return res.status(404).json({ error: 'Partido no encontrado.' });
-        }
-        if (partido.equipo_local_id !== equipo_id_dt) {
-            await connection.rollback();
-            return res.status(403).json({ error: 'Solo el DT del equipo local puede reportar el resultado.' });
-        }
-        if (partido.imagen_resultado_url) {
-            await connection.rollback();
-            return res.status(409).json({ error: 'Este partido ya tiene un resultado reportado.' });
+            return res.status(404).json({ error: 'El reporte ganador seleccionado no es válido para este partido.' });
         }
 
-        const imageUrl = `/uploads/${imagenPrueba.filename}`;
-        
-        await connection.query(
-            `UPDATE ${tabla} SET goles_local = ?, goles_visitante = ?, imagen_resultado_url = ? WHERE id = ?`,
-            [goles_local, goles_visitante, imageUrl, id]
-        );
-        
-        // ✅ CORRECCIÓN: Se añade una validación para 'jugadores' para evitar errores con strings vacíos o inválidos.
-        if (jugadores && jugadores.trim() !== '' && jugadores.trim() !== '[]') {
-            try {
-                const estadisticas = JSON.parse(jugadores);
-                if (Array.isArray(estadisticas) && estadisticas.length > 0) {
-                    const values = estadisticas.map(j => [
-                        tipo === 'liga' ? id : null,
-                        tipo === 'copa' ? id : null,
-                        j.jugador_id,
-                        partido.equipo_local_id, // Usar el ID del equipo del partido para seguridad
-                        j.goles || 0,
-                        j.asistencias || 0,
-                        0, // tarjetas_amarillas
-                        0  // tarjetas_rojas
-                    ]);
-                    const sqlStats = `INSERT INTO estadisticas_jugadores_partido (partido_id, partido_copa_id, jugador_id, equipo_id, goles, asistencias, tarjetas_amarillas, tarjetas_rojas) VALUES ?`;
-                    await connection.query(sqlStats, [values]);
-                }
-            } catch (jsonError) {
-                logger.error('Error al parsear las estadísticas (JSON inválido). Recibido:', jugadores);
-                await connection.rollback(); 
-                return res.status(400).json({ error: 'El formato de las estadísticas de los jugadores es inválido.' });
-            }
+        const tablaPartido = reporteGanador.tipo_partido === 'liga' ? 'partidos' : 'partidos_copa';
+        const [[partidoInfo]] = await connection.query(`SELECT * FROM ${tablaPartido} WHERE id = ?`, [partido_id]);
+
+        // LÓGICA MEJORADA: Acepta ambos casos
+        if (!['en_disputa', 'reportado_parcialmente'].includes(partidoInfo.estado_reporte)) {
+            await connection.rollback();
+            return res.status(409).json({ error: 'Este partido no se puede confirmar manualmente.' });
+        }
+
+        await connection.query(`UPDATE ${tablaPartido} SET estado = 'aprobado', estado_reporte = 'confirmado_admin' WHERE id = ?`, [partido_id]);
+
+        if (reporteGanador.tipo_partido === 'liga' && partidoInfo.liga_id) {
+            const datosParaTabla = { ...partidoInfo, goles_local: reporteGanador.goles_local_reportados, goles_visitante: reporteGanador.goles_visitante_reportados };
+            const queries = generarQueriesActualizacionTabla(datosParaTabla);
+            for (const query of queries) await connection.query(query);
         }
         
         await connection.commit();
-        res.json({ message: 'Resultado y estadísticas reportados con éxito. Pendiente de aprobación.' });
-
+        res.json({ message: 'Partido confirmado manualmente por el administrador.' });
     } catch (error) {
         if (connection) await connection.rollback();
-        logger.error(`Error en reportarResultado: ${error.message}`, { error });
-        res.status(500).json({ error: 'Error en el servidor al reportar el resultado.' });
+        logger.error(`Error en resolverDisputa: ${error.message}`, { error, partido_id });
+        res.status(500).json({ error: 'Error en el servidor al confirmar manualmente.' });
     } finally {
         if (connection) connection.release();
     }
@@ -221,37 +201,44 @@ exports.obtenerPartidos = async (req, res) => {
     }
 };
 
+/**
+ * 🟡 FUNCIÓN MODIFICADA v2.0
+ * Busca partidos pendientes de ser reportados por el DT logueado.
+ */
 exports.obtenerPartidosDT = async (req, res) => {
     const equipo_id = req.usuario.equipo_id;
     if (!equipo_id) return res.status(400).json({ error: 'No tienes un equipo asignado.' });
+    
     try {
-        const sqlLiga = `
-            SELECT p.id, p.fecha, p.estado, p.goles_local, p.goles_visitante,
-                   el.nombre as nombre_local, ev.nombre as nombre_visitante, 'liga' as tipo
+        const sql = `
+            (SELECT p.id, p.fecha, p.estado, p.estado_reporte, el.nombre as nombre_local, ev.nombre as nombre_visitante, 'liga' as tipo
             FROM partidos p
             JOIN equipos el ON p.equipo_local_id = el.id
             JOIN equipos ev ON p.equipo_visitante_id = ev.id
-            WHERE (p.equipo_local_id = ? OR p.equipo_visitante_id = ?) 
-            AND p.estado = 'pendiente' AND p.imagen_resultado_url IS NULL
-        `;
-        const sqlCopa = `
-            SELECT pc.id, pc.fecha, pc.estado, pc.goles_local, pc.goles_visitante,
-                   el.nombre as nombre_local, ev.nombre as nombre_visitante, 'copa' as tipo
+            WHERE 
+                (p.equipo_local_id = ? OR p.equipo_visitante_id = ?) 
+                AND p.estado = 'pendiente' 
+                AND NOT EXISTS (
+                    SELECT 1 FROM reportes_partidos rp 
+                    WHERE rp.partido_id = p.id AND rp.tipo_partido = 'liga' AND rp.equipo_reportador_id = ?
+                ))
+            UNION
+            (SELECT pc.id, pc.fecha, pc.estado, pc.estado_reporte, el.nombre as nombre_local, ev.nombre as nombre_visitante, 'copa' as tipo
             FROM partidos_copa pc
             JOIN equipos el ON pc.equipo_local_id = el.id
             JOIN equipos ev ON pc.equipo_visitante_id = ev.id
-            WHERE (pc.equipo_local_id = ? OR pc.equipo_visitante_id = ?) 
-            AND pc.estado = 'pendiente' AND pc.imagen_resultado_url IS NULL
+            WHERE 
+                (pc.equipo_local_id = ? OR pc.equipo_visitante_id = ?) 
+                AND pc.estado = 'pendiente'
+                AND NOT EXISTS (
+                    SELECT 1 FROM reportes_partidos rp 
+                    WHERE rp.partido_id = pc.id AND rp.tipo_partido = 'copa' AND rp.equipo_reportador_id = ?
+                ))
         `;
-
-        const [partidosLiga] = await db.query(sqlLiga, [equipo_id, equipo_id]);
-        const [partidosCopa] = await db.query(sqlCopa, [equipo_id, equipo_id]);
-
-        const partidos = [...partidosLiga, ...partidosCopa].sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
-
-        res.json(partidos);
+        const [partidos] = await db.query(sql, [equipo_id, equipo_id, equipo_id, equipo_id, equipo_id, equipo_id]);
+        res.json(partidos.sort((a, b) => new Date(a.fecha) - new Date(b.fecha)));
     } catch (error) {
-        logger.error(`Error en obtenerPartidosDT: ${error.message}`, { error });
+        logger.error(`Error en obtenerPartidosDT v2.0: ${error.message}`, { error });
         res.status(500).json({ error: 'Error al obtener los partidos del equipo.' });
     }
 };
