@@ -15,7 +15,9 @@ const {
     crearNuevaTemporada,
     crearSancion,
     obtenerSancionesPorJugador,
-    getDashboardStats
+    getDashboardStats,
+    abrirMercadoManual,
+    cerrarMercadoManual
 } = require('../controllers/admin.controller');
 
 const { verSolicitudesRol } = require('../controllers/usuarios.controller');
@@ -46,5 +48,19 @@ router.post('/promocion-descenso', authMiddleware, verifyRole('admin'), ejecutar
 router.post('/sanciones', authMiddleware, verifyRole('admin'), crearSancion);
 router.get('/usuarios/:id/sanciones', authMiddleware, verifyRole('admin'), obtenerSancionesPorJugador);
 router.get('/dashboard-stats', authMiddleware, verifyRole('admin'), getDashboardStats);
+
+router.post(
+    '/mercado/abrir',
+    verificarToken, 
+    verifyRole('admin'),
+    abrirMercadoManual
+);
+
+router.post(
+    '/mercado/cerrar',
+    verificarToken, 
+    verifyRole('admin'),
+    cerrarMercadoManual
+);
 
 module.exports = router;
