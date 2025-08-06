@@ -30,13 +30,12 @@ exports.crearPartido = async (req, res) => {
 };
 
 /**
- * ✅ FUNCIÓN MEJORADA
+ * ✅ FUNCIÓN CORREGIDA Y MÁS ROBUSTA
  * Confirma o rechaza un partido pendiente.
- * Si se aprueba, actualiza la tabla de posiciones y CUMPLE las sanciones.
  */
 exports.confirmarPartido = async (req, res) => {
     const { id: partidoId } = req.params;
-    const { estado } = req.body; // 'aprobado' o 'rechazado'
+    const { estado } = req.body;
 
     if (!['aprobado', 'rechazado'].includes(estado)) {
         return res.status(400).json({ error: 'El estado solo puede ser "aprobado" o "rechazado".' });
@@ -47,7 +46,6 @@ exports.confirmarPartido = async (req, res) => {
     try {
         await connection.beginTransaction();
 
-        // 1. Obtenemos los datos del partido
         const [[partido]] = await connection.query('SELECT * FROM partidos WHERE id = ? AND estado = "pendiente"', [partidoId]);
 
         if (!partido) {
@@ -55,20 +53,27 @@ exports.confirmarPartido = async (req, res) => {
             return res.status(404).json({ error: 'Partido no encontrado o ya fue procesado.' });
         }
 
-        // 2. Actualizamos el estado del partido
+        // ✅ CORRECCIÓN: Se añade una validación de datos ANTES de procesar.
+        // Esto evita el error 500 si a un partido le faltan datos cruciales.
+        if (estado === 'aprobado') {
+            const { liga_id, equipo_local_id, equipo_visitante_id, goles_local, goles_visitante } = partido;
+            if (liga_id == null || equipo_local_id == null || equipo_visitante_id == null || goles_local == null || goles_visitante == null) {
+                await connection.rollback();
+                logger.error(`Intento de confirmar partido ID ${partidoId} con datos corruptos o incompletos.`, { partido });
+                return res.status(400).json({ error: 'No se puede confirmar el partido, los datos están incompletos (falta ID de liga, equipos o goles).' });
+            }
+        }
+
         await connection.query('UPDATE partidos SET estado = ? WHERE id = ?', [estado, partidoId]);
 
-        // 3. Si se aprueba, ejecutamos la lógica adicional
         if (estado === 'aprobado') {
-            // 3.1. Actualizar tabla de posiciones
-            if (partido.liga_id && partido.goles_local != null && partido.goles_visitante != null) {
-                const queries = generarQueriesActualizacionTabla(partido);
-                for (const query of queries) {
-                    await connection.query(query);
-                }
+            // Actualizar tabla de posiciones (ahora es más seguro)
+            const queries = generarQueriesActualizacionTabla(partido);
+            for (const query of queries) {
+                await connection.query(query);
             }
 
-            // 3.2. ✅ LÓGICA PARA CUMPLIR SANCIONES
+            // Lógica para cumplir sanciones (sin cambios, pero ahora se ejecuta en un contexto más seguro)
             const [jugadoresDelPartido] = await connection.query('SELECT DISTINCT jugador_id FROM estadisticas_jugadores_partido WHERE partido_id = ?', [partidoId]);
             const idsJugadores = jugadoresDelPartido.map(j => j.jugador_id);
 
@@ -81,7 +86,6 @@ exports.confirmarPartido = async (req, res) => {
                 `;
                 await connection.query(sqlSanciones, idsJugadores);
 
-                // Marcamos como 'cumplida' las sanciones que ya llegaron al límite
                 const sqlMarcarCumplidas = `
                     UPDATE sanciones
                     SET estado = 'cumplida'
@@ -97,16 +101,16 @@ exports.confirmarPartido = async (req, res) => {
 
     } catch (error) {
         await connection.rollback();
-        logger.error(`Error en confirmarPartido: ${error.message}`, { error });
+        logger.error(`Error en confirmarPartido: ${error.message}`, { error, partidoId });
         res.status(500).json({ error: 'Error en el servidor al confirmar el partido.' });
     } finally {
-        connection.release();
+        if (connection) connection.release();
     }
 };
 
 
 /**
- * ✅ FUNCIÓN CORREGIDA Y FINAL
+ * ✅ FUNCIÓN CORREGIDA Y MÁS ROBUSTA
  * Un DT reporta el resultado de un partido jugado.
  */
 exports.reportarResultado = async (req, res) => {
@@ -118,7 +122,6 @@ exports.reportarResultado = async (req, res) => {
     if (!['liga', 'copa'].includes(tipo)) {
         return res.status(400).json({ error: 'Tipo de partido inválido.' });
     }
-
     if (goles_local == null || goles_visitante == null) {
         return res.status(400).json({ error: 'Debes proporcionar los goles de ambos equipos.' });
     }
@@ -127,8 +130,8 @@ exports.reportarResultado = async (req, res) => {
     }
 
     const tabla = tipo === 'liga' ? 'partidos' : 'partidos_copa';
-
     let connection;
+
     try {
         connection = await db.getConnection();
         await connection.beginTransaction();
@@ -149,27 +152,26 @@ exports.reportarResultado = async (req, res) => {
 
         const imageUrl = `/uploads/${imagenPrueba.filename}`;
         
-        const sqlPartido = `UPDATE ${tabla} SET goles_local = ?, goles_visitante = ?, imagen_resultado_url = ? WHERE id = ?`;
-        await connection.query(sqlPartido, [goles_local, goles_visitante, imageUrl, id]);
+        await connection.query(
+            `UPDATE ${tabla} SET goles_local = ?, goles_visitante = ?, imagen_resultado_url = ? WHERE id = ?`,
+            [goles_local, goles_visitante, imageUrl, id]
+        );
         
-        if (jugadores) {
+        // ✅ CORRECCIÓN: Se añade una validación para 'jugadores' para evitar errores con strings vacíos o inválidos.
+        if (jugadores && jugadores.trim() !== '' && jugadores.trim() !== '[]') {
             try {
                 const estadisticas = JSON.parse(jugadores);
                 if (Array.isArray(estadisticas) && estadisticas.length > 0) {
-                    const values = estadisticas.map(j => {
-                        const partidoLigaId = tipo === 'liga' ? id : null;
-                        const partidoCopaId = tipo === 'copa' ? id : null;
-                        return [
-                            partidoLigaId,
-                            partidoCopaId,
-                            j.jugador_id,
-                            j.equipo_id,
-                            j.goles || 0,
-                            j.asistencias || 0,
-                            0, // tarjetas_amarillas
-                            0  // tarjetas_rojas
-                        ];
-                    });
+                    const values = estadisticas.map(j => [
+                        tipo === 'liga' ? id : null,
+                        tipo === 'copa' ? id : null,
+                        j.jugador_id,
+                        partido.equipo_local_id, // Usar el ID del equipo del partido para seguridad
+                        j.goles || 0,
+                        j.asistencias || 0,
+                        0, // tarjetas_amarillas
+                        0  // tarjetas_rojas
+                    ]);
                     const sqlStats = `INSERT INTO estadisticas_jugadores_partido (partido_id, partido_copa_id, jugador_id, equipo_id, goles, asistencias, tarjetas_amarillas, tarjetas_rojas) VALUES ?`;
                     await connection.query(sqlStats, [values]);
                 }
