@@ -479,11 +479,19 @@ exports.obtenerSancionesPorJugador = async (req, res) => {
     }
 };
 
+/**
+ * ✅ FUNCIÓN CORREGIDA v2.0
+ * Obtiene las estadísticas para el Dashboard del Admin, adaptada a la nueva estructura de reportes.
+ */
 exports.getDashboardStats = async (req, res) => {
     try {
         const q_equipos_pendientes = db.query("SELECT COUNT(*) as count FROM equipos WHERE estado = 'pendiente'");
         const q_roles_pendientes = db.query("SELECT COUNT(*) as count FROM solicitud_roles WHERE estado = 'pendiente'");
-        const q_partidos_pendientes = db.query("SELECT COUNT(*) as count FROM partidos WHERE estado = 'pendiente' AND imagen_resultado_url IS NOT NULL");
+        
+        // CORRECCIÓN: Contar partidos que necesitan atención del admin
+        const q_partidos_pendientes_liga = db.query("SELECT COUNT(*) as count FROM partidos WHERE estado_reporte IN ('en_disputa', 'reportado_parcialmente')");
+        const q_partidos_pendientes_copa = db.query("SELECT COUNT(*) as count FROM partidos_copa WHERE estado_reporte IN ('en_disputa', 'reportado_parcialmente')");
+
         const q_total_usuarios = db.query("SELECT COUNT(*) as count FROM usuarios");
         const q_total_equipos = db.query("SELECT COUNT(*) as count FROM equipos WHERE estado = 'aprobado'");
         const q_total_ligas = db.query("SELECT COUNT(*) as count FROM ligas");
@@ -491,23 +499,28 @@ exports.getDashboardStats = async (req, res) => {
         const [
             [[equipos_pendientes]],
             [[roles_pendientes]],
-            [[partidos_pendientes]],
+            [[partidos_pendientes_liga]],
+            [[partidos_pendientes_copa]],
             [[total_usuarios]],
             [[total_equipos]],
             [[total_ligas]]
         ] = await Promise.all([
             q_equipos_pendientes,
             q_roles_pendientes,
-            q_partidos_pendientes,
+            q_partidos_pendientes_liga,
+            q_partidos_pendientes_copa,
             q_total_usuarios,
             q_total_equipos,
             q_total_ligas
         ]);
 
+        // Sumamos los pendientes de liga y copa
+        const total_partidos_pendientes = partidos_pendientes_liga.count + partidos_pendientes_copa.count;
+
         res.json({
             equipos_pendientes: equipos_pendientes.count,
             roles_pendientes: roles_pendientes.count,
-            partidos_pendientes: partidos_pendientes.count,
+            partidos_pendientes: total_partidos_pendientes,
             total_usuarios: total_usuarios.count,
             total_equipos: total_equipos.count,
             total_ligas: total_ligas.count
