@@ -39,3 +39,30 @@ exports.getEstadoMercado = async (req, res) => {
         res.status(500).json({ error: 'Error al obtener el estado del mercado.' });
     }
 };
+/**
+ * Abre el mercado de forma manual.
+ */
+exports.abrirMercadoManual = async (req, res) => {
+    try {
+        const sql = "UPDATE mercado SET estado = 'abierto_manual' WHERE id = 1";
+        await db.query(sql);
+        res.json({ message: 'Mercado de pases abierto manualmente.' });
+    } catch (error) {
+        logger.error(`Error en abrirMercadoManual: ${error.message}`, { error });
+        res.status(500).json({ error: 'Error al abrir el mercado manualmente.' });
+    }
+};
+
+/**
+ * Cierra el mercado de forma manual.
+ */
+exports.cerrarMercadoManual = async (req, res) => {
+    try {
+        const sql = "UPDATE mercado SET estado = 'cerrado_manual' WHERE id = 1";
+        await db.query(sql);
+        res.json({ message: 'Mercado de pases cerrado manualmente.' });
+    } catch (error) {
+        logger.error(`Error en cerrarMercadoManual: ${error.message}`, { error });
+        res.status(500).json({ error: 'Error al cerrar el mercado manualmente.' });
+    }
+};

@@ -15,52 +15,49 @@ const {
     crearNuevaTemporada,
     crearSancion,
     obtenerSancionesPorJugador,
-    getDashboardStats,
+    getDashboardStats
+} = require('../controllers/admin.controller');
+
+const { 
     abrirMercadoManual,
     cerrarMercadoManual
-} = require('../controllers/admin.controller');
+} = require('../controllers/mercado.controller');
 
 const { verSolicitudesRol } = require('../controllers/usuarios.controller');
 
-const authMiddleware = require('../middleware.js/auth.middleware'); 
+const verificarToken = require('../middleware.js/auth.middleware'); 
 const verifyRole = require('../middleware.js/verifyRole');
-const verificarToken = require('../middleware.js/auth.middleware');
-const upload = require('../middleware.js/upload'); // ✅ Se importa el middleware para subir archivos
+const upload = require('../middleware.js/upload');
 
 // --- RUTAS DE ADMINISTRADOR ---
 
 router.get('/solicitudes', verificarToken, verifyRole('admin'), verSolicitudesRol);
-
-// ✅ RUTA CORREGIDA: Ahora usa el middleware 'upload' para procesar la imagen del escudo
-router.post('/equipos', authMiddleware, verifyRole('admin'), upload.single('escudo'), adminCreaEquipo);
-
-// ... (El resto de tus rutas se quedan igual)
-router.post('/mover-jugador', authMiddleware, verifyRole('admin'), moverJugador);
-router.post('/ligas/:liga_id/generar-fixture', authMiddleware, verifyRole('admin'), generarFixtureLiga);
+router.post('/equipos', verificarToken, verifyRole('admin'), upload.single('escudo'), adminCreaEquipo);
+router.post('/mover-jugador', verificarToken, verifyRole('admin'), moverJugador);
+router.post('/ligas/:liga_id/generar-fixture', verificarToken, verifyRole('admin'), generarFixtureLiga);
 router.put("/solicitudes/:id/responder", verificarToken, verifyRole("admin"), responderSolicitudRol);
-router.post('/crear-equipo', authMiddleware, verifyRole('admin'), crearEquipoYAsignarDT);
-router.put('/mercado/programar', authMiddleware, verifyRole('admin'), programarMercado);
-router.get('/reportes', authMiddleware, verifyRole('admin'), obtenerReportes);
-router.put('/reportes/:id/atender', authMiddleware, verifyRole('admin'), marcarReporteComoAtendido);
-router.put('/ligas/:liga_id/finalizar-temporada', authMiddleware, verifyRole('admin'), finalizarTemporada);
-router.post('/ligas/:id/nueva-temporada', authMiddleware, verifyRole('admin'), crearNuevaTemporada);
-router.post('/promocion-descenso', authMiddleware, verifyRole('admin'), ejecutarAscensosDescensos);
-router.post('/sanciones', authMiddleware, verifyRole('admin'), crearSancion);
-router.get('/usuarios/:id/sanciones', authMiddleware, verifyRole('admin'), obtenerSancionesPorJugador);
-router.get('/dashboard-stats', authMiddleware, verifyRole('admin'), getDashboardStats);
+router.post('/crear-equipo', verificarToken, verifyRole('admin'), crearEquipoYAsignarDT);
+router.put('/mercado/programar', verificarToken, verifyRole('admin'), programarMercado);
+router.get('/reportes', verificarToken, verifyRole('admin'), obtenerReportes);
+router.put('/reportes/:id/atender', verificarToken, verifyRole('admin'), marcarReporteComoAtendido);
+router.put('/ligas/:liga_id/finalizar-temporada', verificarToken, verifyRole('admin'), finalizarTemporada);
+router.post('/ligas/:id/nueva-temporada', verificarToken, verifyRole('admin'), crearNuevaTemporada);
+router.post('/promocion-descenso', verificarToken, verifyRole('admin'), ejecutarAscensosDescensos);
+router.post('/sanciones', verificarToken, verifyRole('admin'), crearSancion);
+router.get('/usuarios/:id/sanciones', verificarToken, verifyRole('admin'), obtenerSancionesPorJugador);
+router.get('/dashboard-stats', verificarToken, verifyRole('admin'), getDashboardStats);
 
+// --- RUTAS PARA GESTIÓN MANUAL DEL MERCADO ---
 router.post(
     '/mercado/abrir',
-    verificarToken, 
-    verifyRole('admin'),
-    abrirMercadoManual
+    [verificarToken, verifyRole('admin')],
+    abrirMercadoManual // <-- Ahora se usa la función importada de mercado.controller
 );
 
 router.post(
     '/mercado/cerrar',
-    verificarToken, 
-    verifyRole('admin'),
-    cerrarMercadoManual
+    [verificarToken, verifyRole('admin')],
+    cerrarMercadoManual // <-- Ahora se usa la función importada de mercado.controller
 );
 
 module.exports = router;
