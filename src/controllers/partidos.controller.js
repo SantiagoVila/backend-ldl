@@ -100,19 +100,13 @@ exports.crearReporte = async (req, res) => {
 };
 
 /**
- * ✅ FUNCIÓN CORREGIDA v3.1
- * Permite a un Admin confirmar un reporte único (reportado_parcialmente) 
- * o resolver una disputa (en_disputa) de forma inteligente y robusta.
- * Acepta tanto :id como :partido_id como parámetro en la URL.
+ * ✅ FUNCIÓN CORREGIDA FINAL (v4.0)
+ * Diseñada para la ruta '/admin/resolver/:tipo/:id'
  */
 exports.resolverDisputa = async (req, res) => {
-    // <<< CAMBIO CLAVE: Aceptamos 'id' o 'partido_id' para ser más flexibles.
-    const { tipo, id, partido_id: partidoIdFromParam } = req.params;
-    const partido_id = id || partidoIdFromParam; // Usamos el que venga definido.
-    
+    // Leemos los parámetros correctos de la ruta que definimos
+    const { tipo, id: partido_id } = req.params; 
     const { reporte_ganador_id } = req.body;
-
-    // --- El resto del código permanece igual ---
 
     const connection = await db.getConnection();
     try {
@@ -175,7 +169,7 @@ exports.resolverDisputa = async (req, res) => {
 
     } catch (error) {
         if (connection) await connection.rollback();
-        logger.error(`Error en resolverDisputa v3.1: ${error.message}`, { error, partido_id });
+        logger.error(`Error en resolverDisputa v4.0: ${error.message}`, { error, partido_id });
         res.status(500).json({ error: 'Error en el servidor al confirmar manualmente.' });
     } finally {
         if (connection) connection.release();

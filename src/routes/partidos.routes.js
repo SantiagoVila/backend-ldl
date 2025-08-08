@@ -62,7 +62,7 @@ router.post(
 
 // Ruta para que un Admin resuelva una disputa o confirme un reporte único
 router.post(
-    '/admin/resolver/:partido_id',
+    '/admin/resolver/:tipo/:id', 
     [verificarToken, verificarRol('admin')],
     resolverDisputa
 );
