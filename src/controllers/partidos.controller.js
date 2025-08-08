@@ -108,36 +108,39 @@ exports.crearReporte = async (req, res) => {
  * Funciona con la ruta simplificada '/admin/resolver/:id'
  */
 exports.resolverDisputa = async (req, res) => {
-    const { id: partido_id } = req.params;
-    const { reporte_ganador_id } = req.body;
-
-    // 👇 LOG para debug
-    console.log("🟡 Resolver disputa recibido:", {
-        partido_id,
-        reporte_ganador_id
-    });
+    const { id: reporte_id } = req.params; // This is the report ID from the URL
 
     const connection = await db.getConnection();
     try {
         await connection.beginTransaction();
 
+        // 1. Get the partido_id from the report
+        const [[reporte]] = await connection.query('SELECT partido_id, tipo_partido FROM reportes_partidos WHERE id = ?', [reporte_id]);
+
+        if (!reporte) {
+            await connection.rollback();
+            return res.status(404).json({ error: 'Reporte no encontrado.' });
+        }
+
+        const { partido_id, tipo_partido } = reporte;
+
+        // Now, the rest of the logic uses the correct partido_id
         const [reportesDelPartido] = await connection.query(
-            'SELECT * FROM reportes_partidos WHERE partido_id = ?',
-            [partido_id]
+            'SELECT * FROM reportes_partidos WHERE partido_id = ? AND tipo_partido = ?',
+            [partido_id, tipo_partido]
         );
 
         if (reportesDelPartido.length === 0) {
+            // This case should not happen if the initial report was found
             await connection.rollback();
             return res.status(404).json({ error: 'No se encontraron reportes para este partido.' });
         }
 
         let reporteFinal;
-
         if (reportesDelPartido.length === 1) {
-            // Caso "reportado_parcialmente"
             reporteFinal = reportesDelPartido[0];
         } else {
-            // Caso "en_disputa", necesitamos el reporte_ganador_id
+            const { reporte_ganador_id } = req.body;
             if (!reporte_ganador_id) {
                 await connection.rollback();
                 return res.status(400).json({ error: 'Es una disputa. Se debe especificar un reporte ganador.' });
@@ -149,7 +152,6 @@ exports.resolverDisputa = async (req, res) => {
             }
         }
 
-        const tipo_partido = reporteFinal.tipo_partido;
         const tablaPartido = tipo_partido === 'liga' ? 'partidos' : 'partidos_copa';
 
         const [[partidoInfo]] = await connection.query(
@@ -184,7 +186,7 @@ exports.resolverDisputa = async (req, res) => {
 
     } catch (error) {
         if (connection) await connection.rollback();
-        logger.error(`Error en resolverDisputa v5.0: ${error.message}`, { error, partido_id });
+        logger.error(`Error en resolverDisputa: ${error.message}`, { error, reporte_id });
         res.status(500).json({ error: 'Error en el servidor al confirmar el partido.' });
     } finally {
         if (connection) connection.release();

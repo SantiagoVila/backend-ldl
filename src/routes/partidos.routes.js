@@ -48,16 +48,6 @@ router.post(
     adminCargarResultado
 );
 
-// =================================================================
-// <<<<<<<<<<<< RUTA FINAL Y SIMPLIFICADA >>>>>>>>>>>>>>
-// Acepta la URL que vimos en el espía: /admin/resolver/:id
-router.post(
-    '/admin/resolver/:id', 
-    [verificarToken, verificarRol('admin')],
-    resolverDisputa
-);
-// =================================================================
-
 // Rutas generales
 router.get("/", verificarToken, verificarRol("admin"), obtenerPartidos);
 router.post('/', verificarToken, verificarRol('dt'), crearPartido);
