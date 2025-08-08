@@ -6,99 +6,86 @@ const { generarQueriesActualizacionTabla } = require('../services/ligas.service'
 // SECCIÓN 1: LÓGICA DE REPORTE DUAL (v2.0)
 // =================================================================================
 
-/**
- * Recibe y procesa el reporte de un partido por parte de un DT.
- */
 exports.crearReporte = async (req, res) => {
-    const { tipo, partido_id } = req.params;
-    const { goles_local_reportados, goles_visitante_reportados, jugadores } = req.body;
-    const imagenPrueba = req.files && req.files.length > 0 ? req.files[0] : null;
-    const equipo_reportador_id = req.usuario.equipo_id;
+    const { tipo, partido_id } = req.params;
+    const { goles_local_reportados, goles_visitante_reportados, jugadores } = req.body;
+    const imagenPrueba = req.files && req.files.length > 0 ? req.files[0] : null;
+    const equipo_reportador_id = req.usuario.equipo_id;
 
-    if (!imagenPrueba || goles_local_reportados == null || goles_visitante_reportados == null) {
-        return res.status(400).json({ error: 'Faltan datos obligatorios (resultado, imagen de prueba).' });
-    }
+    if (!imagenPrueba || goles_local_reportados == null || goles_visitante_reportados == null) {
+        return res.status(400).json({ error: 'Faltan datos obligatorios (resultado, imagen de prueba).' });
+    }
 
-    const tablaPartido = tipo === 'liga' ? 'partidos' : 'partidos_copa';
-    const connection = await db.getConnection();
+    const tablaPartido = tipo === 'liga' ? 'partidos' : 'partidos_copa';
+    const connection = await db.getConnection();
 
-    try {
-        await connection.beginTransaction();
+    try {
+        await connection.beginTransaction();
 
-        const [[partidoInfo]] = await connection.query(`SELECT * FROM ${tablaPartido} WHERE id = ?`, [partido_id]);
-        if (!partidoInfo) {
-            await connection.rollback();
-            return res.status(404).json({ error: 'Partido no encontrado.' });
-        }
-        if (partidoInfo.estado !== 'pendiente' || !['pendiente_reportes', 'reportado_parcialmente'].includes(partidoInfo.estado_reporte)) {
-            await connection.rollback();
-            return res.status(409).json({ error: 'Este partido no está pendiente de reporte.' });
-        }
-        if (partidoInfo.equipo_local_id !== equipo_reportador_id && partidoInfo.equipo_visitante_id !== equipo_reportador_id) {
-            await connection.rollback();
-            return res.status(403).json({ error: 'No tienes permiso para reportar este partido.' });
-        }
-        const [[reportePrevio]] = await connection.query('SELECT id FROM reportes_partidos WHERE partido_id = ? AND tipo_partido = ? AND equipo_reportador_id = ?', [partido_id, tipo, equipo_reportador_id]);
-        if (reportePrevio) {
-            await connection.rollback();
-            return res.status(409).json({ error: 'Ya has enviado un reporte para este partido.' });
-        }
+        const [[partidoInfo]] = await connection.query(`SELECT * FROM ${tablaPartido} WHERE id = ?`, [partido_id]);
+        if (!partidoInfo) {
+            await connection.rollback();
+            return res.status(404).json({ error: 'Partido no encontrado.' });
+        }
+        if (partidoInfo.estado !== 'pendiente' || !['pendiente_reportes', 'reportado_parcialmente'].includes(partidoInfo.estado_reporte)) {
+            await connection.rollback();
+            return res.status(409).json({ error: 'Este partido no está pendiente de reporte.' });
+        }
+        if (partidoInfo.equipo_local_id !== equipo_reportador_id && partidoInfo.equipo_visitante_id !== equipo_reportador_id) {
+            await connection.rollback();
+            return res.status(403).json({ error: 'No tienes permiso para reportar este partido.' });
+        }
+        const [[reportePrevio]] = await connection.query('SELECT id FROM reportes_partidos WHERE partido_id = ? AND tipo_partido = ? AND equipo_reportador_id = ?', [partido_id, tipo, equipo_reportador_id]);
+        if (reportePrevio) {
+            await connection.rollback();
+            return res.status(409).json({ error: 'Ya has enviado un reporte para este partido.' });
+        }
 
-        const imageUrl = `/uploads/${imagenPrueba.filename}`;
-        const sqlInsertReporte = `
-            INSERT INTO reportes_partidos (partido_id, tipo_partido, equipo_reportador_id, goles_local_reportados, goles_visitante_reportados, imagen_prueba_url)
-            VALUES (?, ?, ?, ?, ?, ?)
-        `;
-        const [resultReporte] = await connection.query(sqlInsertReporte, [partido_id, tipo, equipo_reportador_id, goles_local_reportados, goles_visitante_reportados, imageUrl]);
-        const nuevoReporteId = resultReporte.insertId;
+        const imageUrl = `/uploads/${imagenPrueba.filename}`;
+        const sqlInsertReporte = `INSERT INTO reportes_partidos (partido_id, tipo_partido, equipo_reportador_id, goles_local_reportados, goles_visitante_reportados, imagen_prueba_url) VALUES (?, ?, ?, ?, ?, ?)`;
+        const [resultReporte] = await connection.query(sqlInsertReporte, [partido_id, tipo, equipo_reportador_id, goles_local_reportados, goles_visitante_reportados, imageUrl]);
+        const nuevoReporteId = resultReporte.insertId;
 
-        if (jugadores && jugadores.trim() !== '' && jugadores.trim() !== '[]') {
-            const estadisticas = JSON.parse(jugadores);
-            if (Array.isArray(estadisticas) && estadisticas.length > 0) {
-                const values = estadisticas.map(j => [
-                    tipo === 'liga' ? partido_id : null,
-                    tipo === 'copa' ? partido_id : null,
-                    j.jugador_id,
-                    equipo_reportador_id,
-                    j.goles || 0,
-                    j.asistencias || 0,
-                    0, 0, // tarjetas
-                    nuevoReporteId
-                ]);
-                const sqlStats = `INSERT INTO estadisticas_jugadores_partido (partido_id, partido_copa_id, jugador_id, equipo_id, goles, asistencias, tarjetas_amarillas, tarjetas_rojas, reporte_id) VALUES ?`;
-                await connection.query(sqlStats, [values]);
-            }
-        }
+        if (jugadores && jugadores.trim() !== '' && jugadores.trim() !== '[]') {
+            const estadisticas = JSON.parse(jugadores);
+            if (Array.isArray(estadisticas) && estadisticas.length > 0) {
+                const values = estadisticas.map(j => [
+                    tipo === 'liga' ? partido_id : null, tipo === 'copa' ? partido_id : null,
+                    j.jugador_id, equipo_reportador_id, j.goles || 0, j.asistencias || 0,
+                    0, 0, nuevoReporteId
+                ]);
+                const sqlStats = `INSERT INTO estadisticas_jugadores_partido (partido_id, partido_copa_id, jugador_id, equipo_id, goles, asistencias, tarjetas_amarillas, tarjetas_rojas, reporte_id) VALUES ?`;
+                await connection.query(sqlStats, [values]);
+            }
+        }
 
-        const [reportesDelPartido] = await connection.query('SELECT * FROM reportes_partidos WHERE partido_id = ? AND tipo_partido = ?', [partido_id, tipo]);
+        const [reportesDelPartido] = await connection.query('SELECT * FROM reportes_partidos WHERE partido_id = ? AND tipo_partido = ?', [partido_id, tipo]);
 
-        if (reportesDelPartido.length === 1) {
-            await connection.query(`UPDATE ${tablaPartido} SET estado_reporte = 'reportado_parcialmente' WHERE id = ?`, [partido_id]);
-        } else if (reportesDelPartido.length === 2) {
-            const [reporteA, reporteB] = reportesDelPartido;
-            if (reporteA.goles_local_reportados == reporteB.goles_local_reportados && reporteA.goles_visitante_reportados == reporteB.goles_visitante_reportados) {
-                await connection.query(`UPDATE ${tablaPartido} SET estado = 'aprobado', estado_reporte = 'confirmado_auto' WHERE id = ?`, [partido_id]);
-                if (tipo === 'liga' && partidoInfo.liga_id) {
-                    const datosParaTabla = { ...partidoInfo, goles_local: reporteA.goles_local_reportados, goles_visitante: reporteA.goles_visitante_reportados };
-                    const queries = generarQueriesActualizacionTabla(datosParaTabla);
-                    for (const q of queries) {
-                        await connection.query(q.sql, q.values);
-                    }
-                }
-            } else {
-                await connection.query(`UPDATE ${tablaPartido} SET estado_reporte = 'en_disputa' WHERE id = ?`, [partido_id]);
-            }
-        }
+        if (reportesDelPartido.length === 1) {
+            await connection.query(`UPDATE ${tablaPartido} SET estado_reporte = 'reportado_parcialmente' WHERE id = ?`, [partido_id]);
+        } else if (reportesDelPartido.length === 2) {
+            const [reporteA, reporteB] = reportesDelPartido;
+            if (reporteA.goles_local_reportados == reporteB.goles_local_reportados && reporteA.goles_visitante_reportados == reporteB.goles_visitante_reportados) {
+                await connection.query(`UPDATE ${tablaPartido} SET estado = 'aprobado', estado_reporte = 'confirmado_auto' WHERE id = ?`, [partido_id]);
+                if (tipo === 'liga' && partidoInfo.liga_id) {
+                    const datosParaTabla = { ...partidoInfo, goles_local: reporteA.goles_local_reportados, goles_visitante: reporteA.goles_visitante_reportados };
+                    const queries = generarQueriesActualizacionTabla(datosParaTabla);
+                    for (const q of queries) await connection.query(q.sql, q.values);
+                }
+            } else {
+                await connection.query(`UPDATE ${tablaPartido} SET estado_reporte = 'en_disputa' WHERE id = ?`, [partido_id]);
+            }
+        }
 
-        await connection.commit();
-        res.status(201).json({ message: 'Reporte enviado con éxito.' });
-    } catch (error) {
-        if (connection) await connection.rollback();
-        logger.error(`Error en crearReporte: ${error.message}`, { error, partido_id });
-        res.status(500).json({ error: 'Error en el servidor al procesar el reporte.' });
-    } finally {
-        if (connection) connection.release();
-    }
+        await connection.commit();
+        res.status(201).json({ message: 'Reporte enviado con éxito.' });
+    } catch (error) {
+        if (connection) await connection.rollback();
+        logger.error(`Error en crearReporte: ${error.message}`, { error, partido_id });
+        res.status(500).json({ error: 'Error en el servidor al procesar el reporte.' });
+    } finally {
+        if (connection) connection.release();
+    }
 };
 
 /**
