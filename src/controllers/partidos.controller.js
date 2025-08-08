@@ -88,54 +88,51 @@ exports.crearReporte = async (req, res) => {
     }
 };
 
-/**
- * Permite a un Admin resolver una disputa o confirmar un reporte único.
- */
 exports.resolverDisputa = async (req, res) => {
-    const { partido_id } = req.params;
-    const { reporte_ganador_id } = req.body;
+    const { partido_id } = req.params;
+    const { reporte_ganador_id } = req.body;
 
-    if (!reporte_ganador_id) {
-        return res.status(400).json({ error: 'Se debe especificar un reporte ganador.' });
-    }
+    if (!reporte_ganador_id) {
+        return res.status(400).json({ error: 'Se debe especificar un reporte ganador.' });
+    }
 
-    const connection = await db.getConnection();
-    try {
-        await connection.beginTransaction();
+    const connection = await db.getConnection();
+    try {
+        await connection.beginTransaction();
 
-        const [[reporteGanador]] = await connection.query('SELECT * FROM reportes_partidos WHERE id = ? AND partido_id = ?', [reporte_ganador_id, partido_id]);
-        if (!reporteGanador) {
-            await connection.rollback();
-            return res.status(404).json({ error: 'El reporte ganador seleccionado no es válido para este partido.' });
-        }
+        const [[reporteGanador]] = await connection.query('SELECT * FROM reportes_partidos WHERE id = ? AND partido_id = ?', [reporte_ganador_id, partido_id]);
+        if (!reporteGanador) {
+            await connection.rollback();
+            return res.status(404).json({ error: 'El reporte ganador seleccionado no es válido para este partido.' });
+        }
 
-        const tablaPartido = reporteGanador.tipo_partido === 'liga' ? 'partidos' : 'partidos_copa';
-        const [[partidoInfo]] = await connection.query(`SELECT * FROM ${tablaPartido} WHERE id = ?`, [partido_id]);
+        const tablaPartido = reporteGanador.tipo_partido === 'liga' ? 'partidos' : 'partidos_copa';
+        const [[partidoInfo]] = await connection.query(`SELECT * FROM ${tablaPartido} WHERE id = ?`, [partido_id]);
 
-        if (!['en_disputa', 'reportado_parcialmente'].includes(partidoInfo.estado_reporte)) {
-            await connection.rollback();
-            return res.status(409).json({ error: 'Este partido no se puede confirmar manualmente.' });
-        }
+        if (!['en_disputa', 'reportado_parcialmente'].includes(partidoInfo.estado_reporte)) {
+            await connection.rollback();
+            return res.status(409).json({ error: 'Este partido no se puede confirmar manualmente.' });
+        }
 
-        await connection.query(`UPDATE ${tablaPartido} SET estado = 'aprobado', estado_reporte = 'confirmado_admin' WHERE id = ?`, [partido_id]);
+        await connection.query(`UPDATE ${tablaPartido} SET estado = 'aprobado', estado_reporte = 'confirmado_admin' WHERE id = ?`, [partido_id]);
 
-        if (reporteGanador.tipo_partido === 'liga' && partidoInfo.liga_id) {
-            const datosParaTabla = { ...partidoInfo, goles_local: reporteGanador.goles_local_reportados, goles_visitante: reporteGanador.goles_visitante_reportados };
-            const queries = generarQueriesActualizacionTabla(datosParaTabla);
-            for (const q of queries) {
-                await connection.query(q.sql, q.values);
-            }
-        }
-        
-        await connection.commit();
-        res.json({ message: 'Partido confirmado manualmente por el administrador.' });
-    } catch (error) {
-        if (connection) await connection.rollback();
-        logger.error(`Error en resolverDisputa: ${error.message}`, { error, partido_id });
-        res.status(500).json({ error: 'Error en el servidor al confirmar manualmente.' });
-    } finally {
-        if (connection) connection.release();
-    }
+        if (reporteGanador.tipo_partido === 'liga' && partidoInfo.liga_id) {
+            const datosParaTabla = { ...partidoInfo, goles_local: reporteGanador.goles_local_reportados, goles_visitante: reporteGanador.goles_visitante_reportados };
+            const queries = generarQueriesActualizacionTabla(datosParaTabla);
+            for (const q of queries) {
+                await connection.query(q.sql, q.values);
+            }
+        }
+        
+        await connection.commit();
+        res.json({ message: 'Partido confirmado manualmente por el administrador.' });
+    } catch (error) {
+        if (connection) await connection.rollback();
+        logger.error(`Error en resolverDisputa: ${error.message}`, { error, partido_id });
+        res.status(500).json({ error: 'Error en el servidor al confirmar manualmente.' });
+    } finally {
+        if (connection) connection.release();
+    }
 };
 
 // =================================================================================
@@ -143,47 +140,52 @@ exports.resolverDisputa = async (req, res) => {
 // =================================================================================
 
 /**
- * Obtiene los partidos que requieren atención del admin (en disputa o con un solo reporte).
- */
+ * ✅ FUNCIÓN CORREGIDA v2.5
+ * Obtiene los partidos que requieren atención del admin de forma más robusta.
+ */
 exports.obtenerPartidosParaRevision = async (req, res) => {
-    try {
-        const sql = `
-            SELECT 
-                p.id, p.fecha, p.estado_reporte, 
-                el.nombre as nombre_local, ev.nombre as nombre_visitante, 
-                'liga' as tipo
-            FROM partidos p
-            JOIN equipos el ON p.equipo_local_id = el.id
-            JOIN equipos ev ON p.equipo_visitante_id = ev.id
-            WHERE p.estado_reporte IN ('en_disputa', 'reportado_parcialmente')
-            UNION
-            SELECT 
-                pc.id, pc.fecha, pc.estado_reporte, 
-                el.nombre as nombre_local, ev.nombre as nombre_visitante, 
-                'copa' as tipo
-            FROM partidos_copa pc
-            JOIN equipos el ON pc.equipo_local_id = el.id
-            JOIN equipos ev ON pc.equipo_visitante_id = ev.id
-            WHERE pc.estado_reporte IN ('en_disputa', 'reportado_parcialmente')
-        `;
-        const [partidos] = await db.query(sql);
+    try {
+        const sqlLiga = `
+            SELECT 
+                p.id, p.fecha, p.estado_reporte, 
+                el.nombre as nombre_local, ev.nombre as nombre_visitante, 
+                'liga' as tipo
+            FROM partidos p
+            JOIN equipos el ON p.equipo_local_id = el.id
+            JOIN equipos ev ON p.equipo_visitante_id = ev.id
+            WHERE p.estado_reporte IN ('en_disputa', 'reportado_parcialmente')
+        `;
+        const [partidosLiga] = await db.query(sqlLiga);
 
-        const partidosConReportes = await Promise.all(partidos.map(async (partido) => {
-            const [reportes] = await db.query(
-                'SELECT * FROM reportes_partidos WHERE partido_id = ? AND tipo_partido = ? ORDER BY fecha_reporte ASC', 
-                [partido.id, partido.tipo]
-            );
-            return { ...partido, reportes };
-        }));
+        const sqlCopa = `
+            SELECT 
+                pc.id, pc.fecha, pc.estado_reporte, 
+                el.nombre as nombre_local, ev.nombre as nombre_visitante, 
+                'copa' as tipo
+            FROM partidos_copa pc
+            JOIN equipos el ON pc.equipo_local_id = el.id
+            JOIN equipos ev ON pc.equipo_visitante_id = ev.id
+            WHERE pc.estado_reporte IN ('en_disputa', 'reportado_parcialmente')
+        `;
+        const [partidosCopa] = await db.query(sqlCopa);
 
-        res.json(partidosConReportes);
+        const partidos = [...partidosLiga, ...partidosCopa];
 
-    } catch (error) {
-        logger.error(`Error en obtenerPartidosParaRevision: ${error.message}`, { error });
-        res.status(500).json({ error: 'Error al obtener los partidos para revisión.' });
-    }
+        const partidosConReportes = await Promise.all(partidos.map(async (partido) => {
+            const [reportes] = await db.query(
+                'SELECT * FROM reportes_partidos WHERE partido_id = ? AND tipo_partido = ? ORDER BY fecha_reporte ASC', 
+                [partido.id, partido.tipo]
+            );
+            return { ...partido, reportes };
+        }));
+
+        res.json(partidosConReportes);
+
+    } catch (error) {
+        logger.error(`Error en obtenerPartidosParaRevision: ${error.message}`, { error });
+        res.status(500).json({ error: 'Error al obtener los partidos para revisión.' });
+    }
 };
-
 /**
  * ✅ FUNCIÓN CORREGIDA v2.2
  * Busca partidos pendientes de ser reportados por el DT logueado usando una consulta más robusta.
