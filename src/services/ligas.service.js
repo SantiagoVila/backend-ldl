@@ -1,7 +1,7 @@
 /**
- * ✅ FUNCIÓN CORREGIDA v2.2
+ * ✅ FUNCIÓN CORREGIDA v2.3
  * Genera las consultas SQL para actualizar la tabla de posiciones usando consultas parametrizadas,
- * que es un método más seguro y robusto.
+ * que es el método más seguro y compatible con el controlador.
  */
 exports.generarQueriesActualizacionTabla = (partido) => {
     const { liga_id, equipo_local_id, equipo_visitante_id, goles_local, goles_visitante } = partido;
