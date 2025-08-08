@@ -62,7 +62,7 @@ router.post(
 
 // Ruta para que un Admin resuelva una disputa o confirme un reporte único
 router.post(
-    '/admin/resolver/:tipo/:id', 
+    '/admin/resolve/:tipo/:id', // <<< CAMBIO: "resolver" ahora es "resolve"
     [verificarToken, verificarRol('admin')],
     resolverDisputa
 );
