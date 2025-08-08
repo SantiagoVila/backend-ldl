@@ -9,11 +9,9 @@ const logger = require('../config/logger');
  */
 exports.buscarJugadoresPorNombre = async (req, res) => {
     const nombre = req.query.nombre;
-
     if (!nombre || nombre.length < 2) {
         return res.status(400).json({ error: "Proporcione al menos 2 letras para buscar" });
     }
-
     try {
         const sql = `
             SELECT u.id, u.nombre_in_game, u.posicion, e.nombre AS equipo
@@ -23,17 +21,13 @@ exports.buscarJugadoresPorNombre = async (req, res) => {
             LIMIT 10
         `;
         const [jugadores] = await db.query(sql, [`%${nombre}%`]);
-
+        
         let puedeFichar = false;
-
         if (req.usuario && req.usuario.rol === "dt") {
-            const sqlMercado = `SELECT id FROM mercado WHERE abierto = 1 LIMIT 1`;
-            const [mercado] = await db.query(sqlMercado);
-            puedeFichar = mercado.length > 0;
+            puedeFichar = await isMercadoAbierto();
         }
 
         res.json({ jugadores, puedeFichar });
-
     } catch (error) {
         logger.error("Error en buscarJugadoresPorNombre:", { message: error.message, error });
         res.status(500).json({ error: "Error en el servidor al buscar jugadores" });
@@ -45,33 +39,28 @@ exports.buscarJugadoresPorNombre = async (req, res) => {
  */
 exports.buscarPerfilJugador = async (req, res) => {
     const jugador_id = req.params.id;
-    const usuario = req.usuario; // viene del token
-
+    const usuario = req.usuario;
     try {
         const sqlJugador = `
             SELECT id, nombre_in_game, posicion, equipo_id
             FROM usuarios 
             WHERE id = ? AND rol = 'jugador'
         `;
-        const [resultados] = await db.query(sqlJugador, [jugador_id]);
+        const [[jugador]] = await db.query(sqlJugador, [jugador_id]);
 
-        if (resultados.length === 0) {
+        if (!jugador) {
             return res.status(404).json({ error: "Jugador no encontrado" });
         }
 
-        const jugador = resultados[0];
-        jugador.puede_fichar = false; // valor por defecto
-
+        jugador.puede_fichar = false;
         if (usuario && usuario.rol === "dt") {
-            const sqlMercado = `SELECT id FROM mercado WHERE abierto = 1 LIMIT 1`;
-            const [mercado] = await db.query(sqlMercado);
-            if (mercado.length > 0 && jugador.equipo_id !== usuario.equipo_id) {
+            const mercadoAbierto = await isMercadoAbierto();
+            if (mercadoAbierto && jugador.equipo_id !== usuario.equipo_id) {
                 jugador.puede_fichar = true;
             }
         }
         
         res.json(jugador);
-
     } catch (error) {
         logger.error("Error en buscarPerfilJugador:", { message: error.message, error });
         res.status(500).json({ error: "Error en el servidor al buscar el perfil" });
@@ -163,9 +152,8 @@ exports.obtenerPerfilJugadorDetallado = async (req, res) => {
 };
 
 /**
- * ✅ FUNCIÓN UNIFICADA Y FINAL PARA EL MERCADO
+ * ✅ FUNCIÓN CORREGIDA v2.0
  * Un DT obtiene la lista de jugadores a los que puede fichar, con filtros avanzados.
- * Solo funciona si el mercado está abierto.
  */
 exports.obtenerJugadoresFichables = async (req, res) => {
     const equipo_id_dt = req.usuario.equipo_id;
@@ -176,10 +164,8 @@ exports.obtenerJugadoresFichables = async (req, res) => {
     }
 
     try {
-        const sqlMercado = `SELECT id FROM mercado WHERE abierto = 1 LIMIT 1`;
-        const [mercado] = await db.query(sqlMercado);
-
-        if (mercado.length === 0) {
+        const mercadoAbierto = await isMercadoAbierto();
+        if (!mercadoAbierto) {
             return res.status(403).json({ error: "El mercado de pases está actualmente cerrado." });
         }
 
@@ -302,5 +288,19 @@ exports.obtenerMiCalendario = async (req, res) => {
         res.status(500).json({ error: "Error en el servidor al obtener el calendario." });
     }
 };
+// Función auxiliar para verificar el estado del mercado
+const isMercadoAbierto = async () => {
+    const [[mercado]] = await db.query("SELECT * FROM mercado WHERE id = 1");
+    if (!mercado) return false;
 
+    if (mercado.estado === 'abierto_manual') return true;
+    if (mercado.estado === 'cerrado_manual') return false;
+    
+    // Modo automático
+    const ahora = new Date();
+    const inicio = mercado.fecha_inicio ? new Date(mercado.fecha_inicio) : null;
+    const fin = mercado.fecha_fin ? new Date(mercado.fecha_fin) : null;
+    
+    return inicio && fin && ahora >= inicio && ahora <= fin;
+};
 

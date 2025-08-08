@@ -239,3 +239,92 @@ exports.cancelarSolicitud = async (req, res) => {
         res.status(500).json({ error: "Error al cancelar la solicitud" });
     }
 };
+// Función auxiliar para verificar el estado del mercado
+const isMercadoAbierto = async () => {
+    const [[mercado]] = await db.query("SELECT * FROM mercado WHERE id = 1");
+    if (!mercado) return false;
+
+    if (mercado.estado === 'abierto_manual') return true;
+    if (mercado.estado === 'cerrado_manual') return false;
+    
+    // Modo automático
+    const ahora = new Date();
+    const inicio = mercado.fecha_inicio ? new Date(mercado.fecha_inicio) : null;
+    const fin = mercado.fecha_fin ? new Date(mercado.fecha_fin) : null;
+    
+    return inicio && fin && ahora >= inicio && ahora <= fin;
+};
+/**
+ * ✅ FUNCIÓN CORREGIDA v2.0
+ * Permite a un DT solicitar el fichaje de un jugador.
+ */
+exports.solicitarFichaje = async (req, res) => {
+    const dt_id = req.usuario.id;
+    const equipo_id_dt = req.usuario.equipo_id;
+    const { jugador_id } = req.body;
+
+    const io = req.app.get('socketio');
+    const activeUsers = req.app.get('activeUsers');
+
+    if (!jugador_id) {
+        return res.status(400).json({ error: "Falta el ID del jugador" });
+    }
+    if (!equipo_id_dt) {
+        return res.status(400).json({ error: "No tienes un equipo asignado para realizar esta acción." });
+    }
+
+    try {
+        const mercadoAbierto = await isMercadoAbierto();
+        if (!mercadoAbierto) {
+            return res.status(403).json({ error: "No está abierto el mercado de pases" });
+        }
+
+        const [[equipoDT]] = await db.query(`SELECT nombre FROM equipos WHERE id = ?`, [equipo_id_dt]);
+        if (!equipoDT) {
+            return res.status(404).json({ error: "No se encontró tu equipo en la base de datos." });
+        }
+        const nombreEquipo = equipoDT.nombre;
+
+        const [resultadosVal] = await db.query(
+            `SELECT id FROM transferencias WHERE jugador_id = ? AND equipo_destino_id = ? AND estado = 'pendiente'`,
+            [jugador_id, equipo_id_dt]
+        );
+
+        if (resultadosVal.length > 0) {
+            return res.status(400).json({ error: "Ya enviaste una solicitud para este jugador" });
+        }
+
+        await db.query(
+            `INSERT INTO transferencias (jugador_id, equipo_origen_id, equipo_destino_id, estado)
+             VALUES (?, (SELECT equipo_id FROM usuarios WHERE id = ?), ?, 'pendiente')`,
+            [jugador_id, jugador_id, equipo_id_dt]
+        );
+
+        const contenido = `Has recibido una oferta del equipo ${nombreEquipo}`;
+        const [notifResult] = await db.query(
+            "INSERT INTO notificaciones (usuario_id, contenido, tipo, link_url) VALUES (?, ?, 'oferta', '/jugador/mis-ofertas')",
+            [jugador_id, contenido]
+        );
+
+        const socketId = activeUsers.get(jugador_id.toString());
+        if (socketId) {
+            const nuevaNotificacion = {
+                id: notifResult.insertId,
+                usuario_id: jugador_id,
+                contenido,
+                tipo: 'oferta',
+                leida: false,
+                fecha: new Date(),
+                link_url: '/jugador/mis-ofertas'
+            };
+            io.to(socketId).emit('nueva_notificacion', nuevaNotificacion);
+            logger.info(`Evento de notificación emitido al usuario ID ${jugador_id}`);
+        }
+
+        res.status(201).json({ message: "Solicitud de fichaje enviada correctamente" });
+
+    } catch (error) {
+        logger.error("Error en solicitarFichaje:", { message: error.message, error });
+        res.status(500).json({ error: "Error en el servidor al solicitar el fichaje" });
+    }
+};
