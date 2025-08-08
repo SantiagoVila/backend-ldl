@@ -1,38 +1,45 @@
+/**
+ * ✅ FUNCIÓN CORREGIDA v2.0
+ * Genera las consultas SQL para actualizar la tabla de posiciones,
+ * usando los nombres de columna correctos.
+ */
 exports.generarQueriesActualizacionTabla = (partido) => {
-  const { liga_id, equipo_local_id, equipo_visitante_id, goles_local, goles_visitante } = partido;
+    const { liga_id, equipo_local_id, equipo_visitante_id, goles_local, goles_visitante } = partido;
 
-  const resultadoLocal = goles_local > goles_visitante ? 'G' : goles_local < goles_visitante ? 'P' : 'E';
-  const resultadoVisitante = goles_local < goles_visitante ? 'G' : goles_local > goles_visitante ? 'P' : 'E';
+    const resultadoLocal = goles_local > goles_visitante ? 'G' : goles_local < goles_visitante ? 'P' : 'E';
+    const resultadoVisitante = goles_local < goles_visitante ? 'G' : goles_local > goles_visitante ? 'P' : 'E';
 
-  const queries = [];
+    const queries = [];
 
-  queries.push(`
-    INSERT INTO tabla_posiciones (liga_id, equipo_id, jugados, ganados, empatados, perdidos, goles_favor, goles_contra, diferencia_goles, puntos)
-    VALUES (${liga_id}, ${equipo_local_id}, 1, ${resultadoLocal === 'G' ? 1 : 0}, ${resultadoLocal === 'E' ? 1 : 0}, ${resultadoLocal === 'P' ? 1 : 0}, ${goles_local}, ${goles_visitante}, ${goles_local - goles_visitante}, ${resultadoLocal === 'G' ? 3 : resultadoLocal === 'E' ? 1 : 0})
-    ON DUPLICATE KEY UPDATE
-      jugados = jugados + 1,
-      ganados = ganados + VALUES(ganados),
-      empatados = empatados + VALUES(empatados),
-      perdidos = perdidos + VALUES(perdidos),
-      goles_favor = goles_favor + VALUES(goles_favor),
-      goles_contra = goles_contra + VALUES(goles_contra),
-      diferencia_goles = diferencia_goles + VALUES(diferencia_goles),
-      puntos = puntos + VALUES(puntos)
-  `);
+    // Query para el equipo local
+    queries.push(`
+        INSERT INTO tabla_posiciones (liga_id, equipo_id, partidos_jugados, partidos_ganados, partidos_empatados, partidos_perdidos, goles_a_favor, goles_en_contra, diferencia_goles, puntos)
+        VALUES (${liga_id}, ${equipo_local_id}, 1, ${resultadoLocal === 'G' ? 1 : 0}, ${resultadoLocal === 'E' ? 1 : 0}, ${resultadoLocal === 'P' ? 1 : 0}, ${goles_local}, ${goles_visitante}, ${goles_local - goles_visitante}, ${resultadoLocal === 'G' ? 3 : resultadoLocal === 'E' ? 1 : 0})
+        ON DUPLICATE KEY UPDATE
+            partidos_jugados = partidos_jugados + 1,
+            partidos_ganados = partidos_ganados + VALUES(partidos_ganados),
+            partidos_empatados = partidos_empatados + VALUES(partidos_empatados),
+            partidos_perdidos = partidos_perdidos + VALUES(partidos_perdidos),
+            goles_a_favor = goles_a_favor + VALUES(goles_a_favor),
+            goles_en_contra = goles_en_contra + VALUES(goles_en_contra),
+            diferencia_goles = diferencia_goles + VALUES(diferencia_goles),
+            puntos = puntos + VALUES(puntos);
+    `);
 
-  queries.push(`
-    INSERT INTO tabla_posiciones (liga_id, equipo_id, jugados, ganados, empatados, perdidos, goles_favor, goles_contra, diferencia_goles, puntos)
-    VALUES (${liga_id}, ${equipo_visitante_id}, 1, ${resultadoVisitante === 'G' ? 1 : 0}, ${resultadoVisitante === 'E' ? 1 : 0}, ${resultadoVisitante === 'P' ? 1 : 0}, ${goles_visitante}, ${goles_local}, ${goles_visitante - goles_local}, ${resultadoVisitante === 'G' ? 3 : resultadoVisitante === 'E' ? 1 : 0})
-    ON DUPLICATE KEY UPDATE
-      jugados = jugados + 1,
-      ganados = ganados + VALUES(ganados),
-      empatados = empatados + VALUES(empatados),
-      perdidos = perdidos + VALUES(perdidos),
-      goles_favor = goles_favor + VALUES(goles_favor),
-      goles_contra = goles_contra + VALUES(goles_contra),
-      diferencia_goles = diferencia_goles + VALUES(diferencia_goles),
-      puntos = puntos + VALUES(puntos)
-  `);
+    // Query para el equipo visitante
+    queries.push(`
+        INSERT INTO tabla_posiciones (liga_id, equipo_id, partidos_jugados, partidos_ganados, partidos_empatados, partidos_perdidos, goles_a_favor, goles_en_contra, diferencia_goles, puntos)
+        VALUES (${liga_id}, ${equipo_visitante_id}, 1, ${resultadoVisitante === 'G' ? 1 : 0}, ${resultadoVisitante === 'E' ? 1 : 0}, ${resultadoVisitante === 'P' ? 1 : 0}, ${goles_visitante}, ${goles_local}, ${goles_visitante - goles_local}, ${resultadoVisitante === 'G' ? 3 : resultadoVisitante === 'E' ? 1 : 0})
+        ON DUPLICATE KEY UPDATE
+            partidos_jugados = partidos_jugados + 1,
+            partidos_ganados = partidos_ganados + VALUES(partidos_ganados),
+            partidos_empatados = partidos_empatados + VALUES(partidos_empatados),
+            partidos_perdidos = partidos_perdidos + VALUES(partidos_perdidos),
+            goles_a_favor = goles_a_favor + VALUES(goles_a_favor),
+            goles_en_contra = goles_en_contra + VALUES(goles_en_contra),
+            diferencia_goles = diferencia_goles + VALUES(diferencia_goles),
+            puntos = puntos + VALUES(puntos);
+    `);
 
-  return queries;
+    return queries;
 };
