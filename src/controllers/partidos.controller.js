@@ -6,9 +6,6 @@ const { generarQueriesActualizacionTabla } = require('../services/ligas.service'
 // SECCIÓN 1: LÓGICA DE REPORTE DUAL (v2.0)
 // =================================================================================
 
-/**
- * Recibe y procesa el reporte de un partido por parte de un DT.
- */
 exports.crearReporte = async (req, res) => {
     const { tipo, partido_id } = req.params;
     const { goles_local_reportados, goles_visitante_reportados, jugadores } = req.body;
