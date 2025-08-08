@@ -100,54 +100,87 @@ exports.crearReporte = async (req, res) => {
 };
 
 /**
- * Permite a un Admin resolver una disputa o confirmar un reporte único.
- */
+ * ✅ FUNCIÓN CORREGIDA v3.0
+ * Permite a un Admin confirmar un reporte único (reportado_parcialmente) 
+ * o resolver una disputa (en_disputa) de forma inteligente.
+ */
 exports.resolverDisputa = async (req, res) => {
-    const { partido_id } = req.params;
-    const { reporte_ganador_id } = req.body;
+    const { tipo, partido_id } = req.params; // <-- Obtenemos el tipo desde los params
+    const { reporte_ganador_id } = req.body; // <-- Este puede o no venir
 
-    if (!reporte_ganador_id) {
-        return res.status(400).json({ error: 'Se debe especificar un reporte ganador.' });
-    }
+    const connection = await db.getConnection();
+    try {
+        await connection.beginTransaction();
 
-    const connection = await db.getConnection();
-    try {
-        await connection.beginTransaction();
+        const tablaPartido = tipo === 'liga' ? 'partidos' : 'partidos_copa';
 
-        const [[reporteGanador]] = await connection.query('SELECT * FROM reportes_partidos WHERE id = ? AND partido_id = ?', [reporte_ganador_id, partido_id]);
-        if (!reporteGanador) {
-            await connection.rollback();
-            return res.status(404).json({ error: 'El reporte ganador seleccionado no es válido para este partido.' });
-        }
+        // 1. Obtenemos primero la info del partido para saber su estado
+        const [[partidoInfo]] = await connection.query(`SELECT * FROM ${tablaPartido} WHERE id = ?`, [partido_id]);
 
-        const tablaPartido = reporteGanador.tipo_partido === 'liga' ? 'partidos' : 'partidos_copa';
-        const [[partidoInfo]] = await connection.query(`SELECT * FROM ${tablaPartido} WHERE id = ?`, [partido_id]);
+        // <<< CAMBIO: Añadimos una validación crucial
+        if (!partidoInfo) {
+            await connection.rollback();
+            return res.status(404).json({ error: 'Partido no encontrado.' });
+        }
 
-        if (!['en_disputa', 'reportado_parcialmente'].includes(partidoInfo.estado_reporte)) {
-            await connection.rollback();
-            return res.status(409).json({ error: 'Este partido no se puede confirmar manualmente.' });
-        }
+        // Validamos el estado del partido
+        if (!['en_disputa', 'reportado_parcialmente'].includes(partidoInfo.estado_reporte)) {
+            await connection.rollback();
+            return res.status(409).json({ error: 'Este partido no está en un estado que permita confirmación manual.' });
+        }
 
-        await connection.query(`UPDATE ${tablaPartido} SET estado = 'aprobado', estado_reporte = 'confirmado_admin' WHERE id = ?`, [partido_id]);
+        let reporteGanador;
 
-        if (reporteGanador.tipo_partido === 'liga' && partidoInfo.liga_id) {
-            const datosParaTabla = { ...partidoInfo, goles_local: reporteGanador.goles_local_reportados, goles_visitante: reporteGanador.goles_visitante_reportados };
-            const queries = generarQueriesActualizacionTabla(datosParaTabla);
-            // ✅ CORRECCIÓN: Bucle actualizado para consultas parametrizadas
-            for (const q of queries) {
-                await connection.query(q.sql, q.values);
-            }
-        }
-        
-        await connection.commit();
-        res.json({ message: 'Partido confirmado manualmente por el administrador.' });
-    } catch (error) {
-        if (connection) await connection.rollback();
-        logger.error(`Error en resolverDisputa: ${error.message}`, { error, partido_id });
-        res.status(500).json({ error: 'Error en el servidor al confirmar manualmente.' });
-    } finally {
-        if (connection) connection.release();
-    }
+        // 2. Lógica diferenciada según el estado del reporte
+        if (partidoInfo.estado_reporte === 'reportado_parcialmente') {
+            // <<< CAMBIO: Si solo hay un reporte, lo buscamos nosotros mismos
+            const [[reporteUnico]] = await connection.query('SELECT * FROM reportes_partidos WHERE partido_id = ? AND tipo_partido = ?', [partido_id, tipo]);
+            if (!reporteUnico) {
+                await connection.rollback();
+                return res.status(404).json({ error: 'No se encontró el reporte único para este partido. Contacte a soporte.' });
+            }
+            reporteGanador = reporteUnico;
+
+        } else if (partidoInfo.estado_reporte === 'en_disputa') {
+            // <<< CAMBIO: Si es disputa, sí exigimos el ID del reporte ganador
+            if (!reporte_ganador_id) {
+                await connection.rollback();
+                return res.status(400).json({ error: 'Para resolver una disputa, se debe especificar un reporte ganador.' });
+            }
+            const [[reporteSeleccionado]] = await connection.query('SELECT * FROM reportes_partidos WHERE id = ? AND partido_id = ?', [reporte_ganador_id, partido_id]);
+            if (!reporteSeleccionado) {
+                await connection.rollback();
+                return res.status(404).json({ error: 'El reporte ganador seleccionado no es válido para este partido.' });
+            }
+            reporteGanador = reporteSeleccionado;
+        }
+        
+        // 3. A partir de aquí, la lógica es la misma usando la variable reporteGanador que ya hemos definido
+        await connection.query(`UPDATE ${tablaPartido} SET estado = 'aprobado', goles_local = ?, goles_visitante = ?, estado_reporte = 'confirmado_admin' WHERE id = ?`, 
+            [reporteGanador.goles_local_reportados, reporteGanador.goles_visitante_reportados, partido_id]);
+
+        if (tipo === 'liga' && partidoInfo.liga_id) {
+            const datosParaTabla = { 
+                ...partidoInfo, 
+                goles_local: reporteGanador.goles_local_reportados, 
+                goles_visitante: reporteGanador.goles_visitante_reportados 
+            };
+            const queries = generarQueriesActualizacionTabla(datosParaTabla);
+            for (const q of queries) {
+                await connection.query(q.sql, q.values);
+            }
+        }
+        
+        await connection.commit();
+        res.json({ message: 'Partido confirmado manualmente por el administrador.' });
+
+    } catch (error) {
+        if (connection) await connection.rollback();
+        logger.error(`Error en resolverDisputa v3.0: ${error.message}`, { error, partido_id });
+        res.status(500).json({ error: 'Error en el servidor al confirmar manualmente.' });
+    } finally {
+        if (connection) connection.release();
+    }
 };
 
 // =================================================================================
