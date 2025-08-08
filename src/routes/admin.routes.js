@@ -1,33 +1,34 @@
 const express = require('express');
 const router = express.Router();
 
-const { 
-    moverJugador, 
-    crearEquipoYAsignarDT, 
-    obtenerReportes, 
-    marcarReporteComoAtendido,
-    programarMercado,
-    generarFixtureLiga,
-    responderSolicitudRol,
-    adminCreaEquipo,
-    finalizarTemporada,
-    ejecutarAscensosDescensos,
-    crearNuevaTemporada,
-    crearSancion,
-    obtenerSancionesPorJugador,
-    getDashboardStats
-} = require('../controllers/admin.controller');
+// --- IMPORTACIONES (CON DEPURACIÓN) ---
+
+console.log("--- Depurando admin.routes.js ---");
+
+const adminController = require('../controllers/admin.controller');
+console.log("Contenido de admin.controller:", adminController);
+
+const mercadoController = require('../controllers/mercado.controller');
+console.log("Contenido de mercado.controller:", mercadoController);
+
+const usuariosController = require('../controllers/usuarios.controller');
+console.log("Contenido de usuarios.controller:", usuariosController);
 
 const { 
-    abrirMercadoManual,
-    cerrarMercadoManual
-} = require('../controllers/mercado.controller');
+    moverJugador, crearEquipoYAsignarDT, obtenerReportes, marcarReporteComoAtendido,
+    programarMercado, generarFixtureLiga, responderSolicitudRol, adminCreaEquipo,
+    finalizarTemporada, ejecutarAscensosDescensos, crearNuevaTemporada, crearSancion,
+    obtenerSancionesPorJugador, getDashboardStats
+} = adminController;
 
-const { verSolicitudesRol } = require('../controllers/usuarios.controller');
+const { abrirMercadoManual, cerrarMercadoManual } = mercadoController;
+const { verSolicitudesRol } = usuariosController;
 
 const verificarToken = require('../middleware.js/auth.middleware'); 
 const verifyRole = require('../middleware.js/verifyRole');
 const upload = require('../middleware.js/upload');
+
+console.log("--- Todas las importaciones parecen correctas, definiendo rutas... ---");
 
 // --- RUTAS DE ADMINISTRADOR ---
 
@@ -51,13 +52,15 @@ router.get('/dashboard-stats', verificarToken, verifyRole('admin'), getDashboard
 router.post(
     '/mercado/abrir',
     [verificarToken, verifyRole('admin')],
-    abrirMercadoManual // <-- Ahora se usa la función importada de mercado.controller
+    abrirMercadoManual
 );
 
 router.post(
     '/mercado/cerrar',
     [verificarToken, verifyRole('admin')],
-    cerrarMercadoManual // <-- Ahora se usa la función importada de mercado.controller
+    cerrarMercadoManual
 );
+
+console.log("--- Definición de rutas completada sin errores. ---");
 
 module.exports = router;
