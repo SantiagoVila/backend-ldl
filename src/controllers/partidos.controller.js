@@ -81,7 +81,6 @@ exports.crearReporte = async (req, res) => {
                 if (tipo === 'liga' && partidoInfo.liga_id) {
                     const datosParaTabla = { ...partidoInfo, goles_local: reporteA.goles_local_reportados, goles_visitante: reporteA.goles_visitante_reportados };
                     const queries = generarQueriesActualizacionTabla(datosParaTabla);
-                    // ✅ CORRECCIÓN: Bucle actualizado para consultas parametrizadas
                     for (const q of queries) {
                         await connection.query(q.sql, q.values);
                     }
@@ -136,7 +135,6 @@ exports.resolverDisputa = async (req, res) => {
         if (reporteGanador.tipo_partido === 'liga' && partidoInfo.liga_id) {
             const datosParaTabla = { ...partidoInfo, goles_local: reporteGanador.goles_local_reportados, goles_visitante: reporteGanador.goles_visitante_reportados };
             const queries = generarQueriesActualizacionTabla(datosParaTabla);
-            // ✅ CORRECCIÓN: Bucle actualizado para consultas parametrizadas
             for (const q of queries) {
                 await connection.query(q.sql, q.values);
             }
@@ -200,50 +198,44 @@ exports.obtenerPartidosParaRevision = async (req, res) => {
 };
 
 /**
- * ✅ FUNCIÓN CORREGIDA v2.2
- * Busca partidos pendientes de ser reportados por el DT logueado usando una consulta más robusta.
+ * Busca partidos pendientes de ser reportados por el DT logueado.
  */
 exports.obtenerPartidosDT = async (req, res) => {
-    const equipo_id = req.usuario.equipo_id;
-    if (!equipo_id) return res.status(400).json({ error: 'No tienes un equipo asignado.' });
-    
-    try {
-        const sql = `
-            SELECT id, fecha, estado, estado_reporte, nombre_local, nombre_visitante, tipo FROM (
-                SELECT 
-                    p.id, p.fecha, p.estado, p.estado_reporte, 
-                    el.nombre AS nombre_local, ev.nombre AS nombre_visitante, 
-                    'liga' AS tipo
-                FROM partidos p
-                JOIN equipos el ON p.equipo_local_id = el.id
-                JOIN equipos ev ON p.equipo_visitante_id = ev.id
-                LEFT JOIN reportes_partidos rp ON p.id = rp.partido_id AND rp.tipo_partido = 'liga' AND rp.equipo_reportador_id = ?
-                WHERE 
-                    (p.equipo_local_id = ? OR p.equipo_visitante_id = ?) 
-                    AND p.estado = 'pendiente' 
-                    AND rp.id IS NULL
-                UNION
-                SELECT 
-                    pc.id, pc.fecha, pc.estado, pc.estado_reporte, 
-                    el.nombre AS nombre_local, ev.nombre AS nombre_visitante, 
-                    'copa' AS tipo
-                FROM partidos_copa pc
-                JOIN equipos el ON pc.equipo_local_id = el.id
-                JOIN equipos ev ON pc.equipo_visitante_id = ev.id
-                LEFT JOIN reportes_partidos rp ON pc.id = rp.partido_id AND rp.tipo_partido = 'copa' AND rp.equipo_reportador_id = ?
-                WHERE 
-                    (pc.equipo_local_id = ? OR pc.equipo_visitante_id = ?) 
-                    AND pc.estado = 'pendiente' 
-                    AND rp.id IS NULL
-            ) AS partidos_pendientes
-            ORDER BY fecha ASC;
-        `;
-        const [partidos] = await db.query(sql, [equipo_id, equipo_id, equipo_id, equipo_id, equipo_id, equipo_id]);
-        res.json(partidos);
-    } catch (error) {
-        logger.error(`Error en obtenerPartidosDT v2.2: ${error.message}`, { error });
-        res.status(500).json({ error: 'Error al obtener los partidos del equipo.' });
-    }
+    const equipo_id = req.usuario.equipo_id;
+    if (!equipo_id) return res.status(400).json({ error: 'No tienes un equipo asignado.' });
+    
+    try {
+        const sql = `
+            (SELECT p.id, p.fecha, p.estado, p.estado_reporte, el.nombre as nombre_local, ev.nombre as nombre_visitante, 'liga' as tipo
+            FROM partidos p
+            JOIN equipos el ON p.equipo_local_id = el.id
+            JOIN equipos ev ON p.equipo_visitante_id = ev.id
+            WHERE 
+                (p.equipo_local_id = ? OR p.equipo_visitante_id = ?) 
+                AND p.estado = 'pendiente' 
+                AND NOT EXISTS (
+                    SELECT 1 FROM reportes_partidos rp 
+                    WHERE rp.partido_id = p.id AND rp.tipo_partido = 'liga' AND rp.equipo_reportador_id = ?
+                ))
+            UNION
+            (SELECT pc.id, pc.fecha, pc.estado, pc.estado_reporte, el.nombre as nombre_local, ev.nombre as nombre_visitante, 'copa' as tipo
+            FROM partidos_copa pc
+            JOIN equipos el ON pc.equipo_local_id = el.id
+            JOIN equipos ev ON pc.equipo_visitante_id = ev.id
+            WHERE 
+                (pc.equipo_local_id = ? OR pc.equipo_visitante_id = ?) 
+                AND pc.estado = 'pendiente'
+                AND NOT EXISTS (
+                    SELECT 1 FROM reportes_partidos rp 
+                    WHERE rp.partido_id = pc.id AND rp.tipo_partido = 'copa' AND rp.equipo_reportador_id = ?
+                ))
+        `;
+        const [partidos] = await db.query(sql, [equipo_id, equipo_id, equipo_id, equipo_id, equipo_id, equipo_id]);
+        res.json(partidos.sort((a, b) => new Date(a.fecha) - new Date(b.fecha)));
+    } catch (error) {
+        logger.error(`Error en obtenerPartidosDT v2.0: ${error.message}`, { error });
+        res.status(500).json({ error: 'Error al obtener los partidos del equipo.' });
+    }
 };
 
 /**
@@ -398,39 +390,43 @@ exports.obtenerPartidoPorId = async (req, res) => {
     }
 };
 
+/**
+ * ✅ FUNCIÓN CORREGIDA v2.3
+ * Obtiene los detalles de un partido para la página de reporte, de forma más segura.
+ */
 exports.getPartidoParaReportar = async (req, res) => {
-    const { tipo, id } = req.params;
+    const { tipo, id } = req.params;
 
-    if (!['liga', 'copa'].includes(tipo)) {
-        return res.status(400).json({ error: 'Tipo de partido inválido.' });
-    }
+    if (!['liga', 'copa'].includes(tipo)) {
+        return res.status(400).json({ error: 'Tipo de partido inválido.' });
+    }
 
-    const tabla = tipo === 'liga' ? 'partidos' : 'partidos_copa';
+    const tabla = tipo === 'liga' ? 'partidos' : 'partidos_copa';
 
-    try {
-        const sql = `
-            SELECT p.id, p.fecha, p.estado, el.nombre as nombre_local, ev.nombre as nombre_visitante, '${tipo}' as tipo
-            FROM ${tabla} p
-            JOIN equipos AS el ON p.equipo_local_id = el.id
-            JOIN equipos AS ev ON p.equipo_visitante_id = ev.id
-            WHERE p.id = ?
-        `;
-        const [[partido]] = await db.query(sql, [id]);
+    try {
+        const sql = `
+            SELECT p.id, p.fecha, p.estado, el.nombre as nombre_local, ev.nombre as nombre_visitante, '${tipo}' as tipo
+            FROM ${tabla} p
+            JOIN equipos AS el ON p.equipo_local_id = el.id
+            JOIN equipos AS ev ON p.equipo_visitante_id = ev.id
+            WHERE p.id = ?
+        `;
+        const [resultados] = await db.query(sql, [id]);
 
-        if (!partido) {
-            return res.status(404).json({ error: 'Partido no encontrado.' });
-        }
+        if (resultados.length === 0) {
+            return res.status(404).json({ error: 'Partido no encontrado.' });
+        }
 
-        res.json(partido);
-    } catch (error) {
-        logger.error(`Error en getPartidoParaReportar: ${error.message}`, { error });
-        res.status(500).json({ error: 'Error al obtener los detalles del partido.' });
-    }
+        res.json(resultados[0]);
+    } catch (error) {
+        logger.error(`Error en getPartidoParaReportar: ${error.message}`, { error });
+        res.status(500).json({ error: 'Error al obtener los detalles del partido.' });
+    }
 };
+
 /**
  * ✅ NUEVA FUNCIÓN v2.1
  * Permite a un Admin cargar un resultado directamente, saltándose el reporte de los DTs.
- * Ideal para casos donde nadie reporta o para corregir un resultado.
  */
 exports.adminCargarResultado = async (req, res) => {
     const { tipo, partido_id } = req.params;
@@ -458,7 +454,6 @@ exports.adminCargarResultado = async (req, res) => {
             INSERT INTO reportes_partidos (partido_id, tipo_partido, equipo_reportador_id, goles_local_reportados, goles_visitante_reportados, imagen_prueba_url)
             VALUES (?, ?, ?, ?, ?, ?)
         `;
-        // Usamos una URL de imagen genérica ya que el admin no sube una.
         const imagenUrlAdmin = '/uploads/admin_override.png';
         await connection.query(sqlInsertReporte, [partido_id, tipo, partidoInfo.equipo_local_id, goles_local, goles_visitante, imagenUrlAdmin]);
 
@@ -469,8 +464,8 @@ exports.adminCargarResultado = async (req, res) => {
         if (tipo === 'liga' && partidoInfo.liga_id) {
             const datosParaTabla = { ...partidoInfo, goles_local, goles_visitante };
             const queries = generarQueriesActualizacionTabla(datosParaTabla);
-            for (const query of queries) {
-                await connection.query(query);
+            for (const q of queries) {
+                await connection.query(q.sql, q.values);
             }
         }
         // Aquí iría la lógica para copas si es necesario
