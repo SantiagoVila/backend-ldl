@@ -200,44 +200,50 @@ exports.obtenerPartidosParaRevision = async (req, res) => {
 };
 
 /**
- * Busca partidos pendientes de ser reportados por el DT logueado.
+ * ✅ FUNCIÓN CORREGIDA v2.2
+ * Busca partidos pendientes de ser reportados por el DT logueado usando una consulta más robusta.
  */
 exports.obtenerPartidosDT = async (req, res) => {
-    const equipo_id = req.usuario.equipo_id;
-    if (!equipo_id) return res.status(400).json({ error: 'No tienes un equipo asignado.' });
-    
-    try {
-        const sql = `
-            (SELECT p.id, p.fecha, p.estado, p.estado_reporte, el.nombre as nombre_local, ev.nombre as nombre_visitante, 'liga' as tipo
-            FROM partidos p
-            JOIN equipos el ON p.equipo_local_id = el.id
-            JOIN equipos ev ON p.equipo_visitante_id = ev.id
-            WHERE 
-                (p.equipo_local_id = ? OR p.equipo_visitante_id = ?) 
-                AND p.estado = 'pendiente' 
-                AND NOT EXISTS (
-                    SELECT 1 FROM reportes_partidos rp 
-                    WHERE rp.partido_id = p.id AND rp.tipo_partido = 'liga' AND rp.equipo_reportador_id = ?
-                ))
-            UNION
-            (SELECT pc.id, pc.fecha, pc.estado, pc.estado_reporte, el.nombre as nombre_local, ev.nombre as nombre_visitante, 'copa' as tipo
-            FROM partidos_copa pc
-            JOIN equipos el ON pc.equipo_local_id = el.id
-            JOIN equipos ev ON pc.equipo_visitante_id = ev.id
-            WHERE 
-                (pc.equipo_local_id = ? OR pc.equipo_visitante_id = ?) 
-                AND pc.estado = 'pendiente'
-                AND NOT EXISTS (
-                    SELECT 1 FROM reportes_partidos rp 
-                    WHERE rp.partido_id = pc.id AND rp.tipo_partido = 'copa' AND rp.equipo_reportador_id = ?
-                ))
-        `;
-        const [partidos] = await db.query(sql, [equipo_id, equipo_id, equipo_id, equipo_id, equipo_id, equipo_id]);
-        res.json(partidos.sort((a, b) => new Date(a.fecha) - new Date(b.fecha)));
-    } catch (error) {
-        logger.error(`Error en obtenerPartidosDT v2.0: ${error.message}`, { error });
-        res.status(500).json({ error: 'Error al obtener los partidos del equipo.' });
-    }
+    const equipo_id = req.usuario.equipo_id;
+    if (!equipo_id) return res.status(400).json({ error: 'No tienes un equipo asignado.' });
+    
+    try {
+        const sql = `
+            SELECT id, fecha, estado, estado_reporte, nombre_local, nombre_visitante, tipo FROM (
+                SELECT 
+                    p.id, p.fecha, p.estado, p.estado_reporte, 
+                    el.nombre AS nombre_local, ev.nombre AS nombre_visitante, 
+                    'liga' AS tipo
+                FROM partidos p
+                JOIN equipos el ON p.equipo_local_id = el.id
+                JOIN equipos ev ON p.equipo_visitante_id = ev.id
+                LEFT JOIN reportes_partidos rp ON p.id = rp.partido_id AND rp.tipo_partido = 'liga' AND rp.equipo_reportador_id = ?
+                WHERE 
+                    (p.equipo_local_id = ? OR p.equipo_visitante_id = ?) 
+                    AND p.estado = 'pendiente' 
+                    AND rp.id IS NULL
+                UNION
+                SELECT 
+                    pc.id, pc.fecha, pc.estado, pc.estado_reporte, 
+                    el.nombre AS nombre_local, ev.nombre AS nombre_visitante, 
+                    'copa' AS tipo
+                FROM partidos_copa pc
+                JOIN equipos el ON pc.equipo_local_id = el.id
+                JOIN equipos ev ON pc.equipo_visitante_id = ev.id
+                LEFT JOIN reportes_partidos rp ON pc.id = rp.partido_id AND rp.tipo_partido = 'copa' AND rp.equipo_reportador_id = ?
+                WHERE 
+                    (pc.equipo_local_id = ? OR pc.equipo_visitante_id = ?) 
+                    AND pc.estado = 'pendiente' 
+                    AND rp.id IS NULL
+            ) AS partidos_pendientes
+            ORDER BY fecha ASC;
+        `;
+        const [partidos] = await db.query(sql, [equipo_id, equipo_id, equipo_id, equipo_id, equipo_id, equipo_id]);
+        res.json(partidos);
+    } catch (error) {
+        logger.error(`Error en obtenerPartidosDT v2.2: ${error.message}`, { error });
+        res.status(500).json({ error: 'Error al obtener los partidos del equipo.' });
+    }
 };
 
 /**
