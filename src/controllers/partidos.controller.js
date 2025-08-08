@@ -100,13 +100,19 @@ exports.crearReporte = async (req, res) => {
 };
 
 /**
- * ✅ FUNCIÓN CORREGIDA v3.0
+ * ✅ FUNCIÓN CORREGIDA v3.1
  * Permite a un Admin confirmar un reporte único (reportado_parcialmente) 
- * o resolver una disputa (en_disputa) de forma inteligente.
+ * o resolver una disputa (en_disputa) de forma inteligente y robusta.
+ * Acepta tanto :id como :partido_id como parámetro en la URL.
  */
 exports.resolverDisputa = async (req, res) => {
-    const { tipo, partido_id } = req.params; // <-- Obtenemos el tipo desde los params
-    const { reporte_ganador_id } = req.body; // <-- Este puede o no venir
+    // <<< CAMBIO CLAVE: Aceptamos 'id' o 'partido_id' para ser más flexibles.
+    const { tipo, id, partido_id: partidoIdFromParam } = req.params;
+    const partido_id = id || partidoIdFromParam; // Usamos el que venga definido.
+    
+    const { reporte_ganador_id } = req.body;
+
+    // --- El resto del código permanece igual ---
 
     const connection = await db.getConnection();
     try {
@@ -114,16 +120,13 @@ exports.resolverDisputa = async (req, res) => {
 
         const tablaPartido = tipo === 'liga' ? 'partidos' : 'partidos_copa';
 
-        // 1. Obtenemos primero la info del partido para saber su estado
         const [[partidoInfo]] = await connection.query(`SELECT * FROM ${tablaPartido} WHERE id = ?`, [partido_id]);
 
-        // <<< CAMBIO: Añadimos una validación crucial
         if (!partidoInfo) {
             await connection.rollback();
             return res.status(404).json({ error: 'Partido no encontrado.' });
         }
 
-        // Validamos el estado del partido
         if (!['en_disputa', 'reportado_parcialmente'].includes(partidoInfo.estado_reporte)) {
             await connection.rollback();
             return res.status(409).json({ error: 'Este partido no está en un estado que permita confirmación manual.' });
@@ -131,9 +134,7 @@ exports.resolverDisputa = async (req, res) => {
 
         let reporteGanador;
 
-        // 2. Lógica diferenciada según el estado del reporte
         if (partidoInfo.estado_reporte === 'reportado_parcialmente') {
-            // <<< CAMBIO: Si solo hay un reporte, lo buscamos nosotros mismos
             const [[reporteUnico]] = await connection.query('SELECT * FROM reportes_partidos WHERE partido_id = ? AND tipo_partido = ?', [partido_id, tipo]);
             if (!reporteUnico) {
                 await connection.rollback();
@@ -142,7 +143,6 @@ exports.resolverDisputa = async (req, res) => {
             reporteGanador = reporteUnico;
 
         } else if (partidoInfo.estado_reporte === 'en_disputa') {
-            // <<< CAMBIO: Si es disputa, sí exigimos el ID del reporte ganador
             if (!reporte_ganador_id) {
                 await connection.rollback();
                 return res.status(400).json({ error: 'Para resolver una disputa, se debe especificar un reporte ganador.' });
@@ -155,7 +155,6 @@ exports.resolverDisputa = async (req, res) => {
             reporteGanador = reporteSeleccionado;
         }
         
-        // 3. A partir de aquí, la lógica es la misma usando la variable reporteGanador que ya hemos definido
         await connection.query(`UPDATE ${tablaPartido} SET estado = 'aprobado', goles_local = ?, goles_visitante = ?, estado_reporte = 'confirmado_admin' WHERE id = ?`, 
             [reporteGanador.goles_local_reportados, reporteGanador.goles_visitante_reportados, partido_id]);
 
@@ -176,7 +175,7 @@ exports.resolverDisputa = async (req, res) => {
 
     } catch (error) {
         if (connection) await connection.rollback();
-        logger.error(`Error en resolverDisputa v3.0: ${error.message}`, { error, partido_id });
+        logger.error(`Error en resolverDisputa v3.1: ${error.message}`, { error, partido_id });
         res.status(500).json({ error: 'Error en el servidor al confirmar manualmente.' });
     } finally {
         if (connection) connection.release();
