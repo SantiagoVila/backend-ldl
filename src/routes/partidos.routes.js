@@ -1,16 +1,6 @@
 const express = require('express');
 const router = express.Router();
 
-// =================================================================
-// <<<<<<<<<<<<<<<<< ESPÍA DE DEPURACIÓN >>>>>>>>>>>>>>>>>
-// Este código nos dirá si las peticiones están llegando a este archivo.
-// No lo quites hasta que solucionemos el problema.
-router.use((req, res, next) => {
-    console.log(`[ESPÍA en partidos.routes.js] -> Petición recibida: ${req.method} ${req.originalUrl}`);
-    next();
-});
-// =================================================================
-
 // --- 1. IMPORTACIONES ---
 const { 
     crearPartido, 
@@ -21,7 +11,7 @@ const {
     getPartidoPublico,
     getPartidoParaReportar,
     crearReporte,
-    resolverDisputa, // La función que estamos depurando
+    resolverDisputa, // La función que vamos a usar
     obtenerPartidosParaRevision,
     adminCargarResultado
 } = require('../controllers/partidos.controller');
@@ -59,21 +49,18 @@ router.post(
 );
 
 // =================================================================
-// <<<<<<<<<<<<<<<<< RUTA PROBLEMÁTICA (VERSIÓN FINAL) >>>>>>>>>>>>>>>>>
-// Esta es la ruta que debe coincidir con la URL de la consola.
-// URL de la consola: .../admin/resolve/liga/333
-// La ruta debe ser: '/admin/resolve/:tipo/:id'
+// <<<<<<<<<<<< RUTA FINAL Y SIMPLIFICADA >>>>>>>>>>>>>>
+// Acepta la URL que vimos en el espía: /admin/resolver/:id
 router.post(
-    '/admin/resolve/:tipo/:id', 
+    '/admin/resolver/:id', 
     [verificarToken, verificarRol('admin')],
     resolverDisputa
 );
 // =================================================================
 
-// Rutas generales (más genéricas, por eso van después de las más específicas)
+// Rutas generales
 router.get("/", verificarToken, verificarRol("admin"), obtenerPartidos);
 router.post('/', verificarToken, verificarRol('dt'), crearPartido);
-router.get('/:id', verificarToken, obtenerPartidoPorId); // Esta es muy genérica, es importante que vaya al final.
-
+router.get('/:id', verificarToken, obtenerPartidoPorId);
 
 module.exports = router;
