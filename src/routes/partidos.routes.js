@@ -48,6 +48,12 @@ router.post(
     adminCargarResultado
 );
 
+router.put(
+    '/admin/resolver/:id',
+    [verificarToken, verificarRol('admin')],
+    resolverDisputa
+);
+
 // Rutas generales
 router.get("/", verificarToken, verificarRol("admin"), obtenerPartidos);
 router.post('/', verificarToken, verificarRol('dt'), crearPartido);
