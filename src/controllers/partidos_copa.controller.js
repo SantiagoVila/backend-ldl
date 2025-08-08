@@ -1,73 +1,101 @@
-// src/controllers/partidos_copa.controller.js
-
 const db = require("../../databases");
 const logger = require('../config/logger');
 
 /**
- * ✅ FUNCIÓN CORREGIDA Y MÁS ROBUSTA
- * Confirma el resultado de un partido de copa.
+ * ✅ FUNCIÓN REFACTORIZADA v2.0
+ * Un admin resuelve una disputa o confirma un reporte único para un partido de copa.
+ * Utiliza la lógica original de fases de grupo y eliminatorias.
  */
-exports.confirmarResultadoCopa = async (req, res) => {
-    const { id: partidoId } = req.params;
-    const { estado } = req.body;
+exports.resolverDisputaCopa = async (req, res) => {
+    const { partido_id } = req.params;
+    const { reporte_ganador_id } = req.body;
 
-    if (estado !== 'aprobado') {
-        return res.status(400).json({ error: "Solo se puede aprobar el resultado." });
+    if (!reporte_ganador_id) {
+        return res.status(400).json({ error: 'Se debe especificar un reporte ganador.' });
     }
 
     const connection = await db.getConnection();
     try {
         await connection.beginTransaction();
 
-        const [[partido]] = await connection.query(`SELECT * FROM partidos_copa WHERE id = ? FOR UPDATE`, [partidoId]);
+        // 1. Obtenemos el reporte que el admin eligió como válido
+        const [[reporteGanador]] = await connection.query('SELECT * FROM reportes_partidos WHERE id = ? AND partido_id = ? AND tipo_partido = "copa"', [reporte_ganador_id, partido_id]);
+        if (!reporteGanador) {
+            await connection.rollback();
+            return res.status(404).json({ error: 'El reporte ganador seleccionado no es válido para este partido de copa.' });
+        }
 
+        // 2. Obtenemos la información del partido de copa
+        const [[partido]] = await connection.query(`SELECT * FROM partidos_copa WHERE id = ? FOR UPDATE`, [partido_id]);
         if (!partido) {
             await connection.rollback();
             return res.status(404).json({ error: 'Partido de copa no encontrado.' });
         }
-        if (partido.goles_local == null || partido.goles_visitante == null) {
+        if (!['en_disputa', 'reportado_parcialmente'].includes(partido.estado_reporte)) {
             await connection.rollback();
-            return res.status(400).json({ error: 'El partido no tiene un resultado reportado para confirmar.' });
+            return res.status(409).json({ error: 'Este partido no se puede confirmar manualmente.' });
         }
 
-        await connection.query('UPDATE partidos_copa SET estado = ? WHERE id = ?', [estado, partidoId]);
+        // 3. Actualizamos el estado del partido a 'aprobado'
+        await connection.query("UPDATE partidos_copa SET estado = 'aprobado', estado_reporte = 'confirmado_admin' WHERE id = ?", [partido_id]);
+
+        // 4. EJECUTAMOS TU LÓGICA ORIGINAL DE COPAS USANDO LOS GOLES DEL REPORTE GANADOR
+        const goles_local = reporteGanador.goles_local_reportados;
+        const goles_visitante = reporteGanador.goles_visitante_reportados;
 
         if (partido.fase === 'Grupos') {
-            const { copa_id, grupo_id, equipo_local_id, equipo_visitante_id, goles_local, goles_visitante } = partido;
-
-            // ✅ CORRECCIÓN: Validación de datos para fase de grupos
-            if (copa_id == null || grupo_id == null || equipo_local_id == null || equipo_visitante_id == null) {
-                await connection.rollback();
-                return res.status(400).json({ error: "Datos del partido de copa (grupos) incompletos." });
-            }
-
+            // ✅ LÓGICA COMPLETA PARA FASE DE GRUPOS
+            const { copa_id, grupo_id, equipo_local_id, equipo_visitante_id } = partido;
             const resultadoLocal = goles_local > goles_visitante ? 'G' : goles_local < goles_visitante ? 'P' : 'E';
             const resultadoVisitante = goles_local < goles_visitante ? 'G' : goles_local > goles_visitante ? 'P' : 'E';
 
-            // Actualizaciones de tabla (sin cambios, pero ahora más seguras)
-            // ... (código original de los dos 'await connection.query(...)') ...
+            // Actualizar equipo local
+            await connection.query(`
+                UPDATE tabla_posiciones_copa SET
+                    puntos = puntos + ?, partidos_jugados = partidos_jugados + 1,
+                    partidos_ganados = partidos_ganados + ?, partidos_empatados = partidos_empatados + ?,
+                    partidos_perdidos = partidos_perdidos + ?, goles_a_favor = goles_a_favor + ?,
+                    goles_en_contra = goles_en_contra + ?, diferencia_goles = diferencia_goles + ?
+                WHERE copa_id = ? AND equipo_id = ? AND grupo_id = ?
+            `, [
+                resultadoLocal === 'G' ? 3 : resultadoLocal === 'E' ? 1 : 0,
+                resultadoLocal === 'G' ? 1 : 0, resultadoLocal === 'E' ? 1 : 0, resultadoLocal === 'P' ? 1 : 0,
+                goles_local, goles_visitante, (goles_local - goles_visitante),
+                copa_id, equipo_local_id, grupo_id
+            ]);
+
+            // Actualizar equipo visitante
+            await connection.query(`
+                UPDATE tabla_posiciones_copa SET
+                    puntos = puntos + ?, partidos_jugados = partidos_jugados + 1,
+                    partidos_ganados = partidos_ganados + ?, partidos_empatados = partidos_empatados + ?,
+                    partidos_perdidos = partidos_perdidos + ?, goles_a_favor = goles_a_favor + ?,
+                    goles_en_contra = goles_en_contra + ?, diferencia_goles = diferencia_goles + ?
+                WHERE copa_id = ? AND equipo_id = ? AND grupo_id = ?
+            `, [
+                resultadoVisitante === 'G' ? 3 : resultadoVisitante === 'E' ? 1 : 0,
+                resultadoVisitante === 'G' ? 1 : 0, resultadoVisitante === 'E' ? 1 : 0, resultadoVisitante === 'P' ? 1 : 0,
+                goles_visitante, goles_local, (goles_visitante - goles_local),
+                copa_id, equipo_visitante_id, grupo_id
+            ]);
 
         } else { // Fases de eliminación
-            const [partidosDeLaLlave] = await connection.query(
-                'SELECT * FROM partidos_copa WHERE copa_id = ? AND id_partido_llave = ?',
-                [partido.copa_id, partido.id_partido_llave]
-            );
-
-            const esFinal = partido.fase === 'Final' && partidosDeLaLlave.length === 1;
+            // ✅ LÓGICA COMPLETA PARA FASE DE ELIMINACIÓN
+            const [partidosDeLaLlave] = await connection.query('SELECT * FROM partidos_copa WHERE copa_id = ? AND id_partido_llave = ?', [partido.copa_id, partido.id_partido_llave]);
             
-            // Actualizamos el estado del partido actual en la lista de la llave
+            // Actualizamos el estado del partido actual en la lista que acabamos de obtener
             const partidoActualIndex = partidosDeLaLlave.findIndex(p => p.id === partido.id);
             if (partidoActualIndex !== -1) {
                 partidosDeLaLlave[partidoActualIndex].estado = 'aprobado';
             }
             
             const ambosPartidosJugados = partidosDeLaLlave.length === 2 && partidosDeLaLlave.every(p => p.estado === 'aprobado');
+            const esFinal = partidosDeLaLlave.length === 1 && partido.fase === 'Final';
 
             if (ambosPartidosJugados) {
                 const partidoIda = partidosDeLaLlave[0];
                 const partidoVuelta = partidosDeLaLlave[1];
 
-                // ✅ CORRECCIÓN: Lógica de cálculo de global más clara y segura
                 const equipoA_id = partidoIda.equipo_local_id;
                 const equipoB_id = partidoIda.equipo_visitante_id;
 
@@ -80,14 +108,11 @@ exports.confirmarResultadoCopa = async (req, res) => {
                 } else if (goles_agg_B > goles_agg_A) {
                     idGanador = equipoB_id;
                 } else {
-                    // Lógica de desempate: Gana el que más goles de visitante hizo.
                     if(partidoVuelta.goles_visitante > partidoIda.goles_visitante) {
                         idGanador = equipoA_id;
                     } else if (partidoIda.goles_visitante > partidoVuelta.goles_visitante) {
                         idGanador = equipoB_id;
                     } else {
-                        // Último recurso: penales. Aquí asumimos que gana el local del partido de vuelta.
-                        // Idealmente, aquí se añadiría una columna de 'penales_local' y 'penales_visitante'.
                         idGanador = partidoVuelta.equipo_local_id;
                     }
                 }
@@ -104,12 +129,12 @@ exports.confirmarResultadoCopa = async (req, res) => {
         }
 
         await connection.commit();
-        res.json({ message: 'Resultado de copa confirmado y procesado.' });
+        res.json({ message: 'Partido de copa confirmado y procesado por el administrador.' });
 
     } catch (error) {
         await connection.rollback();
-        logger.error(`Error en confirmarResultadoCopa: ${error.message}`, { error });
-        res.status(500).json({ error: 'Error en el servidor al confirmar el resultado.' });
+        logger.error(`Error en resolverDisputaCopa: ${error.message}`, { error });
+        res.status(500).json({ error: 'Error en el servidor al confirmar el resultado de copa.' });
     } finally {
         if (connection) connection.release();
     }
