@@ -1,10 +1,17 @@
 /**
- * ✅ FUNCIÓN CORREGIDA v2.0
- * Genera las consultas SQL para actualizar la tabla de posiciones,
- * usando los nombres de columna correctos.
+ * ✅ FUNCIÓN CORREGIDA v2.1
+ * Genera las consultas SQL para actualizar la tabla de posiciones.
+ * Ahora incluye una validación para evitar errores con datos incompletos.
  */
 exports.generarQueriesActualizacionTabla = (partido) => {
     const { liga_id, equipo_local_id, equipo_visitante_id, goles_local, goles_visitante } = partido;
+
+    // ✅ NUEVA VALIDACIÓN: Asegurarse de que todos los datos necesarios están presentes.
+    if (!liga_id || !equipo_local_id || !equipo_visitante_id || goles_local == null || goles_visitante == null) {
+        console.error("generarQueriesActualizacionTabla: Faltan datos cruciales para actualizar la tabla.", partido);
+        // Devolvemos un array vacío para no romper la transacción en el controlador.
+        return []; 
+    }
 
     const resultadoLocal = goles_local > goles_visitante ? 'G' : goles_local < goles_visitante ? 'P' : 'E';
     const resultadoVisitante = goles_local < goles_visitante ? 'G' : goles_local > goles_visitante ? 'P' : 'E';
