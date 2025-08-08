@@ -245,36 +245,50 @@ exports.obtenerPartidosDT = async (req, res) => {
 };
 
 /**
- * Obtiene los 5 partidos públicos más recientes que hayan sido aprobados.
- */
+ * ✅ FUNCIÓN CORREGIDA v2.3
+ * Obtiene los 5 partidos públicos más recientes (liga y copa) que hayan sido aprobados.
+ */
 exports.obtenerPartidosPublico = async (req, res) => {
-    try {
-        const sql = `
-            SELECT 
-                p.id, p.fecha, 
-                rp.goles_local_reportados as goles_local, 
-                rp.goles_visitante_reportados as goles_visitante,
-                el.nombre as nombre_local, 
-                ev.nombre as nombre_visitante
-            FROM partidos p
-            JOIN equipos AS el ON p.equipo_local_id = el.id
-            JOIN equipos AS ev ON p.equipo_visitante_id = ev.id
-            JOIN (
-                SELECT partido_id, tipo_partido, MIN(id) as first_report_id
-                FROM reportes_partidos
-                GROUP BY partido_id, tipo_partido
-            ) as first_report ON first_report.partido_id = p.id AND first_report.tipo_partido = 'liga'
-            JOIN reportes_partidos rp ON rp.id = first_report.first_report_id
-            WHERE p.estado = 'aprobado'
-            ORDER BY p.fecha DESC
-            LIMIT 5
-        `;
-        const [partidos] = await db.query(sql);
-        res.json(partidos);
-    } catch (error) {
-        logger.error(`Error en obtenerPartidosPublico: ${error.message}`, { error });
-        res.status(500).json({ error: 'Error al obtener los partidos recientes' });
-    }
+    try {
+        const sql = `
+            SELECT id, fecha, goles_local, goles_visitante, nombre_local, nombre_visitante, tipo FROM (
+                (SELECT 
+                    p.id, p.fecha, 
+                    rp.goles_local_reportados as goles_local, 
+                    rp.goles_visitante_reportados as goles_visitante,
+                    el.nombre as nombre_local, 
+                    ev.nombre as nombre_visitante,
+                    'liga' as tipo
+                FROM partidos p
+                JOIN equipos AS el ON p.equipo_local_id = el.id
+                JOIN equipos AS ev ON p.equipo_visitante_id = ev.id
+                JOIN reportes_partidos rp ON p.id = rp.partido_id AND rp.tipo_partido = 'liga'
+                WHERE p.estado = 'aprobado'
+                GROUP BY p.id)
+                UNION ALL
+                (SELECT 
+                    pc.id, pc.fecha, 
+                    rp.goles_local_reportados as goles_local, 
+                    rp.goles_visitante_reportados as goles_visitante,
+                    el.nombre as nombre_local, 
+                    ev.nombre as nombre_visitante,
+                    'copa' as tipo
+                FROM partidos_copa pc
+                JOIN equipos AS el ON pc.equipo_local_id = el.id
+                JOIN equipos AS ev ON pc.equipo_visitante_id = ev.id
+                JOIN reportes_partidos rp ON pc.id = rp.partido_id AND rp.tipo_partido = 'copa'
+                WHERE pc.estado = 'aprobado'
+                GROUP BY pc.id)
+            ) AS partidos_recientes
+            ORDER BY fecha DESC
+            LIMIT 5;
+        `;
+        const [partidos] = await db.query(sql);
+        res.json(partidos);
+    } catch (error) {
+        logger.error(`Error en obtenerPartidosPublico: ${error.message}`, { error });
+        res.status(500).json({ error: 'Error al obtener los partidos recientes' });
+    }
 };
 
 /**
