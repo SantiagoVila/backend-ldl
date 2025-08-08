@@ -2,6 +2,7 @@ const db = require('../../databases');
 const logger = require('../config/logger');
 const { generarQueriesActualizacionTabla } = require('../services/ligas.service');
 
+
 // =================================================================================
 // SECCIÓN 1: LÓGICA DE REPORTE DUAL (v2.0)
 // =================================================================================
@@ -107,25 +108,30 @@ exports.crearReporte = async (req, res) => {
  * Funciona con la ruta simplificada '/admin/resolver/:id'
  */
 exports.resolverDisputa = async (req, res) => {
-    // Solo necesitamos el ID, que ahora se llama 'id' en la ruta
     const { id: partido_id } = req.params;
     const { reporte_ganador_id } = req.body;
+
+    // 👇 LOG para debug
+    console.log("🟡 Resolver disputa recibido:", {
+        partido_id,
+        reporte_ganador_id
+    });
 
     const connection = await db.getConnection();
     try {
         await connection.beginTransaction();
 
-        // 1. Buscamos el reporte único o el ganador (si es disputa)
-        // Como no tenemos el 'tipo', no podemos buscar el reporte único directamente todavía.
-        // Primero, debemos obtener la información del partido desde la tabla de reportes.
-        let reporteFinal;
-
-        const [reportesDelPartido] = await connection.query('SELECT * FROM reportes_partidos WHERE partido_id = ?', [partido_id]);
+        const [reportesDelPartido] = await connection.query(
+            'SELECT * FROM reportes_partidos WHERE partido_id = ?',
+            [partido_id]
+        );
 
         if (reportesDelPartido.length === 0) {
             await connection.rollback();
             return res.status(404).json({ error: 'No se encontraron reportes para este partido.' });
         }
+
+        let reporteFinal;
 
         if (reportesDelPartido.length === 1) {
             // Caso "reportado_parcialmente"
@@ -142,34 +148,36 @@ exports.resolverDisputa = async (req, res) => {
                 return res.status(404).json({ error: 'El reporte ganador seleccionado no es válido.' });
             }
         }
-        
-        // 2. Ahora que tenemos el reporte, sabemos el TIPO de partido
+
         const tipo_partido = reporteFinal.tipo_partido;
         const tablaPartido = tipo_partido === 'liga' ? 'partidos' : 'partidos_copa';
 
-        // 3. Obtenemos la info del partido y la actualizamos
-        const [[partidoInfo]] = await connection.query(`SELECT * FROM ${tablaPartido} WHERE id = ?`, [partido_id]);
+        const [[partidoInfo]] = await connection.query(
+            `SELECT * FROM ${tablaPartido} WHERE id = ?`,
+            [partido_id]
+        );
+
         if (!partidoInfo) {
             await connection.rollback();
             return res.status(404).json({ error: `Partido no encontrado en la tabla ${tablaPartido}.` });
         }
 
-        await connection.query(`UPDATE ${tablaPartido} SET estado = 'aprobado', goles_local = ?, goles_visitante = ?, estado_reporte = 'confirmado_admin' WHERE id = ?`, 
-            [reporteFinal.goles_local_reportados, reporteFinal.goles_visitante_reportados, partido_id]);
+        await connection.query(
+            `UPDATE ${tablaPartido} SET estado = 'aprobado', goles_local = ?, goles_visitante = ?, estado_reporte = 'confirmado_admin' WHERE id = ?`,
+            [reporteFinal.goles_local_reportados, reporteFinal.goles_visitante_reportados, partido_id]
+        );
 
-        // 4. Si es de LIGA, actualizamos la tabla de posiciones
         if (tipo_partido === 'liga' && partidoInfo.liga_id) {
-            const datosParaTabla = { 
-                ...partidoInfo, 
-                goles_local: reporteFinal.goles_local_reportados, 
-                goles_visitante: reporteFinal.goles_visitante_reportados 
+            const datosParaTabla = {
+                ...partidoInfo,
+                goles_local: reporteFinal.goles_local_reportados,
+                goles_visitante: reporteFinal.goles_visitante_reportados
             };
             const queries = generarQueriesActualizacionTabla(datosParaTabla);
             for (const q of queries) {
                 await connection.query(q.sql, q.values);
             }
         }
-        // Aquí podrías añadir la lógica para actualizar la tabla de copas si es necesario
 
         await connection.commit();
         res.json({ message: 'Partido confirmado y procesado por el administrador.' });
@@ -182,6 +190,7 @@ exports.resolverDisputa = async (req, res) => {
         if (connection) connection.release();
     }
 };
+
 
 // =================================================================================
 // SECCIÓN 2: FUNCIONES DE CONSULTA (GET)
